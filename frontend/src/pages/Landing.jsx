@@ -35,7 +35,7 @@ const Landing = () => {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 text-center lg:text-left">
             <h2 className="text-4xl lg:text-5xl font-semibold text-primary-950 leading-tight mb-6">
-              Your Trusted Partner for <span className="text-primary">Quality Egg Distribution</span>
+              Your Trusted Partner for <span className="text-primary">Quality Eggs</span>
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl">
               Serving fresh, high-quality eggs across the region. We ensure timely delivery and maintain the highest standards of quality for all our customers.
