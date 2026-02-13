@@ -1,0 +1,59 @@
+
+name: BACKEND
+
+on:
+  push:
+    paths: ['.github/workflows/backend.yml','backend/**', '**', './README.md']
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build-and-deploy-fastapi:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Variables
+      run: |
+          GIT_BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [ $GIT_BRANCH == "main" ]
+          then
+            echo "Deploying to staging"
+            echo "SSH_USER=${{vars.STAGING_SSH_USER_BACKEND}}" >> $GITHUB_ENV
+            echo "SSH_HOST=${{vars.STAGING_SSH_HOST_BACKEND}}" >> $GITHUB_ENV
+            echo "BUILD_FLAG=staging" >> $GITHUB_ENV
+          else
+            echo "Deploying to production"
+            echo "SSH_USER=${{vars.PROD_SSH_USER_BACKEND}}" >> $GITHUB_ENV
+            echo "SSH_HOST=${{vars.PROD_SSH_HOST_BACKEND}}" >> $GITHUB_ENV
+            echo "BUILD_FLAG=production" >> $GITHUB_ENV
+          fi
+    - name: Install SSH Key Staging
+      uses: shimataro/ssh-key-action@v2
+      if: ${{ env.BUILD_FLAG == 'staging' }}
+      with:
+        key: ${{secrets.STAGING_SSH_KEY}}
+        name: id_rsa
+        known_hosts: ${{vars.STAGING_SSH_HOST_BACKEND}}
+        if_key_exists: replace
+    - name: Install SSH Key Production
+      uses: shimataro/ssh-key-action@v2
+      if: ${{ env.BUILD_FLAG == 'production' }}
+      with:
+        key: ${{secrets.PROD_SSH_KEY}}
+        name: id_rsa
+        known_hosts: ${{vars.PROD_SSH_HOST_BACKEND}}
+        if_key_exists: replace
+    - name: Deploy docker-compose on remote server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} "
+          cd /home/gowdaegg-api/htdocs/api.gowdaegg.shop/gowdaegg.website &&
+          git remote set-url origin https://x-access-token:${{ secrets.GIT_TOKEN }}@github.com/LitSparkIn/gowdaegg.website.git &&
+          git reset --hard &&
+          git pull &&
+          cd /home/gowdaegg-api/htdocs/api.gowdaegg.shop/gowdaegg.website/backend &&
+          docker compose -p gowdaegg_backend_app down &&
+          docker compose -p gowdaegg_backend_app build --pull &&
+          docker compose -p gowdaegg_backend_app up -d
+        "

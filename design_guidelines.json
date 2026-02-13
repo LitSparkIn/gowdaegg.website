@@ -1,0 +1,120 @@
+{
+  "typography": {
+    "font_family": "Lexend Deca, sans-serif",
+    "headings": {
+      "weight": "600",
+      "tracking": "-0.02em",
+      "sizes": {
+        "h1": "text-4xl md:text-5xl",
+        "h2": "text-3xl md:text-4xl",
+        "h3": "text-2xl md:text-3xl"
+      }
+    },
+    "body": {
+      "weight": "300",
+      "sizes": {
+        "base": "text-base",
+        "sm": "text-sm",
+        "xs": "text-xs"
+      }
+    }
+  },
+  "colors": {
+    "theme_name": "Organic Logic",
+    "palette": {
+      "primary": {
+        "DEFAULT": "142 76% 36%",
+        "foreground": "0 0% 100%",
+        "description": "Fresh Farm Green - Used for primary buttons, active states, and key branding."
+      },
+      "secondary": {
+        "DEFAULT": "48 96% 53%",
+        "foreground": "20 14% 4%",
+        "description": "Yolk Yellow - Used for accents, highlights, and 'New' badges."
+      },
+      "background": "60 20% 98%",
+      "foreground": "145 80% 10%",
+      "card": "0 0% 100%",
+      "card_foreground": "145 80% 10%",
+      "muted": "140 20% 96%",
+      "muted_foreground": "145 10% 40%",
+      "border": "140 20% 90%",
+      "input": "140 20% 90%",
+      "ring": "142 76% 36%"
+    }
+  },
+  "layout": {
+    "sidebar": {
+      "width": "w-64",
+      "background": "bg-primary-950",
+      "text_color": "text-white",
+      "active_item_bg": "bg-primary/20",
+      "hover_item_bg": "hover:bg-primary/10"
+    },
+    "grid_system": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+      "card_gap": "gap-6"
+    },
+    "spacing": {
+      "container_padding": "p-6 md:p-8",
+      "section_gap": "gap-8"
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "rounded-full",
+      "hover_effect": "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+    },
+    "cards": {
+      "style": "rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300 bg-white",
+      "padding": "p-6"
+    },
+    "inputs": {
+      "style": "rounded-lg border-border focus:ring-2 focus:ring-primary/20 bg-white/50 backdrop-blur-sm"
+    },
+    "sidebar_menu": {
+      "style": "flex flex-col gap-1",
+      "item_style": "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-white/70 border border-white/20",
+    "gradients": {
+      "subtle_green": "bg-gradient-to-br from-green-50 to-transparent",
+      "login_overlay": "bg-gradient-to-r from-green-900/90 to-green-800/80"
+    },
+    "shadows": {
+      "soft_green": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "glow": "shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+    }
+  },
+  "images": {
+    "logo": "https://customer-assets.emergentagent.com/job_ged-dashboard/artifacts/8aiex40c_Gowda%20egg%20dist%20logo.png",
+    "login_hero": {
+      "url": "https://images.unsplash.com/photo-1665538941694-e1705e52d1b2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHxmcmVzaCUyMGVnZ3MlMjBmYXJtJTIwbWluaW1hbGlzdHxlbnwwfHx8fDE3NjgwMzYyNTV8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Minimalist carton of fresh eggs",
+      "usage": "Login page left panel background"
+    },
+    "placeholders": {
+      "dashboard_empty": "https://images.unsplash.com/photo-1693164309188-01d4c5f9d745?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwzfHxmcmVzaCUyMGVnZ3MlMjBmYXJtJTIwbWluaW1hbGlzdHxlbnwwfHx8fDE3NjgwMzYyNTV8MA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Update 'tailwind.config.js' with the colors defined in 'colors.palette'. Add 'Lexend Deca' to the font family config.",
+    "2. GLOBAL CSS: Update 'index.css' :root variables with the HSL values provided. Ensure dark mode variables are also adjusted (use darker greens/greys).",
+    "3. AUTH: Implement the Login Page first. Use a split-screen layout. Left side: 'login_hero' image with a dark green overlay and the Logo. Right side: Login form centered.",
+    "4. LAYOUT: Create a 'DashboardLayout' component that includes the fixed Sidebar and a top Header. The Sidebar must use the 'primary' color (dark green) for the background.",
+    "5. NAVIGATION: Implement the Sidebar with the list of menu items. Use 'lucide-react' icons for each item (e.g., LayoutDashboard for Dashboard, Truck for Route, Store for Shop, etc.).",
+    "6. PAGES: Create the 'Dashboard' page. Since it's a placeholder, create a nice 'Welcome, Superadmin' hero section using the 'Bento' grid layout. Display 3-4 summary cards with dummy data (e.g., 'Total Sales', 'Active Routes') to show potential.",
+    "7. COMING SOON: Create a reusable 'ComingSoon' component. Use a playful 'Hatching Soon' metaphor with an egg icon. Apply this component to all other routes.",
+    "8. INTERACTIVITY: Ensure all buttons have the 'hover_effect' defined in components. Add 'data-testid' to all inputs and buttons.",
+    "9. MOCKING: Mock the JWT authentication. On login success, store a dummy token in localStorage and redirect to /dashboard."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "DO NOT use generic gradients. Use the specific 'subtle_green' gradient defined.",
+    "Ensure all text has sufficient contrast. The primary green is dark enough for white text.",
+    "Use 'sonner' for all toast notifications (e.g., 'Login Successful', 'Coming Soon').",
+    "Keep the UI 'Airy'. Use the 'container_padding' values.",
+    "For the 'Coming Soon' pages, do not just center text. Add a subtle background pattern or icon to make it look designed."
+  ]
+}

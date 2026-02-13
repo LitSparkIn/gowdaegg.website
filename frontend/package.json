@@ -58,6 +58,8 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
+    "build:staging": "cross-env REACT_APP_BACKEND_URL=https://api.gowdaegg.shop craco build",
+    "build:production": "cross-env REACT_APP_BACKEND_URL=https://api.gowdaegg.shop craco build",
     "test": "craco test"
   },
   "browserslist": {
@@ -77,6 +79,7 @@
     "@craco/craco": "^7.1.0",
     "@eslint/js": "9.23.0",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
     "eslint": "9.23.0",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",

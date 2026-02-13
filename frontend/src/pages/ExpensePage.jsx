@@ -1,0 +1,507 @@
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import axios from "axios";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Plus, Pencil, Trash2, Receipt, Loader2, CalendarIcon, Filter, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const ExpensePage = () => {
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [deleteExpense, setDeleteExpense] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
+  
+  // Date filters
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    amount: "",
+    category: "",
+    description: "",
+  });
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return { headers: { Authorization: `Bearer ${token}` } };
+  };
+
+  const fetchExpenses = async () => {
+    try {
+      setLoading(true);
+      let url = `${API}/expenses`;
+      const params = new URLSearchParams();
+      
+      if (fromDate) {
+        params.append("from_date", format(fromDate, "yyyy-MM-dd"));
+      }
+      if (toDate) {
+        params.append("to_date", format(toDate, "yyyy-MM-dd"));
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await axios.get(url, getAuthHeaders());
+      setExpenses(response.data.expenses || []);
+      setTotalAmount(response.data.total_amount || 0);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+      toast.error("Failed to fetch expenses");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [fromDate, toDate]);
+
+  const resetForm = () => {
+    setFormData({ amount: "", category: "", description: "" });
+  };
+
+  const handleOpenDialog = (expense = null) => {
+    if (expense) {
+      setEditingExpense(expense);
+      setFormData({
+        amount: expense.amount,
+        category: expense.category || "",
+        description: expense.description,
+      });
+    } else {
+      setEditingExpense(null);
+      resetForm();
+    }
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingExpense(null);
+    resetForm();
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateForm = () => {
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.error("Please enter a valid expense amount");
+      return false;
+    }
+    if (!formData.description.trim()) {
+      toast.error("Description is required");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        amount: parseFloat(formData.amount),
+        category: formData.category.trim(),
+        description: formData.description.trim(),
+      };
+
+      if (editingExpense) {
+        await axios.put(`${API}/expenses/${editingExpense.id}`, payload, getAuthHeaders());
+        toast.success("Expense updated successfully");
+      } else {
+        await axios.post(`${API}/expenses`, payload, getAuthHeaders());
+        toast.success("Expense added successfully");
+      }
+      handleCloseDialog();
+      fetchExpenses();
+    } catch (error) {
+      console.error("Error saving expense:", error);
+      toast.error(error.response?.data?.detail || "Failed to save expense");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteClick = (expense) => {
+    setDeleteExpense(expense);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteExpense) return;
+
+    try {
+      await axios.delete(`${API}/expenses/${deleteExpense.id}`, getAuthHeaders());
+      toast.success("Expense deleted successfully");
+      fetchExpenses();
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      toast.error(error.response?.data?.detail || "Failed to delete expense");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setDeleteExpense(null);
+    }
+  };
+
+  const clearFilters = () => {
+    setFromDate(null);
+    setToDate(null);
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  return (
+    <div className="space-y-6" data-testid="expense-page">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-primary-950">Expense Tracking</h1>
+          <p className="text-muted-foreground">Track and manage your expenses</p>
+        </div>
+        <Button
+          onClick={() => handleOpenDialog()}
+          data-testid="add-expense-btn"
+          className="rounded-full bg-primary hover:bg-primary-600"
+        >
+          <Plus size={20} className="mr-2" />
+          Add Expense
+        </Button>
+      </div>
+
+      {/* Date Filters */}
+      <Card className="border-border/50">
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter size={18} className="text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by Date:</span>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-3">
+              {/* From Date */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[160px] justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                    data-testid="from-date-btn"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "dd MMM yyyy") : "From Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={setFromDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* To Date */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[160px] justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                    data-testid="to-date-btn"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "dd MMM yyyy") : "To Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={setToDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Clear Filters */}
+              {(fromDate || toDate) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-muted-foreground hover:text-foreground"
+                  data-testid="clear-filters-btn"
+                >
+                  <X size={16} className="mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+
+            {/* Total Amount */}
+            <div className="sm:ml-auto flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+              <span className="text-sm text-muted-foreground">Total:</span>
+              <span className="text-lg font-semibold text-primary">{formatCurrency(totalAmount)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Expenses Table */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Receipt size={20} className="text-primary" />
+            Expenses ({expenses.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={32} className="animate-spin text-primary" />
+            </div>
+          ) : expenses.length === 0 ? (
+            <div className="text-center py-12">
+              <Receipt size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No expenses found</p>
+              <p className="text-sm text-muted-foreground">
+                {fromDate || toDate ? "Try adjusting your date filters" : "Click \"Add Expense\" to record your first expense"}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Expense</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expenses.map((expense, index) => (
+                    <TableRow key={expense.id} data-testid={`expense-row-${index}`}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(expense.expense_date)}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-red-600">
+                        {formatCurrency(expense.amount)}
+                      </TableCell>
+                      <TableCell>
+                        <span className="line-clamp-2">{expense.description}</span>
+                      </TableCell>
+                      <TableCell>
+                        {expense.category ? (
+                          <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                            {expense.category}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenDialog(expense)}
+                            data-testid={`edit-expense-${index}`}
+                            className="hover:bg-primary/10 hover:text-primary"
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(expense)}
+                            data-testid={`delete-expense-${index}`}
+                            className="hover:bg-red-100 hover:text-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editingExpense ? "Edit Expense" : "Add New Expense"}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="amount">Expense Amount (₹) *</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter amount"
+                  value={formData.amount}
+                  onChange={(e) => handleInputChange("amount", e.target.value)}
+                  data-testid="expense-amount-input"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="category">Category (Optional)</Label>
+                <Input
+                  id="category"
+                  placeholder="e.g., Transport, Food, Repairs"
+                  value={formData.category}
+                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  data-testid="expense-category-input"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Enter expense details..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  data-testid="expense-description-input"
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCloseDialog}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting}
+                data-testid="save-expense-btn"
+                className="bg-primary hover:bg-primary-600"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : editingExpense ? (
+                  "Update Expense"
+                ) : (
+                  "Add Expense"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this expense of {deleteExpense && formatCurrency(deleteExpense.amount)}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              data-testid="confirm-delete-btn"
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default ExpensePage;
