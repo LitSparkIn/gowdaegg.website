@@ -215,8 +215,27 @@ def test_shop_details_api():
             for shop in shops[:3]:  # Show first 3 shops
                 print(f"   - ID: {shop.get('id')}, Name: {shop.get('name')}, Phone: {shop.get('phone', 'N/A')}")
         else:
-            print("❌ No shops found in route")
-            return False
+            print("⚠️ No shops found in route. Creating test shop...")
+            
+            # Create a test shop
+            print_step("5a", "Creating test shop for API testing")
+            shop_data = {
+                "name": "Test Shop for API Testing",
+                "phone": "9123456789",
+                "address": "123 Test Street, Test City, Test State 123456",
+                "previous_dues": 500.0,
+                "route_id": route_id,
+                "tray_balance": 10
+            }
+            
+            status, response = make_request("POST", "/shops", headers=admin_headers, data=shop_data)
+            
+            if status == 200 and "id" in response:
+                shop_id = response["id"]
+                print(f"✅ Created test shop successfully: {response['name']} ({shop_id})")
+            else:
+                print(f"❌ Failed to create shop: Status {status}")
+                return False
     else:
         print(f"❌ Failed to get shops: Status {status}")
         return False
