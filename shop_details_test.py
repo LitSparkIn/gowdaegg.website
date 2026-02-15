@@ -146,7 +146,8 @@ def test_shop_details_api():
             "phone": test_salesman_phone,
             "email": f"test.salesman.{datetime.now().strftime('%Y%m%d%H%M%S')}@test.com",
             "route_id": route_id,
-            "pin": test_salesman_pin
+            "pin": test_salesman_pin,
+            "confirm_pin": test_salesman_pin
         }
         
         status, response = make_request("POST", "/salesmen", headers=admin_headers, data=salesman_data)
