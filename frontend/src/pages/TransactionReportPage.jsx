@@ -632,117 +632,139 @@ const TransactionReportPage = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table className="min-w-[1900px]">
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="py-4 min-w-[120px] whitespace-nowrap">Date & Time</TableHead>
-                    <TableHead className="py-4 min-w-[90px] whitespace-nowrap">Type</TableHead>
-                    <TableHead className="py-4 min-w-[100px] whitespace-nowrap">Payment</TableHead>
-                    <TableHead className="py-4 min-w-[130px] whitespace-nowrap">Salesman</TableHead>
-                    <TableHead className="py-4 min-w-[150px] whitespace-nowrap">Shop Name</TableHead>
-                    <TableHead className="py-4 min-w-[100px] whitespace-nowrap">Route</TableHead>
-                    <TableHead className="text-right py-4 min-w-[70px] whitespace-nowrap">Crates</TableHead>
-                    <TableHead className="text-right py-4 min-w-[80px] whitespace-nowrap">Price</TableHead>
-                    <TableHead className="text-right py-4 min-w-[100px] whitespace-nowrap">Order Amt</TableHead>
-                    <TableHead className="text-right py-4 min-w-[100px] whitespace-nowrap">Prev Dues</TableHead>
-                    <TableHead className="text-right py-4 min-w-[100px] whitespace-nowrap">Total Amt</TableHead>
-                    <TableHead className="text-right py-4 min-w-[100px] whitespace-nowrap">Collected</TableHead>
-                    <TableHead className="text-right py-4 min-w-[100px] whitespace-nowrap">Pending</TableHead>
-                    <TableHead className="text-right py-4 min-w-[80px] whitespace-nowrap">Prev Tray</TableHead>
-                    <TableHead className="text-right py-4 min-w-[80px] whitespace-nowrap">Curr Tray</TableHead>
-                    <TableHead className="text-right py-4 min-w-[80px] whitespace-nowrap">Ret Tray</TableHead>
-                    <TableHead className="py-4 min-w-[70px] whitespace-nowrap">Image</TableHead>
-                    <TableHead className="py-4 min-w-[100px] whitespace-nowrap">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sales.map((sale, index) => (
-                    <TableRow 
-                      key={sale.id} 
-                      data-testid={`transaction-row-${index}`}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50/70"}
-                    >
-                      <TableCell className="whitespace-nowrap py-4">
-                        <div>
-                          <p className="font-medium">{formatDate(sale.sale_date)}</p>
-                          <p className="text-xs text-muted-foreground">{formatTimeIST(sale.sale_time)} IST</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <span className={cn(
-                          "px-2 py-1 rounded-full text-xs font-medium",
-                          (sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection")) === "Sale" 
-                            ? "bg-blue-100 text-blue-700" 
-                            : "bg-purple-100 text-purple-700"
-                        )}>
-                          {sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection")}
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <span className={cn(
-                          "px-2 py-1 rounded-full text-xs font-medium",
-                          sale.payment_type === "Cash" ? "bg-green-100 text-green-700" :
-                          sale.payment_type === "UPI" ? "bg-blue-100 text-blue-700" :
-                          sale.payment_type === "Credit" ? "bg-orange-100 text-orange-700" :
-                          "bg-gray-100 text-gray-700"
-                        )}>
-                          {sale.payment_type}
-                        </span>
-                      </TableCell>
-                      <TableCell className="font-medium py-4 whitespace-nowrap">{sale.salesman_name}</TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">{sale.shop_name}</TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                          {sale.route_name || "N/A"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right font-medium py-4 whitespace-nowrap">{sale.crates}</TableCell>
-                      <TableCell className="text-right py-4 whitespace-nowrap">₹{sale.price}</TableCell>
-                      <TableCell className="text-right py-4 whitespace-nowrap">{formatCurrency(sale.order_amount)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground py-4 whitespace-nowrap">{formatCurrency(sale.shop_previous_dues)}</TableCell>
-                      <TableCell className="text-right font-medium py-4 whitespace-nowrap">{formatCurrency(sale.total_amount)}</TableCell>
-                      <TableCell className="text-right text-green-600 font-medium py-4 whitespace-nowrap">{formatCurrency(sale.collected_amount)}</TableCell>
-                      <TableCell className="text-right text-red-600 font-medium py-4 whitespace-nowrap">{formatCurrency(sale.pending_amount)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground py-4 whitespace-nowrap">{sale.previous_tray_balance || 0}</TableCell>
-                      <TableCell className="text-right font-medium py-4 whitespace-nowrap">{sale.current_tray_balance || 0}</TableCell>
-                      <TableCell className="text-right py-4 whitespace-nowrap">{sale.return_tray}</TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        {sale.image_url ? (
-                          <a 
-                            href={`${BACKEND_URL}${sale.image_url}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1"
-                          >
-                            <ImageIcon size={14} />
-                            View
-                          </a>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => sendWhatsApp(sale.id)}
-                          disabled={sendingWhatsApp[sale.id]}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                          data-testid={`whatsapp-btn-${index}`}
+            <div className="space-y-3">
+              {sales.map((sale, index) => (
+                <div 
+                  key={sale.id} 
+                  data-testid={`transaction-row-${index}`}
+                  className={cn(
+                    "rounded-lg border p-4",
+                    index % 2 === 0 ? "bg-gray-50/80 border-gray-200" : "bg-green-50/50 border-green-100"
+                  )}
+                >
+                  {/* Row 1: Basic Info */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Date & Time</p>
+                      <p className="font-medium">{formatDate(sale.sale_date)}</p>
+                      <p className="text-xs text-muted-foreground">{formatTimeIST(sale.sale_time)} IST</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Type</p>
+                      <span className={cn(
+                        "px-2 py-1 rounded-full text-xs font-medium inline-block",
+                        (sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection")) === "Sale" 
+                          ? "bg-blue-100 text-blue-700" 
+                          : "bg-purple-100 text-purple-700"
+                      )}>
+                        {sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection")}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Payment</p>
+                      <span className={cn(
+                        "px-2 py-1 rounded-full text-xs font-medium inline-block",
+                        sale.payment_type === "Cash" ? "bg-green-100 text-green-700" :
+                        sale.payment_type === "UPI" ? "bg-blue-100 text-blue-700" :
+                        sale.payment_type === "Credit" ? "bg-orange-100 text-orange-700" :
+                        "bg-gray-100 text-gray-700"
+                      )}>
+                        {sale.payment_type}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Salesman</p>
+                      <p className="font-medium">{sale.salesman_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Shop Name</p>
+                      <p className="font-medium">{sale.shop_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Route</p>
+                      <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium inline-block">
+                        {sale.route_name || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {sale.image_url ? (
+                        <a 
+                          href={`${BACKEND_URL}${sale.image_url}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex items-center gap-1 text-sm"
                         >
-                          {sendingWhatsApp[sale.id] ? (
-                            <Loader2 size={16} className="animate-spin" />
-                          ) : (
-                            <MessageCircle size={16} />
-                          )}
-                          <span className="ml-1 text-xs">WhatsApp</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                          <ImageIcon size={14} />
+                          View Image
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">No Image</span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => sendWhatsApp(sale.id)}
+                        disabled={sendingWhatsApp[sale.id]}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50 h-7 px-2"
+                        data-testid={`whatsapp-btn-${index}`}
+                      >
+                        {sendingWhatsApp[sale.id] ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <MessageCircle size={14} />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-3 border-t border-dashed border-gray-300/70"></div>
+
+                  {/* Row 2: Financial Info - Larger Font */}
+                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-10 gap-3">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Crates</p>
+                      <p className="text-base font-semibold text-primary-950">{sale.crates}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Price</p>
+                      <p className="text-base font-semibold text-primary-950">₹{sale.price}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Order Amt</p>
+                      <p className="text-base font-semibold text-primary-950">{formatCurrency(sale.order_amount)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Prev Dues</p>
+                      <p className="text-base font-semibold text-gray-500">{formatCurrency(sale.shop_previous_dues)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Total Amt</p>
+                      <p className="text-base font-semibold text-primary-950">{formatCurrency(sale.total_amount)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Collected</p>
+                      <p className="text-base font-semibold text-green-600">{formatCurrency(sale.collected_amount)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Pending</p>
+                      <p className="text-base font-semibold text-red-600">{formatCurrency(sale.pending_amount)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Prev Tray</p>
+                      <p className="text-base font-semibold text-gray-500">{sale.previous_tray_balance || 0}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Curr Tray</p>
+                      <p className="text-base font-semibold text-primary-950">{sale.current_tray_balance || 0}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Ret Tray</p>
+                      <p className="text-base font-semibold text-orange-600">{sale.return_tray}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
