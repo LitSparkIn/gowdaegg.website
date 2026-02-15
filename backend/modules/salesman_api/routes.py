@@ -171,7 +171,7 @@ async def get_shop_details(
     current_user: dict = Depends(verify_salesman)
 ):
     """
-    Get shop details by ID.
+    Get shop details by ID along with shop transactions.
     Accessible by authenticated salesmen only.
     """
     shop = await db.shops.find_one(
@@ -188,6 +188,22 @@ async def get_shop_details(
     shop_data = ShopResponse(**shop).model_dump()
     if route:
         shop_data["route_name"] = route["route_name"]
+    
+    # Get shop transactions (most recent 50 transactions)
+    transactions_cursor = db.sales.find(
+        {"shop_id": shop_id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50)
+    
+    transactions = []
+    async for txn in transactions_cursor:
+        # Get salesman name for each transaction
+        salesman = await db.salesmen.find_one({"id": txn.get("salesman_id")}, {"_id": 0, "name": 1})
+        txn["salesman_name"] = salesman["name"] if salesman else "Unknown"
+        transactions.append(txn)
+    
+    shop_data["transactions"] = transactions
+    shop_data["total_transactions"] = len(transactions)
     
     return success_response(
         data=shop_data,
