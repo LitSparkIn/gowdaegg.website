@@ -100,13 +100,21 @@ async def get_home_data(
     
     remaining_crates = total_crates_loaded - total_crates_sold
     
+    # Check if today's report is already submitted
+    sale_report = await db.sale_reports.find_one(
+        {"salesman_id": salesman_id, "report_date": today_date},
+        {"_id": 0, "id": 1}
+    )
+    is_report_submitted = sale_report is not None
+    
     report = {
         "totalcratesloaded": total_crates_loaded,
         "totalcratessold": str(total_crates_sold),
         "remainingcrates": remaining_crates,
         "totalcash": total_cash,
         "totalcheque": total_cheque,
-        "totalactransfer": total_actransfer
+        "totalactransfer": total_actransfer,
+        "is_report_submitted": is_report_submitted
     }
     
     return success_response(
