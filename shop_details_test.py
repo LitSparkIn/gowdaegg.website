@@ -129,8 +129,8 @@ def test_shop_details_api():
             }
             status, response = make_request("POST", "/routes", headers=admin_headers, data=route_data)
             
-            if status == 200 and "data" in response:
-                route_id = response["data"]["id"]
+            if status == 200 and "id" in response:
+                route_id = response["id"]
                 print(f"✅ Created test route: {route_id}")
             else:
                 print(f"❌ Failed to create route: Status {status}")
