@@ -101,3 +101,35 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Add shop transactions to the get shop details by ID API response"
+
+backend:
+  - task: "Get Shop Details API with Transactions"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/modules/salesman_api/routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added transactions array to GET /api/salesman/shops/{shop_id} endpoint. Returns shop details along with most recent 50 transactions including salesman_name for each transaction."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Get Shop Details API with Transactions"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Updated the GET /api/salesman/shops/{shop_id} endpoint to include shop transactions in the response. The endpoint now returns: shop details (id, name, phone, address, previous_dues, tray_balance, route_id, route_name) plus transactions array (most recent 50) and total_transactions count. Each transaction includes salesman_name. Please test by first logging in as salesman, then calling the shop details endpoint."
