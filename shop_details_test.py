@@ -110,7 +110,7 @@ def test_shop_details_api():
         
         # Check if routes exist
         print_step("2a", "Check existing routes")
-        status, response = make_request("GET", "/route", headers=admin_headers)
+        status, response = make_request("GET", "/routes", headers=admin_headers)
         
         routes = []
         if status == 200 and "data" in response:
