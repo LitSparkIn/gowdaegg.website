@@ -33,19 +33,20 @@ async def create_sale(
     pending_amount: float = Form(...),
     payment_type: str = Form(...),
     return_tray: int = Form(0),
-    image: Optional[UploadFile] = File(None),
+    image: Optional[UploadFile] = File(default=None),
     service: SaleService = Depends(get_service),
     current_user: dict = Depends(verify_salesman)
 ):
     """
     Create a new sale with optional image upload.
     Salesman is identified by JWT token.
+    Image is optional - can be omitted entirely from the request.
     """
     salesman_id = current_user["sub"]
     
-    # Save image if provided
+    # Save image if provided and has a valid filename
     image_url = None
-    if image and image.filename:
+    if image is not None and image.filename and image.filename.strip():
         try:
             image_url = await save_upload_file(image, "sale")
         except ValueError as e:
