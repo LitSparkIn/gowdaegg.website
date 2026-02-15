@@ -221,6 +221,184 @@ const TransactionReportPage = () => {
     return id ? `#${id.substring(0, 8)}...` : "-";
   };
 
+  // Export data preparation
+  const getExportData = () => {
+    return sales.map((sale) => ({
+      "Date": formatDate(sale.sale_date),
+      "Time": formatTimeIST(sale.sale_time),
+      "Type": sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection"),
+      "Payment": sale.payment_type,
+      "Salesman": sale.salesman_name,
+      "Shop Name": sale.shop_name,
+      "Route": sale.route_name || "N/A",
+      "Crates": sale.crates,
+      "Price": sale.price,
+      "Order Amount": sale.order_amount,
+      "Previous Dues": sale.shop_previous_dues,
+      "Total Amount": sale.total_amount,
+      "Collected": sale.collected_amount,
+      "Pending": sale.pending_amount,
+      "Previous Tray": sale.previous_tray_balance || 0,
+      "Current Tray": sale.current_tray_balance || 0,
+      "Return Tray": sale.return_tray
+    }));
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    if (sales.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    try {
+      const exportData = getExportData();
+      
+      // Add summary row
+      exportData.push({});
+      exportData.push({
+        "Date": "TOTALS",
+        "Time": "",
+        "Type": "",
+        "Payment": "",
+        "Salesman": "",
+        "Shop Name": "",
+        "Route": "",
+        "Crates": totals.total_crates,
+        "Price": "",
+        "Order Amount": totals.total_order_amount,
+        "Previous Dues": "",
+        "Total Amount": "",
+        "Collected": totals.total_collected,
+        "Pending": totals.total_pending,
+        "Previous Tray": "",
+        "Current Tray": "",
+        "Return Tray": totals.total_return_tray
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+      // Generate filename with date range
+      const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+      const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+      const filename = `Transaction_Report_${fromStr}_to_${toStr}.xlsx`;
+
+      XLSX.writeFile(workbook, filename);
+      toast.success("Excel file downloaded successfully!");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast.error("Failed to export to Excel");
+    }
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    if (sales.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      
+      // Title
+      const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+      const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+      doc.setFontSize(16);
+      doc.setTextColor(34, 84, 61); // Primary green color
+      doc.text("Gowda Egg Distributors - Transaction Report", 14, 15);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Date Range: ${fromStr} to ${toStr}`, 14, 22);
+      doc.text(`Generated on: ${format(new Date(), "dd MMM yyyy, hh:mm a")}`, 14, 27);
+
+      // Summary
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Total Transactions: ${totals.total_records}  |  Crates: ${totals.total_crates}  |  Order Amt: ₹${totals.total_order_amount.toLocaleString()}  |  Collected: ₹${totals.total_collected.toLocaleString()}  |  Pending: ₹${totals.total_pending.toLocaleString()}`, 14, 33);
+
+      // Table data
+      const tableData = sales.map((sale) => [
+        formatDate(sale.sale_date),
+        formatTimeIST(sale.sale_time),
+        sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection"),
+        sale.payment_type,
+        sale.salesman_name,
+        sale.shop_name,
+        sale.route_name || "N/A",
+        sale.crates,
+        `₹${sale.price}`,
+        `₹${sale.order_amount.toLocaleString()}`,
+        `₹${sale.collected_amount.toLocaleString()}`,
+        `₹${sale.pending_amount.toLocaleString()}`,
+        sale.return_tray
+      ]);
+
+      // Add totals row
+      tableData.push([
+        "TOTALS", "", "", "", "", "", "",
+        totals.total_crates,
+        "",
+        `₹${totals.total_order_amount.toLocaleString()}`,
+        `₹${totals.total_collected.toLocaleString()}`,
+        `₹${totals.total_pending.toLocaleString()}`,
+        totals.total_return_tray
+      ]);
+
+      doc.autoTable({
+        startY: 38,
+        head: [["Date", "Time", "Type", "Payment", "Salesman", "Shop", "Route", "Crates", "Price", "Order Amt", "Collected", "Pending", "Ret Tray"]],
+        body: tableData,
+        theme: "grid",
+        headStyles: {
+          fillColor: [34, 84, 61],
+          textColor: 255,
+          fontSize: 7,
+          fontStyle: "bold"
+        },
+        bodyStyles: {
+          fontSize: 7
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+          0: { cellWidth: 22 },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 16 },
+          3: { cellWidth: 16 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 30 },
+          6: { cellWidth: 20 },
+          7: { cellWidth: 14, halign: "right" },
+          8: { cellWidth: 16, halign: "right" },
+          9: { cellWidth: 22, halign: "right" },
+          10: { cellWidth: 22, halign: "right" },
+          11: { cellWidth: 22, halign: "right" },
+          12: { cellWidth: 16, halign: "right" }
+        },
+        didParseCell: function(data) {
+          // Style the totals row
+          if (data.row.index === tableData.length - 1) {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fillColor = [220, 237, 227];
+          }
+        }
+      });
+
+      // Generate filename
+      const filename = `Transaction_Report_${fromStr.replace(/ /g, "-")}_to_${toStr.replace(/ /g, "-")}.pdf`;
+      doc.save(filename);
+      toast.success("PDF file downloaded successfully!");
+    } catch (error) {
+      console.error("Error exporting to PDF:", error);
+      toast.error("Failed to export to PDF");
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
