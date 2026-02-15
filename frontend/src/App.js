@@ -70,7 +70,7 @@ function App() {
             <Route path="submit-summary-by-date" element={<ComingSoon title="Submit Summary By Date" />} />
             <Route path="change-password" element={<ChangePasswordPage />} />
             <Route path="current-active-balance" element={<ComingSoon title="Current Active Balance" />} />
-            <Route path="config-setting" element={<ComingSoon title="Config Settings" />} />
+            <Route path="config-setting" element={<ConfigSettingsPage />} />
           </Route>
           
           {/* Redirect old login to new */}
