@@ -189,21 +189,10 @@ const TransactionReportPage = () => {
   const formatTimeIST = (timeString) => {
     if (!timeString) return "-";
     try {
-      // Parse time string (expected format: HH:mm:ss or HH:mm)
+      // Time is already stored in IST format from backend, just convert to 12-hour format
       const [hours, minutes] = timeString.split(":");
       let hour = parseInt(hours, 10);
       let minute = parseInt(minutes, 10);
-      
-      // Add 5 hours 30 minutes to convert UTC to IST
-      minute += 30;
-      if (minute >= 60) {
-        minute -= 60;
-        hour += 1;
-      }
-      hour += 5;
-      if (hour >= 24) {
-        hour -= 24;
-      }
       
       // Convert to 12-hour format with AM/PM
       const period = hour >= 12 ? "PM" : "AM";
