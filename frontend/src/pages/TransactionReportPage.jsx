@@ -5,14 +5,6 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CreditCard, Loader2, CalendarIcon, Filter, X, Package, IndianRupee, ImageIcon, MessageCircle, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { CreditCard, Loader2, CalendarIcon, Filter, X, ImageIcon, MessageCircle, FileSpreadsheet, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
