@@ -127,7 +127,7 @@ def test_shop_details_api():
             route_data = {
                 "route_name": "Test Route for API Testing"
             }
-            status, response = make_request("POST", "/route", headers=admin_headers, data=route_data)
+            status, response = make_request("POST", "/routes", headers=admin_headers, data=route_data)
             
             if status == 200 and "data" in response:
                 route_id = response["data"]["id"]
