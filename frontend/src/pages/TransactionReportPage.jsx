@@ -407,6 +407,30 @@ const TransactionReportPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Transaction Report</h1>
           <p className="text-muted-foreground">View all sales transactions</p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            disabled={loading || sales.length === 0}
+            className="flex items-center gap-2"
+            data-testid="export-excel-btn"
+          >
+            <FileSpreadsheet size={16} />
+            Export Excel
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToPDF}
+            disabled={loading || sales.length === 0}
+            className="flex items-center gap-2"
+            data-testid="export-pdf-btn"
+          >
+            <FileText size={16} />
+            Export PDF
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
