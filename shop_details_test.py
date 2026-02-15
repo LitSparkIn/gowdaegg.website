@@ -23,18 +23,22 @@ def print_step(step_num, description):
     print(f"\n[STEP {step_num}] {description}")
     print("-" * 50)
 
-def make_request(method, endpoint, headers=None, data=None, files=None):
+def make_request(method, endpoint, headers=None, data=None, files=None, form_data=False):
     """Make HTTP request and return response with error handling"""
     url = f"{BASE_URL}{endpoint}"
     try:
         print(f"Making {method} request to: {url}")
-        if data:
+        if data and not form_data:
             print(f"Request data: {json.dumps(data, indent=2)}")
+        elif data and form_data:
+            print(f"Request form data: {data}")
         
         if method == "GET":
             response = requests.get(url, headers=headers)
         elif method == "POST":
-            if files:
+            if form_data:
+                response = requests.post(url, headers=headers, data=data)
+            elif files:
                 response = requests.post(url, headers=headers, data=data)
             else:
                 response = requests.post(url, headers=headers, json=data)
