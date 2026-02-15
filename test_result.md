@@ -127,8 +127,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Get Shop Details API with Transactions"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -136,3 +135,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Updated the GET /api/salesman/shops/{shop_id} endpoint to include shop transactions in the response. The endpoint now returns: shop details (id, name, phone, address, previous_dues, tray_balance, route_id, route_name) plus transactions array (most recent 50) and total_transactions count. Each transaction includes salesman_name. Please test by first logging in as salesman, then calling the shop details endpoint."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE: GET /api/salesman/shops/{shop_id} API extensively tested and working perfectly. Created comprehensive test covering: 1) Admin authentication ✅, 2) Salesman creation ✅, 3) Salesman authentication with form-data ✅, 4) Shop creation ✅, 5) Route and shop fetching ✅, 6) Main API validation ✅. API correctly returns all required shop fields plus NEW transactions array (empty or populated) and total_transactions count. Each transaction includes salesman_name field as specified. Response structure fully validated. Authentication flow working correctly for both admin and salesman roles. Feature ready for production."
