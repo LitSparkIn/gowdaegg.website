@@ -249,6 +249,61 @@ def test_shop_details_api():
         shop_data = response["data"]
         print(f"✅ Shop details API successful!")
         
+        # Check if there are no transactions and create some test transactions
+        if len(shop_data.get("transactions", [])) == 0:
+            print("\n⚠️ No transactions found. Creating test transactions to validate transactions functionality...")
+            
+            # Create test sales/transactions
+            print_step("6a", "Creating test sales transactions")
+            
+            # Sales data for testing
+            test_sales = [
+                {
+                    "shop_id": shop_id,
+                    "crates": 30,
+                    "price": 6.5,
+                    "order_amount": 195.0,
+                    "shop_previous_dues": 500.0,
+                    "total_amount": 695.0,
+                    "collected_amount": 600.0,
+                    "pending_amount": 95.0,
+                    "payment_type": "Cash",
+                    "return_tray": 5
+                },
+                {
+                    "shop_id": shop_id,
+                    "crates": 20,
+                    "price": 6.5,
+                    "order_amount": 130.0,
+                    "shop_previous_dues": 95.0,
+                    "total_amount": 225.0,
+                    "collected_amount": 225.0,
+                    "pending_amount": 0.0,
+                    "payment_type": "UPI",
+                    "return_tray": 3
+                }
+            ]
+            
+            for i, sale_data in enumerate(test_sales):
+                print(f"   Creating test sale {i+1}...")
+                status, response = make_request("POST", "/salesman/sales", headers=salesman_headers, data=sale_data, form_data=True)
+                
+                if status == 200:
+                    print(f"   ✅ Test sale {i+1} created successfully")
+                else:
+                    print(f"   ⚠️ Test sale {i+1} creation failed: Status {status}")
+            
+            # Re-test the API to see transactions
+            print_step("6b", f"Re-test GET /api/salesman/shops/{shop_id} with transactions")
+            status, response = make_request("GET", f"/salesman/shops/{shop_id}", headers=salesman_headers)
+            
+            if status == 200 and "data" in response:
+                shop_data = response["data"]
+                print(f"✅ Shop details API successful with transactions!")
+            else:
+                print(f"❌ Shop details API failed: Status {status}, Response: {response}")
+                return False
+        
         # Validate response structure
         print("\n🔍 VALIDATING RESPONSE STRUCTURE:")
         
