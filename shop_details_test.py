@@ -171,7 +171,7 @@ def test_shop_details_api():
         "pin": test_salesman_pin
     }
     
-    status, response = make_request("POST", "/auth/salesman/login", data=form_data, files={})
+    status, response = make_request("POST", "/auth/salesman/login", data=form_data, form_data=True)
     
     if status == 200 and "token" in response:
         salesman_token = response["token"]
