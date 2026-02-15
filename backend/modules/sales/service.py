@@ -185,13 +185,12 @@ class SaleService:
         """
         Get sale report for a salesman for a specific date.
         Returns: Total Initial Load, Total Sold, Remaining Crates, Return Trays,
-                 Total Cash, Cheque, Online, Bill
+                 Total Cash, Cheque, Online, Bill, and whether report is submitted
         """
         target_date = report_date or self._get_today_date()
         
         # Check if sale report already submitted for the target date
-        if await self._check_sale_report_submitted(salesman_id, target_date):
-            raise BadRequestException(f"Sale report has already been submitted for {target_date}. Cannot view report data.")
+        is_report_submitted = await self._check_sale_report_submitted(salesman_id, target_date)
         
         # Get total initial load for the date
         load_pipeline = [
@@ -242,7 +241,8 @@ class SaleService:
             "total_cash": total_cash,
             "total_cheque": total_cheque,
             "total_online": total_online,
-            "total_bill": total_bill
+            "total_bill": total_bill,
+            "is_report_submitted": is_report_submitted
         }
     
     async def get_all_sales_admin(
