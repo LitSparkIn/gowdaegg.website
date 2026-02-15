@@ -19,6 +19,7 @@ import DailySubmitHistoryPage from "@/pages/DailySubmitHistoryPage";
 import PurchaseReportPage from "@/pages/PurchaseReportPage";
 import ProfitLossReportPage from "@/pages/ProfitLossReportPage";
 import ChangePasswordPage from "@/pages/ChangePasswordPage";
+import ConfigSettingsPage from "@/pages/ConfigSettingsPage";
 import ComingSoon from "@/pages/ComingSoon";
 
 // Auth guard component
