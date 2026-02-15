@@ -113,8 +113,8 @@ def test_shop_details_api():
         status, response = make_request("GET", "/routes", headers=admin_headers)
         
         routes = []
-        if status == 200 and "data" in response:
-            routes = response["data"]
+        if status == 200 and "routes" in response:
+            routes = response["routes"]
             print(f"✅ Found {len(routes)} routes")
         
         route_id = None
