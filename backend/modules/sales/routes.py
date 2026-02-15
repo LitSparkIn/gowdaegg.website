@@ -2,13 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, 
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import json
+import logging
 
 from core.database import get_database
 from core.response import success_response
 from core.uploads import save_upload_file
+from core.exceptions import BadRequestException
 from auth.security import get_current_user
 from modules.sales.service import SaleService
 from modules.sales.schemas import SaleCreateRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/salesman/sales", tags=["Sales"])
 
@@ -42,36 +46,44 @@ async def create_sale(
     Salesman is identified by JWT token.
     Image is optional - can be omitted entirely from the request.
     """
-    salesman_id = current_user["sub"]
-    
-    # Save image if provided and has a valid filename
-    image_url = None
-    if image is not None and image.filename and image.filename.strip():
-        try:
-            image_url = await save_upload_file(image, "sale")
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-    
-    # Create request object
-    request = SaleCreateRequest(
-        shop_id=shop_id,
-        crates=crates,
-        price=price,
-        order_amount=order_amount,
-        shop_previous_dues=shop_previous_dues,
-        total_amount=total_amount,
-        collected_amount=collected_amount,
-        pending_amount=pending_amount,
-        payment_type=payment_type,
-        return_tray=return_tray
-    )
-    
-    sale = await service.create_sale(salesman_id, request, image_url)
-    
-    return success_response(
-        data=sale.model_dump(),
-        message="Sale created successfully"
-    )
+    try:
+        salesman_id = current_user["sub"]
+        
+        # Save image if provided and has a valid filename
+        image_url = None
+        if image is not None and image.filename and image.filename.strip():
+            try:
+                image_url = await save_upload_file(image, "sale")
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+        
+        # Create request object
+        request = SaleCreateRequest(
+            shop_id=shop_id,
+            crates=crates,
+            price=price,
+            order_amount=order_amount,
+            shop_previous_dues=shop_previous_dues,
+            total_amount=total_amount,
+            collected_amount=collected_amount,
+            pending_amount=pending_amount,
+            payment_type=payment_type,
+            return_tray=return_tray
+        )
+        
+        sale = await service.create_sale(salesman_id, request, image_url)
+        
+        return success_response(
+            data=sale.model_dump(),
+            message="Sale created successfully"
+        )
+    except BadRequestException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating sale: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error creating sale: {str(e)}")
 
 @router.get("")
 async def get_sales_today(
