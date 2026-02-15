@@ -65,7 +65,7 @@ const Login = () => {
             Gowda Egg Distributors
           </h1>
           <p className="text-green-100 text-lg text-center max-w-md font-light">
-            Your trusted partner for quality egg distribution. Manage your sales, routes, and inventory all in one place.
+            Your trusted partner for quality eggs. Manage your sales, routes, and inventory all in one place.
           </p>
         </div>
       </div>
