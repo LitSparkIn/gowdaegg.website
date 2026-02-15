@@ -149,7 +149,7 @@ def test_shop_details_api():
             "pin": test_salesman_pin
         }
         
-        status, response = make_request("POST", "/salesman", headers=admin_headers, data=salesman_data)
+        status, response = make_request("POST", "/salesmen", headers=admin_headers, data=salesman_data)
         
         if status == 200:
             print(f"✅ Created test salesman successfully")
