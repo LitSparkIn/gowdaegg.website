@@ -127,30 +127,125 @@ class SaleService:
             }
         )
         
-        # Send WhatsApp notification to shop (non-blocking)
+        # Send notifications based on settings (non-blocking)
         shop_phone = shop.get("phone", "")
         if shop_phone:
-            # Format datetime for WhatsApp message
-            transaction_datetime = now.strftime("%d-%m-%Y %I:%M %p")
+            # Get route info for WhatsApp button
+            route = await self.db.routes.find_one({"id": shop.get("route_id")}, {"_id": 0, "route_name": 1})
+            route_slug = route.get("route_name", "").lower().replace(" ", "-") if route else "default"
             
-            # Run WhatsApp API call in background (don't block the response)
+            # Format datetime for notifications
+            transaction_datetime = now.isoformat()
+            order_date = now.strftime("%d %b %Y %I:%M %p")
+            
+            # Run notifications in background (don't block the response)
             asyncio.create_task(
-                send_transaction_whatsapp(
+                self._send_notifications(
                     phone=shop_phone,
                     crates=request.crates,
                     price=request.price,
                     order_amount=request.order_amount,
                     previous_dues=request.shop_previous_dues,
                     total_amount=request.total_amount,
-                    amount_collected=request.collected_amount,
+                    collected_amount=request.collected_amount,
                     pending_amount=request.pending_amount,
-                    payment_mode=request.payment_type,
+                    payment_type=request.payment_type,
                     tray_balance=new_tray_balance,
-                    transaction_datetime=transaction_datetime
+                    transaction_datetime=transaction_datetime,
+                    order_date=order_date,
+                    route_slug=route_slug
                 )
             )
         
         return SaleResponse(**sale.model_dump())
+    
+    async def _send_notifications(
+        self,
+        phone: str,
+        crates: int,
+        price: float,
+        order_amount: float,
+        previous_dues: float,
+        total_amount: float,
+        collected_amount: float,
+        pending_amount: float,
+        payment_type: str,
+        tray_balance: int,
+        transaction_datetime: str,
+        order_date: str,
+        route_slug: str
+    ):
+        """Send WhatsApp and/or SMS notifications based on settings"""
+        try:
+            # Get settings
+            settings = await self.db.settings.find_one({"id": "global_settings"}, {"_id": 0})
+            
+            if not settings:
+                logger.info("No settings found, skipping notifications")
+                return
+            
+            whatsapp_enabled = settings.get("whatsapp_enabled", False)
+            sms_enabled = settings.get("sms_enabled", False)
+            
+            if not whatsapp_enabled and not sms_enabled:
+                logger.info("Both WhatsApp and SMS are disabled, skipping notifications")
+                return
+            
+            # Send WhatsApp if enabled
+            if whatsapp_enabled:
+                whatsapp_token = settings.get("whatsapp_api_token")
+                if whatsapp_token:
+                    whatsapp_template = settings.get("whatsapp_template_id", "gowda_egg_sale_receipt")
+                    phone_number_id = settings.get("whatsapp_phone_number_id", "109780805521902")
+                    
+                    result = await NotificationService.send_whatsapp(
+                        phone=phone,
+                        crates=crates,
+                        price=price,
+                        order_amount=order_amount,
+                        previous_dues=previous_dues,
+                        total_amount=total_amount,
+                        collected_amount=collected_amount,
+                        pending_amount=pending_amount,
+                        payment_type=payment_type,
+                        tray_balance=tray_balance,
+                        sale_datetime=transaction_datetime,
+                        template_id=whatsapp_template,
+                        route_slug=route_slug,
+                        api_token=whatsapp_token,
+                        phone_number_id=phone_number_id
+                    )
+                    logger.info(f"WhatsApp result: {result}")
+                else:
+                    logger.warning("WhatsApp enabled but no API token configured")
+            
+            # Send SMS if enabled
+            if sms_enabled:
+                msg91_auth_key = settings.get("msg91_auth_key")
+                msg91_template_id = settings.get("msg91_template_id")
+                
+                if msg91_auth_key and msg91_template_id:
+                    result = await NotificationService.send_sms(
+                        phone=phone,
+                        order_date=order_date,
+                        crates=crates,
+                        price=price,
+                        order_amount=order_amount,
+                        previous_dues=previous_dues,
+                        total_amount=total_amount,
+                        collected_amount=collected_amount,
+                        pending_amount=pending_amount,
+                        payment_type=payment_type,
+                        tray_balance=tray_balance,
+                        auth_key=msg91_auth_key,
+                        template_id=msg91_template_id
+                    )
+                    logger.info(f"SMS result: {result}")
+                else:
+                    logger.warning("SMS enabled but MSG91 credentials not configured")
+                    
+        except Exception as e:
+            logger.error(f"Error sending notifications: {str(e)}")
     
     async def get_salesman_sales_today(self, salesman_id: str) -> dict:
         """Get all sales for a salesman for today"""
