@@ -87,8 +87,8 @@ def test_shop_details_api():
     status, response = make_request("GET", "/salesmen", headers=admin_headers)
     
     salesmen = []
-    if status == 200 and "data" in response:
-        salesmen = response["data"]
+    if status == 200 and "salesmen" in response:
+        salesmen = response["salesmen"]
         print(f"✅ Found {len(salesmen)} salesmen in database")
         for salesman in salesmen[:3]:  # Show first 3
             print(f"   - ID: {salesman.get('id')}, Name: {salesman.get('name')}, Phone: {salesman.get('phone')}")
