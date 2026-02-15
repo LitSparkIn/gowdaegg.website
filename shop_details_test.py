@@ -84,7 +84,7 @@ def test_shop_details_api():
     
     # Step 2: Check if any salesmen exist
     print_step(2, "Check existing salesmen")
-    status, response = make_request("GET", "/salesman", headers=admin_headers)
+    status, response = make_request("GET", "/salesmen", headers=admin_headers)
     
     salesmen = []
     if status == 200 and "data" in response:
