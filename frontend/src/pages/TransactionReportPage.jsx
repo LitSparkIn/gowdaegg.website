@@ -25,8 +25,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CreditCard, Loader2, CalendarIcon, Filter, X, Package, IndianRupee, ImageIcon, MessageCircle } from "lucide-react";
+import { CreditCard, Loader2, CalendarIcon, Filter, X, Package, IndianRupee, ImageIcon, MessageCircle, Download, FileSpreadsheet, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
