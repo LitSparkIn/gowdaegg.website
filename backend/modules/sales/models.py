@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime, timezone
 from core.timezone import get_ist_now
 
@@ -24,7 +25,7 @@ class SaleModel(BaseModel):
     # Transaction type: "Sale" if crates > 0, else "Collection"
     transaction_type: str
     # Optional image
-    image_url: str = None
+    image_url: Optional[str] = None
     sale_date: str  # Date of sale (YYYY-MM-DD)
     sale_time: str  # Time of sale (HH:MM:SS)
     created_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
