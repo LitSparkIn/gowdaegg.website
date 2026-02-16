@@ -147,11 +147,7 @@ const TransactionReportPage = () => {
   const sendWhatsApp = async (saleId) => {
     setSendingWhatsApp(prev => ({ ...prev, [saleId]: true }));
     try {
-      const response = await api.post(
-        `/sales/${saleId}/send-whatsapp`,
-        {},
-        getAuthHeaders()
-      );
+      const response = await api.post(`/sales/${saleId}/send-whatsapp`, {});
       toast.success(response.data.message || "WhatsApp message sent successfully!");
     } catch (error) {
       console.error("Error sending WhatsApp:", error);
