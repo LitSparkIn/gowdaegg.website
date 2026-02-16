@@ -728,7 +728,14 @@ const TransactionReportPage = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground mb-1">Prev Dues</p>
-                      <p className="text-base font-semibold text-gray-500">{formatCurrency(sale.shop_previous_dues)}</p>
+                      <p className={cn(
+                        "text-base font-semibold",
+                        sale.credit_threshold > 0 && sale.shop_previous_dues > sale.credit_threshold
+                          ? "text-red-600 px-2 py-0.5 border-2 border-red-500 rounded bg-red-50 inline-block"
+                          : "text-gray-500"
+                      )}>
+                        {formatCurrency(sale.shop_previous_dues)}
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground mb-1">Total Amt</p>
@@ -740,7 +747,14 @@ const TransactionReportPage = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground mb-1">Pending</p>
-                      <p className="text-base font-semibold text-red-600">{formatCurrency(sale.pending_amount)}</p>
+                      <p className={cn(
+                        "text-base font-semibold",
+                        sale.credit_threshold > 0 && sale.pending_amount > sale.credit_threshold
+                          ? "text-red-600 px-2 py-0.5 border-2 border-red-500 rounded bg-red-50 inline-block"
+                          : "text-red-600"
+                      )}>
+                        {formatCurrency(sale.pending_amount)}
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground mb-1">Prev Tray</p>
