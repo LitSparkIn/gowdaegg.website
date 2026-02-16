@@ -123,6 +123,8 @@ class ShopService:
             update_data["address"] = request.address
         if request.previous_dues is not None:
             update_data["previous_dues"] = request.previous_dues
+        if request.credit_threshold is not None:
+            update_data["credit_threshold"] = request.credit_threshold
         if request.route_id is not None:
             # Validate route exists
             route_exists = await self.route_repository.exists(request.route_id)
