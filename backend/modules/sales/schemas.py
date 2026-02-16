@@ -67,3 +67,4 @@ class SaleWithDetailsResponse(BaseModel):
     sale_date: str
     sale_time: str
     created_at: str
+    credit_threshold: float = 0.0
