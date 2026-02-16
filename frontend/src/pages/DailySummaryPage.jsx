@@ -303,6 +303,11 @@ const DailySummaryPage = () => {
                   valueClass="text-green-600 font-bold"
                 />
                 <SummaryRow 
+                  label="Total Collected" 
+                  value={formatCurrency(summary.sale_information.total_collected || 0)}
+                  valueClass="text-purple-600 font-bold"
+                />
+                <SummaryRow 
                   label="Total Damages" 
                   value={formatNumber(summary.sale_information.total_damages)}
                   valueClass="text-red-600"
