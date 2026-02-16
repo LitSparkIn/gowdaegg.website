@@ -56,10 +56,7 @@ const DailySummaryPage = () => {
 
   const checkSubmissionStatus = async (dateStr) => {
     try {
-      const response = await api.get(
-        `/daily-summary/check-submitted?date=${dateStr}`,
-        getAuthHeaders()
-      );
+      const response = await api.get(`/daily-summary/check-submitted?date=${dateStr}`);
       const data = response.data.data;
       setIsSubmitted(data.is_submitted);
       setSubmittedAt(data.submitted_at);
@@ -76,10 +73,7 @@ const DailySummaryPage = () => {
       // Check if already submitted
       await checkSubmissionStatus(dateStr);
       
-      const response = await api.get(
-        `/daily-summary?date=${dateStr}`,
-        getAuthHeaders()
-      );
+      const response = await api.get(`/daily-summary?date=${dateStr}`);
       setSummary(response.data.data);
     } catch (error) {
       console.error("Error fetching daily summary:", error);
@@ -94,11 +88,7 @@ const DailySummaryPage = () => {
       setSubmitting(true);
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       
-      await api.post(
-        `/daily-summary/submit?date=${dateStr}`,
-        {},
-        getAuthHeaders()
-      );
+      await api.post(`/daily-summary/submit?date=${dateStr}`, {});
       
       toast.success(`Daily summary for ${dateStr} submitted successfully!`);
       setIsSubmitted(true);
