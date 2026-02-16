@@ -58,6 +58,7 @@ const ShopPage = () => {
     phone: "",
     address: "",
     previous_dues: 0,
+    credit_threshold: 0,
     route_id: "",
     tray_balance: 0,
   });
