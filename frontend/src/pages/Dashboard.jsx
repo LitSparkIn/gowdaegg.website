@@ -59,7 +59,7 @@ const Dashboard = () => {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
       
-      const response = await axios.get(`${API}/dashboard`, getAuthHeaders());
+      const response = await api.get("/dashboard");
       setData(response.data.data);
     } catch (error) {
       console.error("Error fetching dashboard:", error);
