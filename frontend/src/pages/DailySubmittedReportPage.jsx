@@ -57,7 +57,7 @@ const DailySubmittedReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await axios.get(`${API}/salesmen`, getAuthHeaders());
+      const response = await api.get(`${API}/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -84,7 +84,7 @@ const DailySubmittedReportPage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       const data = response.data.data || {};
       setReports(data.reports || []);
       setTotalRecords(data.total_records || 0);

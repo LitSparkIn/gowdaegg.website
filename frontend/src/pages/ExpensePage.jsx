@@ -86,7 +86,7 @@ const ExpensePage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       setExpenses(response.data.expenses || []);
       setTotalAmount(response.data.total_amount || 0);
     } catch (error) {
@@ -155,10 +155,10 @@ const ExpensePage = () => {
       };
 
       if (editingExpense) {
-        await axios.put(`${API}/expenses/${editingExpense.id}`, payload, getAuthHeaders());
+        await api.put(`${API}/expenses/${editingExpense.id}`, payload);
         toast.success("Expense updated successfully");
       } else {
-        await axios.post(`${API}/expenses`, payload, getAuthHeaders());
+        await api.post(`${API}/expenses`, payload);
         toast.success("Expense added successfully");
       }
       handleCloseDialog();
@@ -180,7 +180,7 @@ const ExpensePage = () => {
     if (!deleteExpense) return;
 
     try {
-      await axios.delete(`${API}/expenses/${deleteExpense.id}`, getAuthHeaders());
+      await api.delete(`${API}/expenses/${deleteExpense.id}`);
       toast.success("Expense deleted successfully");
       fetchExpenses();
     } catch (error) {

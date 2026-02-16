@@ -74,7 +74,7 @@ const ShopPage = () => {
 
   const fetchRoutes = async () => {
     try {
-      const response = await axios.get(`${API}/routes`, getAuthHeaders());
+      const response = await api.get(`${API}/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -84,7 +84,7 @@ const ShopPage = () => {
   const fetchShops = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/shops`, getAuthHeaders());
+      const response = await api.get(`${API}/shops`);
       setShops(response.data.shops || []);
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -174,14 +174,14 @@ const ShopPage = () => {
       };
 
       if (editingShop) {
-        await axios.put(
+        await api.put(
           `${API}/shops/${editingShop.id}`,
           payload,
           getAuthHeaders()
         );
         toast.success("Shop updated successfully");
       } else {
-        await axios.post(`${API}/shops`, payload, getAuthHeaders());
+        await api.post(`${API}/shops`, payload);
         toast.success("Shop created successfully");
       }
       handleCloseDialog();
@@ -203,7 +203,7 @@ const ShopPage = () => {
     if (!deleteShop) return;
 
     try {
-      await axios.delete(`${API}/shops/${deleteShop.id}`, getAuthHeaders());
+      await api.delete(`${API}/shops/${deleteShop.id}`);
       toast.success("Shop deleted successfully");
       fetchShops();
     } catch (error) {

@@ -55,7 +55,7 @@ const PurchaseReportPage = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await axios.get(`${API}/suppliers`, getAuthHeaders());
+      const response = await api.get(`${API}/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -82,7 +82,7 @@ const PurchaseReportPage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       const data = response.data.data || {};
       setPurchases(data.purchases || []);
       setTotals({

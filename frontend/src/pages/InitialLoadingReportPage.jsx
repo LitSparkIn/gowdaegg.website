@@ -50,7 +50,7 @@ const InitialLoadingReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await axios.get(`${API}/salesmen`, getAuthHeaders());
+      const response = await api.get(`${API}/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -77,7 +77,7 @@ const InitialLoadingReportPage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       const data = response.data.data || {};
       setLoads(data.initial_loads || []);
       setTotalCrates(data.total_crates || 0);

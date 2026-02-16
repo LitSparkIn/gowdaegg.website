@@ -56,7 +56,7 @@ const DailySummaryPage = () => {
 
   const checkSubmissionStatus = async (dateStr) => {
     try {
-      const response = await axios.get(
+      const response = await api.get(
         `${API}/daily-summary/check-submitted?date=${dateStr}`,
         getAuthHeaders()
       );
@@ -76,7 +76,7 @@ const DailySummaryPage = () => {
       // Check if already submitted
       await checkSubmissionStatus(dateStr);
       
-      const response = await axios.get(
+      const response = await api.get(
         `${API}/daily-summary?date=${dateStr}`,
         getAuthHeaders()
       );
@@ -94,7 +94,7 @@ const DailySummaryPage = () => {
       setSubmitting(true);
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       
-      await axios.post(
+      await api.post(
         `${API}/daily-summary/submit?date=${dateStr}`,
         {},
         getAuthHeaders()

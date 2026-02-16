@@ -89,7 +89,7 @@ const PurchasePage = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await axios.get(`${API}/suppliers`, getAuthHeaders());
+      const response = await api.get(`${API}/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -116,7 +116,7 @@ const PurchasePage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       const data = response.data.data || {};
       setPurchases(data.purchases || []);
       setTotals({
@@ -219,7 +219,7 @@ const PurchasePage = () => {
         payment_mode: formData.payment_mode,
       };
 
-      await axios.post(`${API}/purchases`, payload, getAuthHeaders());
+      await api.post(`${API}/purchases`, payload);
       toast.success("Purchase added successfully");
       handleCloseDialog();
       fetchPurchases();
@@ -241,7 +241,7 @@ const PurchasePage = () => {
     if (!deletePurchase) return;
 
     try {
-      await axios.delete(`${API}/purchases/${deletePurchase.id}`, getAuthHeaders());
+      await api.delete(`${API}/purchases/${deletePurchase.id}`);
       toast.success("Purchase deleted successfully");
       fetchPurchases();
     } catch (error) {

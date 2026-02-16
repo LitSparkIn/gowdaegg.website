@@ -57,7 +57,7 @@ const RoutePage = () => {
   const fetchRoutes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/routes`, getAuthHeaders());
+      const response = await api.get(`${API}/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -98,14 +98,14 @@ const RoutePage = () => {
     setSubmitting(true);
     try {
       if (editingRoute) {
-        await axios.put(
+        await api.put(
           `${API}/routes/${editingRoute.id}`,
           { route_name: routeName.trim() },
           getAuthHeaders()
         );
         toast.success("Route updated successfully");
       } else {
-        await axios.post(
+        await api.post(
           `${API}/routes`,
           { route_name: routeName.trim() },
           getAuthHeaders()
@@ -131,7 +131,7 @@ const RoutePage = () => {
     if (!deleteRoute) return;
 
     try {
-      await axios.delete(`${API}/routes/${deleteRoute.id}`, getAuthHeaders());
+      await api.delete(`${API}/routes/${deleteRoute.id}`);
       toast.success("Route deleted successfully");
       fetchRoutes();
     } catch (error) {

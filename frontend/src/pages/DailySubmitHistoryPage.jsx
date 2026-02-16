@@ -38,7 +38,7 @@ const DailySubmitHistoryPage = () => {
   const fetchSummaries = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
+      const response = await api.get(
         `${API}/daily-summary/submitted`,
         getAuthHeaders()
       );

@@ -84,7 +84,7 @@ const ChangePasswordPage = () => {
     try {
       setLoading(true);
       
-      await axios.post(
+      await api.post(
         `${API}/auth/change-password`,
         {
           current_password: formData.currentPassword,

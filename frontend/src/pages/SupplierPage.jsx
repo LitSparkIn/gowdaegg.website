@@ -57,7 +57,7 @@ const SupplierPage = () => {
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/suppliers`, getAuthHeaders());
+      const response = await api.get(`${API}/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -119,10 +119,10 @@ const SupplierPage = () => {
       };
 
       if (editingSupplier) {
-        await axios.put(`${API}/suppliers/${editingSupplier.id}`, payload, getAuthHeaders());
+        await api.put(`${API}/suppliers/${editingSupplier.id}`, payload);
         toast.success("Supplier updated successfully");
       } else {
-        await axios.post(`${API}/suppliers`, payload, getAuthHeaders());
+        await api.post(`${API}/suppliers`, payload);
         toast.success("Supplier created successfully");
       }
       handleCloseDialog();
@@ -144,7 +144,7 @@ const SupplierPage = () => {
     if (!deleteSupplier) return;
 
     try {
-      await axios.delete(`${API}/suppliers/${deleteSupplier.id}`, getAuthHeaders());
+      await api.delete(`${API}/suppliers/${deleteSupplier.id}`);
       toast.success("Supplier deleted successfully");
       fetchSuppliers();
     } catch (error) {

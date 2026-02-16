@@ -49,9 +49,9 @@ const ProfitLossReportPage = () => {
       
       // Fetch purchases, sales, and expenses for the date range
       const [purchasesRes, salesRes, expensesRes] = await Promise.all([
-        axios.get(`${API}/purchases?from_date=${fromDateStr}&to_date=${toDateStr}`, getAuthHeaders()),
-        axios.get(`${API}/sales?from_date=${fromDateStr}&to_date=${toDateStr}`, getAuthHeaders()),
-        axios.get(`${API}/expenses?from_date=${fromDateStr}&to_date=${toDateStr}`, getAuthHeaders())
+        api.get(`${API}/purchases?from_date=${fromDateStr}&to_date=${toDateStr}`),
+        api.get(`${API}/sales?from_date=${fromDateStr}&to_date=${toDateStr}`),
+        api.get(`${API}/expenses?from_date=${fromDateStr}&to_date=${toDateStr}`)
       ]);
       
       const purchasesData = purchasesRes.data.data || {};

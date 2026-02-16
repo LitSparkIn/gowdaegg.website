@@ -57,7 +57,7 @@ const TransactionReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await axios.get(`${API}/salesmen`, getAuthHeaders());
+      const response = await api.get(`${API}/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -66,7 +66,7 @@ const TransactionReportPage = () => {
 
   const fetchRoutes = async () => {
     try {
-      const response = await axios.get(`${API}/routes`, getAuthHeaders());
+      const response = await api.get(`${API}/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -105,7 +105,7 @@ const TransactionReportPage = () => {
         url += `?${params.toString()}`;
       }
       
-      const response = await axios.get(url, getAuthHeaders());
+      const response = await api.get(url);
       const data = response.data.data || {};
       setSales(data.sales || []);
       setTotals({
@@ -147,7 +147,7 @@ const TransactionReportPage = () => {
   const sendWhatsApp = async (saleId) => {
     setSendingWhatsApp(prev => ({ ...prev, [saleId]: true }));
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${API}/sales/${saleId}/send-whatsapp`,
         {},
         getAuthHeaders()
