@@ -189,11 +189,7 @@ const SalesmanPage = () => {
       }
 
       if (editingSalesman) {
-        await api.put(
-          `/salesmen/${editingSalesman.id}`,
-          payload,
-          getAuthHeaders()
-        );
+        await api.put(`/salesmen/${editingSalesman.id}`, payload);
         toast.success("Salesman updated successfully");
       } else {
         await api.post(`/salesmen`, payload);
