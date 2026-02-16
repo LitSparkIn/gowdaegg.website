@@ -105,6 +105,7 @@ const ShopPage = () => {
       phone: "",
       address: "",
       previous_dues: 0,
+      credit_threshold: 0,
       route_id: "",
       tray_balance: 0,
     });
@@ -118,6 +119,7 @@ const ShopPage = () => {
         phone: shop.phone,
         address: shop.address,
         previous_dues: shop.previous_dues,
+        credit_threshold: shop.credit_threshold || 0,
         route_id: shop.route_id,
         tray_balance: shop.tray_balance,
       });
