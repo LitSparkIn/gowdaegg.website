@@ -57,7 +57,7 @@ const SupplierPage = () => {
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${API}/suppliers`);
+      const response = await api.get(`/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -119,10 +119,10 @@ const SupplierPage = () => {
       };
 
       if (editingSupplier) {
-        await api.put(`${API}/suppliers/${editingSupplier.id}`, payload);
+        await api.put(`/suppliers/${editingSupplier.id}`, payload);
         toast.success("Supplier updated successfully");
       } else {
-        await api.post(`${API}/suppliers`, payload);
+        await api.post(`/suppliers`, payload);
         toast.success("Supplier created successfully");
       }
       handleCloseDialog();
@@ -144,7 +144,7 @@ const SupplierPage = () => {
     if (!deleteSupplier) return;
 
     try {
-      await api.delete(`${API}/suppliers/${deleteSupplier.id}`);
+      await api.delete(`/suppliers/${deleteSupplier.id}`);
       toast.success("Supplier deleted successfully");
       fetchSuppliers();
     } catch (error) {

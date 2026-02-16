@@ -39,7 +39,7 @@ const DailySubmitHistoryPage = () => {
     try {
       setLoading(true);
       const response = await api.get(
-        `${API}/daily-summary/submitted`,
+        `/daily-summary/submitted`,
         getAuthHeaders()
       );
       setSummaries(response.data.data.summaries || []);

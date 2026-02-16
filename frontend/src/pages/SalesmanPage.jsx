@@ -72,7 +72,7 @@ const SalesmanPage = () => {
 
   const fetchRoutes = async () => {
     try {
-      const response = await api.get(`${API}/routes`);
+      const response = await api.get(`/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -82,7 +82,7 @@ const SalesmanPage = () => {
   const fetchSalesmen = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${API}/salesmen`);
+      const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -190,13 +190,13 @@ const SalesmanPage = () => {
 
       if (editingSalesman) {
         await api.put(
-          `${API}/salesmen/${editingSalesman.id}`,
+          `/salesmen/${editingSalesman.id}`,
           payload,
           getAuthHeaders()
         );
         toast.success("Salesman updated successfully");
       } else {
-        await api.post(`${API}/salesmen`, payload);
+        await api.post(`/salesmen`, payload);
         toast.success("Salesman created successfully");
       }
       handleCloseDialog();
@@ -218,7 +218,7 @@ const SalesmanPage = () => {
     if (!deleteSalesman) return;
 
     try {
-      await api.delete(`${API}/salesmen/${deleteSalesman.id}`);
+      await api.delete(`/salesmen/${deleteSalesman.id}`);
       toast.success("Salesman deleted successfully");
       fetchSalesmen();
     } catch (error) {

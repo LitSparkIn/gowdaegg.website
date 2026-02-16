@@ -37,7 +37,7 @@ const ConfigSettingsPage = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${API}/settings`);
+      const response = await api.get(`/settings`);
       const data = response.data.data;
       setSettings({
         whatsapp_enabled: data.whatsapp_enabled || false,
@@ -68,7 +68,7 @@ const ConfigSettingsPage = () => {
       setSettings(prev => ({ ...prev, [field]: value }));
       
       // Save to backend
-      await api.put(`${API}/settings`, { [field]: value });
+      await api.put(`/settings`, { [field]: value });
       toast.success(`${field === 'whatsapp_enabled' ? 'WhatsApp' : 'SMS'} ${value ? 'enabled' : 'disabled'}`);
     } catch (error) {
       console.error("Error updating setting:", error);
@@ -106,7 +106,7 @@ const ConfigSettingsPage = () => {
         return;
       }
       
-      await api.put(`${API}/settings`, updateData);
+      await api.put(`/settings`, updateData);
       toast.success("Settings saved successfully");
       
       // Refresh to get updated state

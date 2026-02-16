@@ -72,7 +72,7 @@ const ExpensePage = () => {
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      let url = `${API}/expenses`;
+      let url = `/expenses`;
       const params = new URLSearchParams();
       
       if (fromDate) {
@@ -155,10 +155,10 @@ const ExpensePage = () => {
       };
 
       if (editingExpense) {
-        await api.put(`${API}/expenses/${editingExpense.id}`, payload);
+        await api.put(`/expenses/${editingExpense.id}`, payload);
         toast.success("Expense updated successfully");
       } else {
-        await api.post(`${API}/expenses`, payload);
+        await api.post(`/expenses`, payload);
         toast.success("Expense added successfully");
       }
       handleCloseDialog();
@@ -180,7 +180,7 @@ const ExpensePage = () => {
     if (!deleteExpense) return;
 
     try {
-      await api.delete(`${API}/expenses/${deleteExpense.id}`);
+      await api.delete(`/expenses/${deleteExpense.id}`);
       toast.success("Expense deleted successfully");
       fetchExpenses();
     } catch (error) {

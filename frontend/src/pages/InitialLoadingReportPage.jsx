@@ -50,7 +50,7 @@ const InitialLoadingReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await api.get(`${API}/salesmen`);
+      const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -60,7 +60,7 @@ const InitialLoadingReportPage = () => {
   const fetchLoads = async () => {
     try {
       setLoading(true);
-      let url = `${API}/initial-loads`;
+      let url = `/initial-loads`;
       const params = new URLSearchParams();
       
       if (fromDate) {

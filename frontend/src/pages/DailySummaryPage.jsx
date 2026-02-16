@@ -57,7 +57,7 @@ const DailySummaryPage = () => {
   const checkSubmissionStatus = async (dateStr) => {
     try {
       const response = await api.get(
-        `${API}/daily-summary/check-submitted?date=${dateStr}`,
+        `/daily-summary/check-submitted?date=${dateStr}`,
         getAuthHeaders()
       );
       const data = response.data.data;
@@ -77,7 +77,7 @@ const DailySummaryPage = () => {
       await checkSubmissionStatus(dateStr);
       
       const response = await api.get(
-        `${API}/daily-summary?date=${dateStr}`,
+        `/daily-summary?date=${dateStr}`,
         getAuthHeaders()
       );
       setSummary(response.data.data);
@@ -95,7 +95,7 @@ const DailySummaryPage = () => {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       
       await api.post(
-        `${API}/daily-summary/submit?date=${dateStr}`,
+        `/daily-summary/submit?date=${dateStr}`,
         {},
         getAuthHeaders()
       );

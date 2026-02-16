@@ -57,7 +57,7 @@ const DailySubmittedReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await api.get(`${API}/salesmen`);
+      const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -67,7 +67,7 @@ const DailySubmittedReportPage = () => {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      let url = `${API}/sale-reports`;
+      let url = `/sale-reports`;
       const params = new URLSearchParams();
       
       if (fromDate) {

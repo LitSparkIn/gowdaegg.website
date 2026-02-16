@@ -89,7 +89,7 @@ const PurchasePage = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await api.get(`${API}/suppliers`);
+      const response = await api.get(`/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -99,7 +99,7 @@ const PurchasePage = () => {
   const fetchPurchases = async () => {
     try {
       setLoading(true);
-      let url = `${API}/purchases`;
+      let url = `/purchases`;
       const params = new URLSearchParams();
       
       if (fromDate) {
@@ -219,7 +219,7 @@ const PurchasePage = () => {
         payment_mode: formData.payment_mode,
       };
 
-      await api.post(`${API}/purchases`, payload);
+      await api.post(`/purchases`, payload);
       toast.success("Purchase added successfully");
       handleCloseDialog();
       fetchPurchases();
@@ -241,7 +241,7 @@ const PurchasePage = () => {
     if (!deletePurchase) return;
 
     try {
-      await api.delete(`${API}/purchases/${deletePurchase.id}`);
+      await api.delete(`/purchases/${deletePurchase.id}`);
       toast.success("Purchase deleted successfully");
       fetchPurchases();
     } catch (error) {

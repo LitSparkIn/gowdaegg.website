@@ -57,7 +57,7 @@ const TransactionReportPage = () => {
 
   const fetchSalesmen = async () => {
     try {
-      const response = await api.get(`${API}/salesmen`);
+      const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
@@ -66,7 +66,7 @@ const TransactionReportPage = () => {
 
   const fetchRoutes = async () => {
     try {
-      const response = await api.get(`${API}/routes`);
+      const response = await api.get(`/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -76,7 +76,7 @@ const TransactionReportPage = () => {
   const fetchSales = async () => {
     try {
       setLoading(true);
-      let url = `${API}/sales`;
+      let url = `/sales`;
       const params = new URLSearchParams();
       
       if (fromDate) {
@@ -148,7 +148,7 @@ const TransactionReportPage = () => {
     setSendingWhatsApp(prev => ({ ...prev, [saleId]: true }));
     try {
       const response = await api.post(
-        `${API}/sales/${saleId}/send-whatsapp`,
+        `/sales/${saleId}/send-whatsapp`,
         {},
         getAuthHeaders()
       );

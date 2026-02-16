@@ -55,7 +55,7 @@ const PurchaseReportPage = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await api.get(`${API}/suppliers`);
+      const response = await api.get(`/suppliers`);
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -65,7 +65,7 @@ const PurchaseReportPage = () => {
   const fetchPurchases = async () => {
     try {
       setLoading(true);
-      let url = `${API}/purchases`;
+      let url = `/purchases`;
       const params = new URLSearchParams();
       
       if (fromDate) {

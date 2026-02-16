@@ -57,7 +57,7 @@ const RoutePage = () => {
   const fetchRoutes = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${API}/routes`);
+      const response = await api.get(`/routes`);
       setRoutes(response.data.routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -99,14 +99,14 @@ const RoutePage = () => {
     try {
       if (editingRoute) {
         await api.put(
-          `${API}/routes/${editingRoute.id}`,
+          `/routes/${editingRoute.id}`,
           { route_name: routeName.trim() },
           getAuthHeaders()
         );
         toast.success("Route updated successfully");
       } else {
         await api.post(
-          `${API}/routes`,
+          `/routes`,
           { route_name: routeName.trim() },
           getAuthHeaders()
         );
@@ -131,7 +131,7 @@ const RoutePage = () => {
     if (!deleteRoute) return;
 
     try {
-      await api.delete(`${API}/routes/${deleteRoute.id}`);
+      await api.delete(`/routes/${deleteRoute.id}`);
       toast.success("Route deleted successfully");
       fetchRoutes();
     } catch (error) {
