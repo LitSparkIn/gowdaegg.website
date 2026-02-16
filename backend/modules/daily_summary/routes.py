@@ -210,10 +210,10 @@ async def get_daily_summary(
     for load in initial_loads_cursor:
         initial_loads_by_salesman[load["_id"]] = load["total_loaded"]
     
-    # Get sales for each salesman today
+    # Get sales for each salesman today (crates > 0)
     sales_by_salesman = {}
     sales_cursor = await db.sales.aggregate([
-        {"$match": {"sale_date": target_date}},
+        {"$match": {"sale_date": target_date, "crates": {"$gt": 0}}},
         {"$group": {
             "_id": "$salesman_id",
             "total_sold": {"$sum": "$crates"},
@@ -226,9 +226,25 @@ async def get_daily_summary(
             "total_value": sale["total_value"]
         }
     
+    # Get collections for each salesman today (crates = 0, collected_amount > 0)
+    collections_by_salesman = {}
+    collections_cursor = await db.sales.aggregate([
+        {"$match": {"sale_date": target_date, "crates": 0, "collected_amount": {"$gt": 0}}},
+        {"$group": {
+            "_id": "$salesman_id",
+            "total_collected": {"$sum": "$collected_amount"},
+            "collection_count": {"$sum": 1}
+        }}
+    ]).to_list(1000)
+    for collection in collections_cursor:
+        collections_by_salesman[collection["_id"]] = {
+            "total_collected": collection["total_collected"],
+            "collection_count": collection["collection_count"]
+        }
+    
     # Build salesman status list
     salesman_status = []
-    pending_submissions = 0  # Only count those who have loaded but not submitted
+    pending_submissions = 0  # Only count those who have loaded or made transactions but not submitted
     
     for salesman in all_salesmen:
         salesman_id = salesman["id"]
@@ -238,13 +254,17 @@ async def get_daily_summary(
         sold = sales_data["total_sold"]
         total_value = sales_data["total_value"]
         
+        collection_data = collections_by_salesman.get(salesman_id, {"total_collected": 0, "collection_count": 0})
+        collected = collection_data["total_collected"]
+        collection_count = collection_data["collection_count"]
+        
         # Calculate average rate (price per egg)
         avg_rate = total_value / (sold * 30) if sold > 0 else 0
         
-        # Determine if this salesman is active today (has initial load)
-        is_active_today = loaded > 0
+        # Determine if this salesman is active today (has initial load OR made any sales/collections)
+        is_active_today = loaded > 0 or sold > 0 or collected > 0
         
-        # Only count as pending if they have loaded but not submitted
+        # Only count as pending if they are active but not submitted
         if is_active_today and not is_submitted:
             pending_submissions += 1
         
@@ -254,6 +274,8 @@ async def get_daily_summary(
             "phone": salesman.get("phone", ""),
             "loaded": loaded,
             "sold": sold,
+            "collected": round(collected, 2),
+            "collection_count": collection_count,
             "avg_rate": round(avg_rate, 2),
             "is_active_today": is_active_today,
             "submitted": is_submitted
