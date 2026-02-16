@@ -98,18 +98,10 @@ const RoutePage = () => {
     setSubmitting(true);
     try {
       if (editingRoute) {
-        await api.put(
-          `/routes/${editingRoute.id}`,
-          { route_name: routeName.trim() },
-          getAuthHeaders()
-        );
+        await api.put(`/routes/${editingRoute.id}`, { route_name: routeName.trim() });
         toast.success("Route updated successfully");
       } else {
-        await api.post(
-          `/routes`,
-          { route_name: routeName.trim() },
-          getAuthHeaders()
-        );
+        await api.post(`/routes`, { route_name: routeName.trim() });
         toast.success("Route created successfully");
       }
       handleCloseDialog();
