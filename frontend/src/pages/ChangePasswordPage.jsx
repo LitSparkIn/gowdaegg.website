@@ -89,8 +89,7 @@ const ChangePasswordPage = () => {
         {
           current_password: formData.currentPassword,
           new_password: formData.newPassword
-        },
-        getAuthHeaders()
+        }
       );
       
       toast.success("Password changed successfully!");
