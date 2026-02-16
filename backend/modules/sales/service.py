@@ -424,6 +424,7 @@ class SaleService:
             salesman_name = salesman.get("name", "Unknown") if salesman else "Unknown"
             shop_name = shop.get("name", "Unknown") if shop else "Unknown"
             shop_phone = shop.get("phone", "") if shop else ""
+            credit_threshold = shop.get("credit_threshold", 0.0) if shop else 0.0
             
             route_name = ""
             if salesman and salesman.get("route_id"):
@@ -455,7 +456,8 @@ class SaleService:
                 image_url=sale.get("image_url"),
                 sale_date=sale["sale_date"],
                 sale_time=sale.get("sale_time", "00:00:00"),
-                created_at=sale["created_at"]
+                created_at=sale["created_at"],
+                credit_threshold=credit_threshold
             ))
         
         return {
