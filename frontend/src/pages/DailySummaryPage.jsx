@@ -330,6 +330,11 @@ const DailySummaryPage = () => {
                   </div>
                   <ArrowRight size={20} className="text-muted-foreground" />
                   <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-600">{formatCurrency(summary.sale_information.total_collected || 0)}</p>
+                    <p className="text-xs text-muted-foreground">Collected</p>
+                  </div>
+                  <ArrowRight size={20} className="text-muted-foreground" />
+                  <div className="text-center">
                     <p className="text-2xl font-bold text-orange-600">{formatNumber(summary.sale_information.returned)}</p>
                     <p className="text-xs text-muted-foreground">Returned</p>
                   </div>
