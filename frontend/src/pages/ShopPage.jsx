@@ -174,11 +174,7 @@ const ShopPage = () => {
       };
 
       if (editingShop) {
-        await api.put(
-          `/shops/${editingShop.id}`,
-          payload,
-          getAuthHeaders()
-        );
+        await api.put(`/shops/${editingShop.id}`, payload);
         toast.success("Shop updated successfully");
       } else {
         await api.post(`/shops`, payload);
