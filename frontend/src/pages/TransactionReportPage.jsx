@@ -21,7 +21,7 @@ import { CreditCard, Loader2, CalendarIcon, Filter, X, ImageIcon, MessageCircle,
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
