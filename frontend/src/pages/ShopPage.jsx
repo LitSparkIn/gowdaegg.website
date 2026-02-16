@@ -412,16 +412,29 @@ const ShopPage = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="tray_balance">Tray Balance</Label>
+                  <Label htmlFor="credit_threshold">Credit Threshold (₹)</Label>
                   <Input
-                    id="tray_balance"
+                    id="credit_threshold"
                     type="number"
-                    placeholder="0"
-                    value={formData.tray_balance}
-                    onChange={(e) => handleInputChange("tray_balance", e.target.value)}
-                    data-testid="shop-tray-input"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.credit_threshold}
+                    onChange={(e) => handleInputChange("credit_threshold", e.target.value)}
+                    data-testid="shop-threshold-input"
                   />
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="tray_balance">Tray Balance</Label>
+                <Input
+                  id="tray_balance"
+                  type="number"
+                  placeholder="0"
+                  value={formData.tray_balance}
+                  onChange={(e) => handleInputChange("tray_balance", e.target.value)}
+                  data-testid="shop-tray-input"
+                />
               </div>
             </div>
             <DialogFooter>
