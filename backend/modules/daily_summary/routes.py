@@ -309,6 +309,7 @@ async def get_daily_summary(
             "sale_information": {
                 "total_initial_load": total_initial_load,
                 "total_sales": total_sales,
+                "total_collected": total_collected,
                 "total_damages": damage_today,
                 "returned": returned_crates
             },
