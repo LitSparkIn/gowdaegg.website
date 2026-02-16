@@ -10,6 +10,7 @@ class ShopModel(BaseModel):
     phone: str
     address: str
     previous_dues: float = 0.0
+    credit_threshold: float = 0.0
     route_id: str
     tray_balance: int = 0
     created_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
