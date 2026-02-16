@@ -10,6 +10,7 @@ class ShopCreateRequest(BaseModel):
     phone: str = Field(..., description="10-digit phone number")
     address: str = Field(..., min_length=1, max_length=500, description="Shop address")
     previous_dues: float = Field(default=0.0, description="Previous dues amount")
+    credit_threshold: float = Field(default=0.0, description="Credit threshold limit")
     route_id: str = Field(..., description="Route ID the shop belongs to")
     tray_balance: int = Field(default=0, description="Tray balance count")
     
@@ -28,6 +29,7 @@ class ShopUpdateRequest(BaseModel):
     phone: Optional[str] = Field(None, description="10-digit phone number")
     address: Optional[str] = Field(None, min_length=1, max_length=500, description="Shop address")
     previous_dues: Optional[float] = Field(None, description="Previous dues amount")
+    credit_threshold: Optional[float] = Field(None, description="Credit threshold limit")
     route_id: Optional[str] = Field(None, description="Route ID the shop belongs to")
     tray_balance: Optional[int] = Field(None, description="Tray balance count")
     
@@ -55,6 +57,7 @@ class ShopResponse(BaseModel):
     phone: str
     address: str
     previous_dues: float
+    credit_threshold: float = 0.0
     route_id: str
     route: Optional[RouteInfo] = None
     tray_balance: int
