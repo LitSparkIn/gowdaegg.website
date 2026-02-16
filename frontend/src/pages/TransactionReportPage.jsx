@@ -581,17 +581,6 @@ const TransactionReportPage = () => {
           </div>
         </CardContent>
       </Card>
-                  className="text-muted-foreground hover:text-foreground"
-                  data-testid="clear-filters-btn"
-                >
-                  <X size={16} className="mr-1" />
-                  Clear
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
