@@ -132,12 +132,14 @@ async def get_daily_summary(
         {"$group": {
             "_id": None,
             "total_crates": {"$sum": "$crates"},
-            "total_value": {"$sum": "$order_amount"}
+            "total_value": {"$sum": "$order_amount"},
+            "total_collected": {"$sum": "$collected_amount"}
         }}
     ]
     today_sales_result = await db.sales.aggregate(today_sales_pipeline).to_list(1)
     total_sales = today_sales_result[0]["total_crates"] if today_sales_result else 0
     total_sale_value = round(today_sales_result[0]["total_value"], 2) if today_sales_result else 0
+    total_collected = round(today_sales_result[0]["total_collected"], 2) if today_sales_result else 0
     
     # Calculate weighted average sale rate: Total Value / (Total Crates * 30 eggs)
     sale_rate = round(total_sale_value / (total_sales * 30), 2) if total_sales > 0 else 0
