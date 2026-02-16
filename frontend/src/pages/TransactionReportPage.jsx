@@ -299,7 +299,7 @@ const TransactionReportPage = () => {
       // Summary
       doc.setFontSize(9);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Total Transactions: ${totals.total_records}  |  Crates: ${totals.total_crates}  |  Order Amt: ₹${totals.total_order_amount.toLocaleString()}  |  Collected: ₹${totals.total_collected.toLocaleString()}  |  Pending: ₹${totals.total_pending.toLocaleString()}`, 14, 33);
+      doc.text(`Total Transactions: ${totals.total_records}  |  Crates: ${totals.total_crates}  |  Order Amt: Rs.${totals.total_order_amount.toLocaleString()}  |  Collected: Rs.${totals.total_collected.toLocaleString()}  |  Pending: Rs.${totals.total_pending.toLocaleString()}`, 14, 33);
 
       // Table data
       const tableData = sales.map((sale) => [
@@ -311,10 +311,10 @@ const TransactionReportPage = () => {
         sale.shop_name,
         sale.route_name || "N/A",
         sale.crates,
-        `₹${sale.price}`,
-        `₹${sale.order_amount.toLocaleString()}`,
-        `₹${sale.collected_amount.toLocaleString()}`,
-        `₹${sale.pending_amount.toLocaleString()}`,
+        `Rs.${sale.price}`,
+        `Rs.${sale.order_amount.toLocaleString()}`,
+        `Rs.${sale.collected_amount.toLocaleString()}`,
+        `Rs.${sale.pending_amount.toLocaleString()}`,
         sale.return_tray
       ]);
 
@@ -323,13 +323,13 @@ const TransactionReportPage = () => {
         "TOTALS", "", "", "", "", "", "",
         totals.total_crates,
         "",
-        `₹${totals.total_order_amount.toLocaleString()}`,
-        `₹${totals.total_collected.toLocaleString()}`,
-        `₹${totals.total_pending.toLocaleString()}`,
+        `Rs.${totals.total_order_amount.toLocaleString()}`,
+        `Rs.${totals.total_collected.toLocaleString()}`,
+        `Rs.${totals.total_pending.toLocaleString()}`,
         totals.total_return_tray
       ]);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: 38,
         head: [["Date", "Time", "Type", "Payment", "Salesman", "Shop", "Route", "Crates", "Price", "Order Amt", "Collected", "Pending", "Ret Tray"]],
         body: tableData,
