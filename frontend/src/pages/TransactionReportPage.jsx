@@ -417,26 +417,27 @@ const TransactionReportPage = () => {
       {/* Filters */}
       <Card className="border-border/50">
         <CardContent className="pt-6">
-          <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Filter size={18} className="text-muted-foreground" />
-              <span className="text-sm font-medium">Filters:</span>
-            </div>
+          <div className="flex items-center gap-2 mb-4">
+            <Filter size={18} className="text-muted-foreground" />
+            <span className="text-sm font-medium">Filters</span>
+          </div>
             
-            <div className="flex flex-wrap items-center gap-3">
-              {/* From Date */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4">
+            {/* From Date */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">From Date</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-[150px] justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal",
                       !fromDate && "text-muted-foreground"
                     )}
                     data-testid="from-date-btn"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, "dd MMM yyyy") : "From Date"}
+                    {fromDate ? format(fromDate, "dd MMM yyyy") : "Select"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -448,20 +449,23 @@ const TransactionReportPage = () => {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
 
-              {/* To Date */}
+            {/* To Date */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">To Date</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-[150px] justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal",
                       !toDate && "text-muted-foreground"
                     )}
                     data-testid="to-date-btn"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, "dd MMM yyyy") : "To Date"}
+                    {toDate ? format(toDate, "dd MMM yyyy") : "Select"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -473,10 +477,13 @@ const TransactionReportPage = () => {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
 
-              {/* Salesman Filter */}
+            {/* Salesman Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Salesman</label>
               <Select value={selectedSalesman || "all"} onValueChange={(val) => setSelectedSalesman(val === "all" ? "" : val)}>
-                <SelectTrigger className="w-[170px]" data-testid="salesman-filter">
+                <SelectTrigger className="w-full" data-testid="salesman-filter">
                   <SelectValue placeholder="All Salesmen" />
                 </SelectTrigger>
                 <SelectContent>
@@ -488,10 +495,13 @@ const TransactionReportPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
 
-              {/* Type Filter */}
+            {/* Type Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Type</label>
               <Select value={selectedType || "all"} onValueChange={(val) => setSelectedType(val === "all" ? "" : val)}>
-                <SelectTrigger className="w-[140px]" data-testid="type-filter">
+                <SelectTrigger className="w-full" data-testid="type-filter">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -500,10 +510,13 @@ const TransactionReportPage = () => {
                   <SelectItem value="Collection">Collection</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
 
-              {/* Payment Filter */}
+            {/* Payment Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Payment</label>
               <Select value={selectedPayment || "all"} onValueChange={(val) => setSelectedPayment(val === "all" ? "" : val)}>
-                <SelectTrigger className="w-[140px]" data-testid="payment-filter">
+                <SelectTrigger className="w-full" data-testid="payment-filter">
                   <SelectValue placeholder="All Payments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -514,10 +527,13 @@ const TransactionReportPage = () => {
                   <SelectItem value="Bill">Bill</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
 
-              {/* Route Filter */}
+            {/* Route Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Route</label>
               <Select value={selectedRoute || "all"} onValueChange={(val) => setSelectedRoute(val === "all" ? "" : val)}>
-                <SelectTrigger className="w-[160px]" data-testid="route-filter">
+                <SelectTrigger className="w-full" data-testid="route-filter">
                   <SelectValue placeholder="All Routes" />
                 </SelectTrigger>
                 <SelectContent>
@@ -529,11 +545,14 @@ const TransactionReportPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
 
-              {/* Image Filter */}
+            {/* Image Filter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Image</label>
               <Select value={selectedImage || "all"} onValueChange={(val) => setSelectedImage(val === "all" ? "" : val)}>
-                <SelectTrigger className="w-[150px]" data-testid="image-filter">
-                  <SelectValue placeholder="All Images" />
+                <SelectTrigger className="w-full" data-testid="image-filter">
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
@@ -541,13 +560,27 @@ const TransactionReportPage = () => {
                   <SelectItem value="without">Without Image</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
 
-              {/* Clear Filters */}
+            {/* Clear Filters */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-transparent">Clear</label>
               {(fromDate || toDate || selectedSalesman || selectedType || selectedPayment || selectedRoute || selectedImage) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={clearFilters}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full h-10"
+                  data-testid="clear-filters-btn"
+                >
+                  <X size={16} className="mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
                   className="text-muted-foreground hover:text-foreground"
                   data-testid="clear-filters-btn"
                 >
