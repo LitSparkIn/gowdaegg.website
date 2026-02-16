@@ -486,6 +486,7 @@ const DailySummaryPage = () => {
                       <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Salesman</th>
                       <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Loaded</th>
                       <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Sold</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Collected</th>
                       <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Avg Rate</th>
                       <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
                     </tr>
@@ -521,6 +522,21 @@ const DailySummaryPage = () => {
                           )}>
                             {formatNumber(salesman.sold)}
                           </span>
+                        </td>
+                        <td className="text-right py-3 px-4">
+                          <div>
+                            <span className={cn(
+                              "font-semibold",
+                              salesman.collected > 0 ? "text-purple-600" : "text-muted-foreground"
+                            )}>
+                              {salesman.collected > 0 ? formatCurrency(salesman.collected) : "-"}
+                            </span>
+                            {salesman.collection_count > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                ({salesman.collection_count} txn)
+                              </p>
+                            )}
+                          </div>
                         </td>
                         <td className="text-right py-3 px-4">
                           <span className="text-sm">
