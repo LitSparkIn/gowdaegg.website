@@ -268,13 +268,16 @@ const ShopPage = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Route</TableHead>
+                    <TableHead className="text-right">Credit Threshold</TableHead>
                     <TableHead className="text-right">Previous Dues</TableHead>
                     <TableHead className="text-right">Tray Balance</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {shops.map((shop, index) => (
+                  {shops.map((shop, index) => {
+                    const isAboveThreshold = shop.credit_threshold > 0 && shop.previous_dues > shop.credit_threshold;
+                    return (
                     <TableRow key={shop.id} data-testid={`shop-row-${index}`}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell>
@@ -297,8 +300,15 @@ const ShopPage = () => {
                           {shop.route?.route_name || "N/A"}
                         </span>
                       </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatCurrency(shop.credit_threshold || 0)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className={shop.previous_dues > 0 ? "text-red-600 font-medium" : ""}>
+                        <span className={
+                          isAboveThreshold 
+                            ? "text-red-600 font-semibold px-2 py-1 border-2 border-red-500 rounded bg-red-50" 
+                            : shop.previous_dues > 0 ? "text-red-600 font-medium" : ""
+                        }>
                           {formatCurrency(shop.previous_dues)}
                         </span>
                       </TableCell>
@@ -326,7 +336,8 @@ const ShopPage = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
