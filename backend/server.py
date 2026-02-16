@@ -67,6 +67,7 @@ from modules.sale_report.routes import admin_router as sale_report_admin_router
 from modules.daily_summary.routes import router as daily_summary_router
 from modules.dashboard.routes import router as dashboard_router
 from modules.settings.routes import router as settings_router
+from modules.public.routes import router as public_router
 
 api_router.include_router(auth_router)
 api_router.include_router(route_router)
@@ -85,6 +86,7 @@ api_router.include_router(sale_report_admin_router)
 api_router.include_router(daily_summary_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(settings_router)
+api_router.include_router(public_router)
 
 # Include the main api router
 app.include_router(api_router)
