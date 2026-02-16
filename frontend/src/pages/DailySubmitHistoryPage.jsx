@@ -38,10 +38,7 @@ const DailySubmitHistoryPage = () => {
   const fetchSummaries = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
-        `/daily-summary/submitted`,
-        getAuthHeaders()
-      );
+      const response = await api.get(`/daily-summary/submitted`);
       setSummaries(response.data.data.summaries || []);
     } catch (error) {
       console.error("Error fetching summaries:", error);
