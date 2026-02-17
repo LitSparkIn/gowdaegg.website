@@ -122,6 +122,48 @@ const DailySummaryPage = () => {
     }
   };
 
+  const handleOpenSalesmanSubmitDialog = (salesman) => {
+    setSelectedSalesman(salesman);
+    setSalesmanReportForm({
+      crates_damaged: 0,
+      expense: 0,
+      empty_crates_returned: 0,
+      comments: ""
+    });
+    setShowSalesmanSubmitDialog(true);
+  };
+
+  const handleSalesmanReportSubmit = async () => {
+    if (!selectedSalesman) return;
+    
+    try {
+      setSalesmanSubmitting(true);
+      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      
+      const formData = new FormData();
+      formData.append("crates_damaged", salesmanReportForm.crates_damaged);
+      formData.append("expense", salesmanReportForm.expense);
+      formData.append("empty_crates_returned", salesmanReportForm.empty_crates_returned);
+      formData.append("comments", salesmanReportForm.comments);
+      formData.append("date", dateStr);
+      
+      await api.post(`/sale-reports/submit-for-salesman/${selectedSalesman.id}`, formData);
+      
+      toast.success(`Report submitted for ${selectedSalesman.name}`);
+      setShowSalesmanSubmitDialog(false);
+      setSelectedSalesman(null);
+      
+      // Refresh the summary
+      fetchSummary();
+    } catch (error) {
+      console.error("Error submitting salesman report:", error);
+      const errorMsg = error.response?.data?.detail || "Failed to submit report";
+      toast.error(errorMsg);
+    } finally {
+      setSalesmanSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     fetchSummary();
   }, [selectedDate]);
