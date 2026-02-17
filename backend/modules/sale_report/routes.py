@@ -149,3 +149,107 @@ async def delete_sale_report(
         data=None,
         message="Sale report deleted successfully"
     )
+
+@admin_router.post("/submit-for-salesman/{salesman_id}")
+async def admin_submit_sale_report(
+    salesman_id: str,
+    crates_damaged: int = Form(default=0),
+    expense: float = Form(default=0),
+    empty_crates_returned: int = Form(default=0),
+    comments: str = Form(default=""),
+    date: Optional[str] = Form(default=None),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Admin submits sale report on behalf of a salesman.
+    Auto-calculates initial_crates, crates_sold, cash/cheque/online from the day's transactions.
+    """
+    from core.timezone import get_ist_date
+    
+    target_date = date or get_ist_date()
+    
+    # Check if already submitted
+    existing = await db.sale_reports.find_one({
+        "salesman_id": salesman_id,
+        "report_date": target_date
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="Report already submitted for this date")
+    
+    # Get salesman info
+    salesman = await db.salesmen.find_one({"id": salesman_id}, {"_id": 0})
+    if not salesman:
+        raise HTTPException(status_code=404, detail="Salesman not found")
+    
+    # Get initial load for the day
+    load_pipeline = [
+        {"$match": {"salesman_id": salesman_id, "load_date": target_date}},
+        {"$group": {"_id": None, "total": {"$sum": "$initial_crates"}}}
+    ]
+    load_result = await db.initial_loads.aggregate(load_pipeline).to_list(1)
+    initial_crates = load_result[0]["total"] if load_result else 0
+    
+    # Get sales data for the day
+    sales_pipeline = [
+        {"$match": {"salesman_id": salesman_id, "sale_date": target_date}},
+        {"$group": {
+            "_id": None,
+            "total_sold": {"$sum": "$crates"},
+            "total_return_tray": {"$sum": "$return_tray"},
+            "total_cash": {"$sum": {"$cond": [{"$eq": ["$payment_type", "Cash"]}, "$collected_amount", 0]}},
+            "total_cheque": {"$sum": {"$cond": [{"$eq": ["$payment_type", "Cheque"]}, "$collected_amount", 0]}},
+            "total_online": {"$sum": {"$cond": [{"$in": ["$payment_type", ["UPI", "Online"]]}, "$collected_amount", 0]}}
+        }}
+    ]
+    sales_result = await db.sales.aggregate(sales_pipeline).to_list(1)
+    
+    if sales_result:
+        crates_sold = sales_result[0].get("total_sold", 0)
+        return_tray = sales_result[0].get("total_return_tray", 0)
+        cash_collected = sales_result[0].get("total_cash", 0)
+        cheque = sales_result[0].get("total_cheque", 0)
+        online = sales_result[0].get("total_online", 0)
+    else:
+        crates_sold = 0
+        return_tray = 0
+        cash_collected = 0
+        cheque = 0
+        online = 0
+    
+    # Calculate remaining
+    remaining_crates = initial_crates - crates_sold - crates_damaged
+    remaining_cash = cash_collected - expense
+    
+    # Create report
+    from core.timezone import get_ist_now
+    import uuid
+    
+    report = {
+        "id": str(uuid.uuid4()),
+        "salesman_id": salesman_id,
+        "salesman_name": salesman.get("name", "Unknown"),
+        "report_date": target_date,
+        "initial_crates": initial_crates,
+        "crates_sold": crates_sold,
+        "crates_damaged": crates_damaged,
+        "remaining_crates": remaining_crates,
+        "cash_collected": cash_collected,
+        "expense": expense,
+        "remaining_cash": remaining_cash,
+        "cheque": cheque,
+        "online": online,
+        "return_tray": return_tray + empty_crates_returned,
+        "empty_crates_returned": empty_crates_returned,
+        "comments": comments,
+        "image_url": None,
+        "submitted_at": get_ist_now().isoformat(),
+        "submitted_by_admin": True
+    }
+    
+    await db.sale_reports.insert_one(report)
+    
+    return success_response(
+        data=report,
+        message=f"Sale report submitted for {salesman.get('name', 'Unknown')}"
+    )
