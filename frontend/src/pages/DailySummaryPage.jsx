@@ -140,14 +140,13 @@ const DailySummaryPage = () => {
       setSalesmanSubmitting(true);
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       
-      const formData = new FormData();
-      formData.append("crates_damaged", salesmanReportForm.crates_damaged);
-      formData.append("expense", salesmanReportForm.expense);
-      formData.append("empty_crates_returned", salesmanReportForm.empty_crates_returned);
-      formData.append("comments", salesmanReportForm.comments);
-      formData.append("date", dateStr);
-      
-      await api.post(`/sale-reports/submit-for-salesman/${selectedSalesman.id}`, formData);
+      await api.post(`/sale-reports/submit-for-salesman/${selectedSalesman.id}`, {
+        crates_damaged: salesmanReportForm.crates_damaged,
+        expense: salesmanReportForm.expense,
+        empty_crates_returned: salesmanReportForm.empty_crates_returned,
+        comments: salesmanReportForm.comments,
+        date: dateStr
+      });
       
       toast.success(`Report submitted for ${selectedSalesman.name}`);
       setShowSalesmanSubmitDialog(false);
