@@ -80,8 +80,9 @@ async def update_settings(
             "whatsapp_enabled": False,
             "sms_enabled": False,
             "whatsapp_api_token": None,
-            "whatsapp_phone_number_id": "109780805521902",
-            "whatsapp_template_id": "gowda_egg_sale_receipt",
+            "whatsapp_phone_number_id": "937349779458170",
+            "whatsapp_template_id": "gowda_egg_wa_template",
+            "whatsapp_header_image_url": "https://litspark.solutions/litspark-logo.png",
             "msg91_auth_key": None,
             "msg91_template_id": None,
             "updated_at": get_ist_now().isoformat()
@@ -100,6 +101,8 @@ async def update_settings(
         update_data["whatsapp_phone_number_id"] = request.whatsapp_phone_number_id
     if request.whatsapp_template_id is not None:
         update_data["whatsapp_template_id"] = request.whatsapp_template_id
+    if request.whatsapp_header_image_url is not None:
+        update_data["whatsapp_header_image_url"] = request.whatsapp_header_image_url
     if request.msg91_auth_key is not None:
         update_data["msg91_auth_key"] = request.msg91_auth_key
     if request.msg91_template_id is not None:
