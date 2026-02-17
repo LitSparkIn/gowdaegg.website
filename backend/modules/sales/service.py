@@ -130,10 +130,6 @@ class SaleService:
         # Send notifications based on settings (non-blocking)
         shop_phone = shop.get("phone", "")
         if shop_phone:
-            # Get route info for WhatsApp button
-            route = await self.db.routes.find_one({"id": shop.get("route_id")}, {"_id": 0, "route_name": 1})
-            route_slug = route.get("route_name", "").lower().replace(" ", "-") if route else "default"
-            
             # Format datetime for notifications
             transaction_datetime = now.isoformat()
             order_date = now.strftime("%d %b %Y %I:%M %p")
@@ -152,8 +148,7 @@ class SaleService:
                     payment_type=request.payment_type,
                     tray_balance=new_tray_balance,
                     transaction_datetime=transaction_datetime,
-                    order_date=order_date,
-                    route_slug=route_slug
+                    order_date=order_date
                 )
             )
         
