@@ -8,6 +8,7 @@ class SettingsUpdateRequest(BaseModel):
     whatsapp_api_token: Optional[str] = None
     whatsapp_phone_number_id: Optional[str] = None
     whatsapp_template_id: Optional[str] = None
+    whatsapp_header_image_url: Optional[str] = None
     msg91_auth_key: Optional[str] = None
     msg91_template_id: Optional[str] = None
 
@@ -18,6 +19,7 @@ class SettingsResponse(BaseModel):
     sms_enabled: bool
     whatsapp_phone_number_id: str
     whatsapp_template_id: str
+    whatsapp_header_image_url: str = "https://litspark.solutions/litspark-logo.png"
     # Don't expose tokens in response for security
     whatsapp_api_token_set: bool
     msg91_auth_key_set: bool
