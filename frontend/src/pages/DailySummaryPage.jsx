@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -20,6 +22,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Loader2, 
   CalendarIcon, 
@@ -33,12 +43,10 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  Lock
+  Lock,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
 
 const DailySummaryPage = () => {
   const [summary, setSummary] = useState(null);
@@ -48,6 +56,17 @@ const DailySummaryPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedAt, setSubmittedAt] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  
+  // Salesman report submission state
+  const [showSalesmanSubmitDialog, setShowSalesmanSubmitDialog] = useState(false);
+  const [selectedSalesman, setSelectedSalesman] = useState(null);
+  const [salesmanSubmitting, setSalesmanSubmitting] = useState(false);
+  const [salesmanReportForm, setSalesmanReportForm] = useState({
+    crates_damaged: 0,
+    expense: 0,
+    empty_crates_returned: 0,
+    comments: ""
+  });
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
