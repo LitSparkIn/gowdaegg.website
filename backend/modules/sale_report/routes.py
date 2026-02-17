@@ -249,6 +249,9 @@ async def admin_submit_sale_report(
     
     await db.sale_reports.insert_one(report)
     
+    # Remove _id for JSON serialization
+    report.pop("_id", None)
+    
     return success_response(
         data=report,
         message=f"Sale report submitted for {salesman.get('name', 'Unknown')}"
