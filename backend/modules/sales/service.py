@@ -195,8 +195,9 @@ class SaleService:
             if whatsapp_enabled:
                 whatsapp_token = settings.get("whatsapp_api_token")
                 if whatsapp_token:
-                    whatsapp_template = settings.get("whatsapp_template_id", "gowda_egg_sale_receipt")
-                    phone_number_id = settings.get("whatsapp_phone_number_id", "109780805521902")
+                    whatsapp_template = settings.get("whatsapp_template_id", "gowda_egg_wa_template")
+                    phone_number_id = settings.get("whatsapp_phone_number_id", "937349779458170")
+                    image_url = settings.get("whatsapp_header_image_url", "https://litspark.solutions/litspark-logo.png")
                     
                     result = await NotificationService.send_whatsapp(
                         phone=phone,
@@ -211,9 +212,9 @@ class SaleService:
                         tray_balance=tray_balance,
                         sale_datetime=transaction_datetime,
                         template_id=whatsapp_template,
-                        route_slug=route_slug,
                         api_token=whatsapp_token,
-                        phone_number_id=phone_number_id
+                        phone_number_id=phone_number_id,
+                        image_url=image_url
                     )
                     logger.info(f"WhatsApp result: {result}")
                 else:
