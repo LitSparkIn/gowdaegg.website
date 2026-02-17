@@ -615,10 +615,21 @@ const DailySummaryPage = () => {
                               Submitted
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
-                              <XCircle size={12} />
-                              Pending
-                            </span>
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                                <XCircle size={12} />
+                                Pending
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs border-primary text-primary hover:bg-primary hover:text-white"
+                                onClick={() => handleOpenSalesmanSubmitDialog(salesman)}
+                              >
+                                <FileText size={12} className="mr-1" />
+                                Submit
+                              </Button>
+                            </div>
                           )}
                         </td>
                       </tr>
