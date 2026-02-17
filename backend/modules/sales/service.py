@@ -172,8 +172,7 @@ class SaleService:
         payment_type: str,
         tray_balance: int,
         transaction_datetime: str,
-        order_date: str,
-        route_slug: str
+        order_date: str
     ):
         """Send WhatsApp and/or SMS notifications based on settings"""
         try:
