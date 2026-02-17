@@ -279,7 +279,7 @@ const Dashboard = () => {
                   <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="#9ca3af" />
                   <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    formatter={(value, name) => [formatCurrency(value), name === "total_sales" ? "Sales" : "Collected"]}
+                    formatter={(value, name) => [formatCurrency(value), name]}
                     labelFormatter={(label) => `Day: ${label}`}
                   />
                   <Legend />
