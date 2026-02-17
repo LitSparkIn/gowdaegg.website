@@ -723,6 +723,134 @@ const DailySummaryPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Salesman Report Submit Dialog */}
+      <Dialog open={showSalesmanSubmitDialog} onOpenChange={setShowSalesmanSubmitDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText size={20} className="text-primary" />
+              Submit Report for {selectedSalesman?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Enter the following details to submit the daily report for this salesman.
+              Sales data will be auto-calculated from their transactions.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedSalesman && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-muted-foreground">Loaded:</span>
+                  <span className="ml-2 font-medium text-blue-600">{selectedSalesman.loaded}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Sold:</span>
+                  <span className="ml-2 font-medium text-green-600">{selectedSalesman.sold}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Collected:</span>
+                  <span className="ml-2 font-medium text-purple-600">{formatCurrency(selectedSalesman.collected || 0)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="ml-2 font-medium">{format(selectedDate, "dd MMM yyyy")}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="crates_damaged">Damaged Crates</Label>
+              <Input
+                id="crates_damaged"
+                type="number"
+                min="0"
+                value={salesmanReportForm.crates_damaged}
+                onChange={(e) => setSalesmanReportForm(prev => ({
+                  ...prev,
+                  crates_damaged: parseInt(e.target.value) || 0
+                }))}
+                placeholder="0"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="expense">Expenses (₹)</Label>
+              <Input
+                id="expense"
+                type="number"
+                min="0"
+                step="0.01"
+                value={salesmanReportForm.expense}
+                onChange={(e) => setSalesmanReportForm(prev => ({
+                  ...prev,
+                  expense: parseFloat(e.target.value) || 0
+                }))}
+                placeholder="0.00"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="empty_crates_returned">Empty Crates Returned</Label>
+              <Input
+                id="empty_crates_returned"
+                type="number"
+                min="0"
+                value={salesmanReportForm.empty_crates_returned}
+                onChange={(e) => setSalesmanReportForm(prev => ({
+                  ...prev,
+                  empty_crates_returned: parseInt(e.target.value) || 0
+                }))}
+                placeholder="0"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="comments">Comments (Optional)</Label>
+              <Input
+                id="comments"
+                type="text"
+                value={salesmanReportForm.comments}
+                onChange={(e) => setSalesmanReportForm(prev => ({
+                  ...prev,
+                  comments: e.target.value
+                }))}
+                placeholder="Any additional notes..."
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowSalesmanSubmitDialog(false)}
+              disabled={salesmanSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSalesmanReportSubmit}
+              disabled={salesmanSubmitting}
+              className="bg-primary hover:bg-primary-600"
+            >
+              {salesmanSubmitting ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={16} className="mr-2" />
+                  Submit Report
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
