@@ -15,6 +15,14 @@ class SaleReportSubmitRequest(BaseModel):
     return_tray: int = Field(default=0, ge=0, description="Return Trays")
     comments: str = Field(default="", description="Comments")
 
+class AdminSaleReportSubmitRequest(BaseModel):
+    """Schema for admin submitting a sale report on behalf of a salesman"""
+    crates_damaged: int = Field(default=0, ge=0, description="Damaged Crates")
+    expense: float = Field(default=0, ge=0, description="Expense")
+    empty_crates_returned: int = Field(default=0, ge=0, description="Empty Crates Returned")
+    comments: str = Field(default="", description="Comments")
+    date: Optional[str] = Field(default=None, description="Date for the report (YYYY-MM-DD)")
+
 # ============ Response Schemas ============
 
 class SaleReportResponse(BaseModel):
