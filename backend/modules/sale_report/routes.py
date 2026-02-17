@@ -153,11 +153,7 @@ async def delete_sale_report(
 @admin_router.post("/submit-for-salesman/{salesman_id}")
 async def admin_submit_sale_report(
     salesman_id: str,
-    crates_damaged: int = Form(default=0),
-    expense: float = Form(default=0),
-    empty_crates_returned: int = Form(default=0),
-    comments: str = Form(default=""),
-    date: Optional[str] = Form(default=None),
+    request: AdminSaleReportSubmitRequest,
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: dict = Depends(verify_admin)
 ):
@@ -167,7 +163,11 @@ async def admin_submit_sale_report(
     """
     from core.timezone import get_ist_date
     
-    target_date = date or get_ist_date()
+    target_date = request.date or get_ist_date()
+    crates_damaged = request.crates_damaged
+    expense = request.expense
+    empty_crates_returned = request.empty_crates_returned
+    comments = request.comments
     
     # Check if already submitted
     existing = await db.sale_reports.find_one({
