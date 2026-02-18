@@ -481,15 +481,26 @@ const DailySubmittedReportPage = () => {
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground py-4">{formatDateTime(report.submitted_at)}</TableCell>
                       <TableCell className="text-center py-4">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleViewDetails(report)}
-                          data-testid={`view-report-${index}`}
-                          className="hover:bg-primary/10 hover:text-primary"
-                        >
-                          <Eye size={16} />
-                        </Button>
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditClick(report)}
+                            data-testid={`edit-report-${index}`}
+                            className="hover:bg-blue-100 hover:text-blue-600"
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewDetails(report)}
+                            data-testid={`view-report-${index}`}
+                            className="hover:bg-primary/10 hover:text-primary"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
