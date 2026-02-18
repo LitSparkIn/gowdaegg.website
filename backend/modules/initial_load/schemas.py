@@ -7,6 +7,10 @@ class InitialLoadCreateRequest(BaseModel):
     """Schema for creating initial load"""
     initial_crates: int = Field(..., gt=0, description="Number of initial crates")
 
+class InitialLoadUpdateRequest(BaseModel):
+    """Schema for updating initial load"""
+    initial_crates: int = Field(..., gt=0, description="Number of initial crates")
+
 # ============ Response Schemas ============
 
 class InitialLoadResponse(BaseModel):
