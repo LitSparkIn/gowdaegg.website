@@ -292,7 +292,7 @@ const ShopPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {shops.map((shop, index) => {
+                  {filteredShops.map((shop, index) => {
                     const isAboveThreshold = shop.credit_threshold > 0 && shop.previous_dues > shop.credit_threshold;
                     return (
                     <TableRow key={shop.id} data-testid={`shop-row-${index}`}>
