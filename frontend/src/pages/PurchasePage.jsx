@@ -628,15 +628,26 @@ const PurchasePage = () => {
                       <TableCell className="text-right text-green-600 font-medium py-4">{formatCurrency(purchase.amount_paid)}</TableCell>
                       <TableCell className="text-right text-red-600 font-medium py-4">{formatCurrency(purchase.pending_amount)}</TableCell>
                       <TableCell className="text-right py-4">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(purchase)}
-                          data-testid={`delete-purchase-${index}`}
-                          className="hover:bg-red-100 hover:text-red-600"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenDialog(purchase)}
+                            data-testid={`edit-purchase-${index}`}
+                            className="hover:bg-blue-100 hover:text-blue-600"
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(purchase)}
+                            data-testid={`delete-purchase-${index}`}
+                            className="hover:bg-red-100 hover:text-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
