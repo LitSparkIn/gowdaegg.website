@@ -6,7 +6,7 @@ from core.database import get_database
 from core.response import success_response
 from auth.security import get_current_user
 from modules.purchase.service import PurchaseService
-from modules.purchase.schemas import PurchaseCreateRequest
+from modules.purchase.schemas import PurchaseCreateRequest, PurchaseUpdateRequest
 
 router = APIRouter(prefix="/purchases", tags=["Purchases"])
 
