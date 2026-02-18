@@ -182,6 +182,7 @@ const DailySubmittedReportPage = () => {
     setEditForm({
       crates_damaged: report.crates_damaged?.toString() || "0",
       expense: report.expense?.toString() || "0",
+      empty_crates_returned: report.return_tray?.toString() || "0",
       comments: report.comments || ""
     });
     setIsEditDialogOpen(true);
