@@ -465,6 +465,12 @@ const DailySummaryPage = () => {
                   value={formatCurrency(summary.expenses.other_expenses)}
                   valueClass="text-red-600"
                 />
+                <SummaryRowWithCalc 
+                  label="Damage Loss" 
+                  value={formatCurrency(summary.expenses.damage_loss || 0)}
+                  calculation={`${formatNumber(summary.crate_information.damage)} crates × 30 × ₹${summary.crate_information.average_rate}`}
+                  valueClass="text-red-600"
+                />
                 <SummaryRow 
                   label="Total Expenses" 
                   value={formatCurrency(summary.expenses.total_expenses)}
