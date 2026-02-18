@@ -266,7 +266,7 @@ const RoutePage = () => {
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell 
                       className="font-medium text-primary cursor-pointer hover:underline"
-                      onClick={() => navigate(`/admin/shops?route=${route.id}`)}
+                      onClick={() => navigate(`/admin/shop?route=${route.id}`)}
                     >
                       {route.route_name}
                     </TableCell>
