@@ -92,7 +92,10 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
   - DailySubmittedReportPage (by salesman name)
   - DailySubmitHistoryPage (by date)
 
-- ✅ **Export Feature**: Added PDF/Excel export to transaction report page
+- ✅ **Export Feature**: Added PDF/Excel/Print export to multiple pages:
+  - Transaction Report, Shop, Route, Purchase, Expense, Supplier, Salesman pages
+  - Daily Summary Page (PDF/Print for single day summary)
+  - Daily Submit History Page (Excel/PDF/Print for list + PDF/Print for individual summary in View Dialog)
 - ✅ **Notification System**: WhatsApp/SMS notification settings page for admins
 - ✅ **Credit Threshold**: Shop credit limits with highlighting in reports
 - ✅ **Global 401 Handler**: Automatic logout on unauthorized API responses
