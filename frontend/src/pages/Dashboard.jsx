@@ -773,6 +773,75 @@ const Dashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Clear Data Dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle size={20} />
+              Clear Data
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Select the data you want to permanently delete. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4 space-y-3 max-h-[300px] overflow-y-auto">
+            {CLEAR_OPTIONS.map(({ key, label, icon: Icon, color }) => (
+              <div
+                key={key}
+                className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+                  selectedCollections.includes(key) 
+                    ? "border-red-300 bg-red-50" 
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => toggleCollection(key)}
+              >
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedCollections.includes(key)}
+                    onCheckedChange={() => toggleCollection(key)}
+                  />
+                  <Icon size={18} className={color} />
+                  <span className="font-medium">{label}</span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {collectionCounts[key] || 0} records
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          {selectedCollections.length > 0 && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              <strong>Warning:</strong> You are about to delete data from {selectedCollections.length} collection(s). 
+              This will permanently remove all records.
+            </div>
+          )}
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={clearing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearData}
+              disabled={clearing || selectedCollections.length === 0}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {clearing ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Clearing...
+                </>
+              ) : (
+                <>
+                  <Trash2 size={16} className="mr-2" />
+                  Clear Selected
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
