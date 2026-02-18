@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from modules.purchase.repository import PurchaseRepository
 from modules.purchase.models import PurchaseModel
-from modules.purchase.schemas import PurchaseCreateRequest, PurchaseResponse
+from modules.purchase.schemas import PurchaseCreateRequest, PurchaseUpdateRequest, PurchaseResponse
 from core.exceptions import NotFoundException, BadRequestException
 from core.timezone import get_ist_now
 
