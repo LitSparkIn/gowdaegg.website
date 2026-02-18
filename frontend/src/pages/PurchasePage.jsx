@@ -371,14 +371,25 @@ const PurchasePage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Purchase Management</h1>
           <p className="text-muted-foreground">Track purchases from suppliers</p>
         </div>
-        <Button
-          onClick={handleOpenDialog}
-          data-testid="add-purchase-btn"
-          className="rounded-full bg-primary hover:bg-primary-600"
-        >
-          <Plus size={20} className="mr-2" />
-          Add Purchase
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToExcel} disabled={loading || filteredPurchases.length === 0}>
+            <FileSpreadsheet size={16} className="mr-1" /> Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportToPDF} disabled={loading || filteredPurchases.length === 0}>
+            <FileText size={16} className="mr-1" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || filteredPurchases.length === 0}>
+            <Printer size={16} className="mr-1" /> Print
+          </Button>
+          <Button
+            onClick={handleOpenDialog}
+            data-testid="add-purchase-btn"
+            className="rounded-full bg-primary hover:bg-primary-600"
+          >
+            <Plus size={20} className="mr-2" />
+            Add Purchase
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
