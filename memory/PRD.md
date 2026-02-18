@@ -100,6 +100,7 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
 - ✅ **Credit Threshold**: Shop credit limits with highlighting in reports
 - ✅ **Global 401 Handler**: Automatic logout on unauthorized API responses
 - ✅ **Admin Report Submission**: Admins can submit reports for salesmen
+- ✅ **Clear Data Feature**: Dashboard option to clear data from Routes, Shops, Admins, Salesmen, Suppliers, Purchases, Expenses, Daily Summary collections
 
 ---
 
