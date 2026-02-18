@@ -93,6 +93,7 @@ class SaleService:
             id=str(uuid.uuid4()),
             salesman_id=salesman_id,
             shop_id=request.shop_id,
+            shop_name=shop.get("name", "Unknown"),
             crates=request.crates,
             price=request.price,
             order_amount=request.order_amount,
