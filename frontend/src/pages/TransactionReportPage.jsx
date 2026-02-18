@@ -389,6 +389,91 @@ const TransactionReportPage = () => {
     }
   };
 
+  // Print function
+  const handlePrint = () => {
+    if (sales.length === 0) {
+      toast.error("No data to print");
+      return;
+    }
+
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+
+    const printContent = `
+      <html>
+        <head>
+          <title>Transaction Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #22543d; margin-bottom: 5px; }
+            .subtitle { color: #666; margin-bottom: 15px; }
+            .summary { background: #f5f5f5; padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { background: #22543d; color: white; padding: 8px; text-align: left; }
+            td { padding: 6px 8px; border-bottom: 1px solid #ddd; }
+            tr:nth-child(even) { background: #f9f9f9; }
+            .text-right { text-align: right; }
+            .totals { font-weight: bold; background: #dcede3 !important; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <h1>Gowda Egg Distributors - Transaction Report</h1>
+          <p class="subtitle">Date Range: ${fromStr} to ${toStr} | Generated: ${format(new Date(), "dd MMM yyyy, hh:mm a")}</p>
+          <div class="summary">
+            <strong>Summary:</strong> Total: ${totals.total_records} | Crates: ${totals.total_crates} | Order: ₹${totals.total_order_amount.toLocaleString()} | Collected: ₹${totals.total_collected.toLocaleString()} | Pending: ₹${totals.total_pending.toLocaleString()}
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Payment</th>
+                <th>Salesman</th>
+                <th>Shop</th>
+                <th>Route</th>
+                <th class="text-right">Crates</th>
+                <th class="text-right">Order Amt</th>
+                <th class="text-right">Collected</th>
+                <th class="text-right">Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sales.map(sale => `
+                <tr>
+                  <td>${formatDate(sale.sale_date)}</td>
+                  <td>${formatTimeIST(sale.sale_time)}</td>
+                  <td>${sale.transaction_type || (sale.crates > 0 ? "Sale" : "Collection")}</td>
+                  <td>${sale.payment_type}</td>
+                  <td>${sale.salesman_name}</td>
+                  <td>${sale.shop_name}</td>
+                  <td>${sale.route_name || "N/A"}</td>
+                  <td class="text-right">${sale.crates}</td>
+                  <td class="text-right">₹${sale.order_amount.toLocaleString()}</td>
+                  <td class="text-right">₹${sale.collected_amount.toLocaleString()}</td>
+                  <td class="text-right">₹${sale.pending_amount.toLocaleString()}</td>
+                </tr>
+              `).join("")}
+              <tr class="totals">
+                <td colspan="7">TOTALS</td>
+                <td class="text-right">${totals.total_crates}</td>
+                <td class="text-right">₹${totals.total_order_amount.toLocaleString()}</td>
+                <td class="text-right">₹${totals.total_collected.toLocaleString()}</td>
+                <td class="text-right">₹${totals.total_pending.toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
