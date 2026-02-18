@@ -19,13 +19,11 @@ const API = `${BACKEND_URL}/api`;
 
 const ChangePasswordPage = () => {
   const [loading, setLoading] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
-    currentPassword: "",
     newPassword: "",
     confirmPassword: ""
   });
@@ -40,10 +38,6 @@ const ChangePasswordPage = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.currentPassword) {
-      newErrors.currentPassword = "Current password is required";
-    }
-    
     if (!formData.newPassword) {
       newErrors.newPassword = "New password is required";
     } else if (formData.newPassword.length < 6) {
@@ -54,10 +48,6 @@ const ChangePasswordPage = () => {
       newErrors.confirmPassword = "Please confirm your new password";
     } else if (formData.newPassword !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
-    }
-    
-    if (formData.currentPassword && formData.newPassword && formData.currentPassword === formData.newPassword) {
-      newErrors.newPassword = "New password must be different from current password";
     }
     
     setErrors(newErrors);
@@ -87,7 +77,6 @@ const ChangePasswordPage = () => {
       await api.post(
         `/auth/change-password`,
         {
-          current_password: formData.currentPassword,
           new_password: formData.newPassword
         }
       );
@@ -95,7 +84,6 @@ const ChangePasswordPage = () => {
       toast.success("Password changed successfully!");
       setSuccess(true);
       setFormData({
-        currentPassword: "",
         newPassword: "",
         confirmPassword: ""
       });
@@ -103,10 +91,6 @@ const ChangePasswordPage = () => {
       console.error("Error changing password:", error);
       const errorMsg = error.response?.data?.detail || "Failed to change password";
       toast.error(errorMsg);
-      
-      if (errorMsg.toLowerCase().includes("current password")) {
-        setErrors(prev => ({ ...prev, currentPassword: errorMsg }));
-      }
     } finally {
       setLoading(false);
     }
@@ -137,39 +121,11 @@ const ChangePasswordPage = () => {
             Update Password
           </CardTitle>
           <CardDescription>
-            Enter your current password and choose a new secure password.
+            Enter your new secure password.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Current Password */}
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type={showCurrentPassword ? "text" : "password"}
-                  placeholder="Enter current password"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  className={`pl-10 pr-10 ${errors.currentPassword ? "border-red-500" : ""}`}
-                  data-testid="current-password-input"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {errors.currentPassword && (
-                <p className="text-sm text-red-500">{errors.currentPassword}</p>
-              )}
-            </div>
-
             {/* New Password */}
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
