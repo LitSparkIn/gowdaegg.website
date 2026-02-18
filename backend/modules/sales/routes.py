@@ -10,7 +10,7 @@ from core.uploads import save_upload_file
 from core.exceptions import BadRequestException
 from auth.security import get_current_user
 from modules.sales.service import SaleService
-from modules.sales.schemas import SaleCreateRequest
+from modules.sales.schemas import SaleCreateRequest, SaleUpdateRequest
 
 logger = logging.getLogger(__name__)
 
