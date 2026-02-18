@@ -319,6 +319,50 @@ const PurchasePage = () => {
 
   const paymentModes = ["Cash", "Cheque", "Online", "Bill"];
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredPurchases.map((p, i) => ({
+      "#": i+1, "Date": formatDate(p.purchase_date), "Time": formatTimeIST(p.purchase_time), "Supplier": p.supplier_name,
+      "Payment": p.payment_mode, "Crates": p.crates, "Price/Egg": p.price, "Total": p.total,
+      "Prev Dues": p.supplier_previous_dues, "Grand Total": p.grand_total, "Paid": p.paid_amount, "Pending": p.pending_amount
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Purchases");
+    const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+    XLSX.writeFile(wb, `Purchases_${fromStr}_to_${toStr}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF({ orientation: "landscape" });
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors - Purchases", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Date Range: ${fromStr} to ${toStr} | Total: ${filteredPurchases.length}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["Date", "Time", "Supplier", "Payment", "Crates", "Price", "Total", "Prev Dues", "Grand Total", "Paid", "Pending"]],
+      body: filteredPurchases.map(p => [formatDate(p.purchase_date), formatTimeIST(p.purchase_time), p.supplier_name, p.payment_mode, p.crates, `₹${p.price}`, `₹${p.total.toLocaleString()}`, `₹${p.supplier_previous_dues.toLocaleString()}`, `₹${p.grand_total.toLocaleString()}`, `₹${p.paid_amount.toLocaleString()}`, `₹${p.pending_amount.toLocaleString()}`]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 7 }, bodyStyles: { fontSize: 7 }
+    });
+    doc.save(`Purchases_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to print"); return; }
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    const html = `<html><head><title>Purchases</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#22543d;color:#fff;padding:6px}td{padding:5px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Purchases Report</h1><p>Date: ${fromStr} to ${toStr} | Total: ${filteredPurchases.length}</p><table><tr><th>Date</th><th>Time</th><th>Supplier</th><th>Payment</th><th>Crates</th><th>Price</th><th>Total</th><th>Prev Dues</th><th>Grand Total</th><th>Paid</th><th>Pending</th></tr>${filteredPurchases.map(p=>`<tr><td>${formatDate(p.purchase_date)}</td><td>${formatTimeIST(p.purchase_time)}</td><td>${p.supplier_name}</td><td>${p.payment_mode}</td><td class="text-right">${p.crates}</td><td class="text-right">₹${p.price}</td><td class="text-right">₹${p.total.toLocaleString()}</td><td class="text-right">₹${p.supplier_previous_dues.toLocaleString()}</td><td class="text-right">₹${p.grand_total.toLocaleString()}</td><td class="text-right">₹${p.paid_amount.toLocaleString()}</td><td class="text-right">₹${p.pending_amount.toLocaleString()}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="purchase-page">
       {/* Header */}
