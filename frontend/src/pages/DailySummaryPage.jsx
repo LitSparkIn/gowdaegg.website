@@ -220,12 +220,38 @@ const DailySummaryPage = () => {
       startY: yPos + 3,
       head: [["Description", "Value"]],
       body: [
-        ["Carryover from Yesterday", summary.crate_information.carryover_today],
-        ["Purchased Today", summary.crate_information.purchase_today],
+        ["Carryover Today", summary.crate_information.carryover_today],
+        ["Carryover Price", `₹${summary.crate_information.carryover_price}`],
+        ["Carryover Value", formatCurrency(summary.crate_information.carryover_value)],
+        ["Purchase Today", summary.crate_information.purchase_today],
+        ["Purchase Rate", `₹${summary.crate_information.purchase_rate}`],
+        ["Purchase Value", formatCurrency(summary.crate_information.purchase_value)],
         ["Total Crates", summary.crate_information.total_crates],
-        ["Sold Today", summary.sale_information.total_sales],
-        ["Damage Today", summary.crate_information.damage],
-        ["Remaining Today", summary.crate_information.remaining_today],
+        ["Average Rate", `₹${summary.crate_information.average_rate}`],
+        ["Damage", summary.crate_information.damage],
+        ["Net Crates", summary.crate_information.net_crates],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    
+    // Sale Information
+    doc.setFontSize(12);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Sale Information", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Value"]],
+      body: [
+        ["Total Initial Load", formatNumber(summary.sale_information.total_initial_load)],
+        ["Total Sales", formatNumber(summary.sale_information.total_sales)],
+        ["Total Collected", formatCurrency(summary.sale_information.total_collected || 0)],
+        ["Total Damages", formatNumber(summary.sale_information.total_damages)],
+        ["Returned", formatNumber(summary.sale_information.returned)],
       ],
       theme: "grid",
       headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
@@ -236,18 +262,23 @@ const DailySummaryPage = () => {
     yPos = doc.lastAutoTable.finalY + 10;
     
     // Expenses & Summary
+    doc.setFontSize(12);
+    doc.setTextColor(34, 84, 61);
     doc.text("Expenses & Summary", 14, yPos);
     autoTable(doc, {
       startY: yPos + 3,
       head: [["Description", "Amount"]],
       body: [
-        ["Salesman Expenses", `₹${formatNumber(summary.expenses.salesman_expenses)}`],
-        ["Other Expenses", `₹${formatNumber(summary.expenses.other_expenses)}`],
-        ["Damage Loss", `₹${formatNumber(summary.expenses.damage_loss || 0)}`],
-        ["Total Expenses", `₹${formatNumber(summary.expenses.total_expenses)}`],
-        ["Total Sale Value", `₹${formatNumber(summary.expenses.total_sale)}`],
-        ["Net Purchase", `₹${formatNumber(summary.expenses.net_purchase)}`],
-        ["Net Profit", `₹${formatNumber(summary.expenses.net_profit)}`],
+        ["Salesman Expenses", formatCurrency(summary.expenses.salesman_expenses)],
+        ["Other Expenses", formatCurrency(summary.expenses.other_expenses)],
+        ["Damage Loss", formatCurrency(summary.expenses.damage_loss || 0)],
+        ["Total Expenses", formatCurrency(summary.expenses.total_expenses)],
+        ["---", "---"],
+        ["Total Sale", formatCurrency(summary.expenses.total_sale)],
+        ["Net Purchase (COGS)", formatCurrency(summary.expenses.net_purchase)],
+        ["Net Profit", formatCurrency(summary.expenses.net_profit)],
+        ["---", "---"],
+        ["Carryover for Tomorrow", `${formatNumber(summary.expenses.carryover_tomorrow)} crates`],
       ],
       theme: "grid",
       headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
@@ -268,48 +299,71 @@ const DailySummaryPage = () => {
       <head>
         <title>Daily Summary - ${dateStr}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+          body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
           h1 { color: #22543d; margin-bottom: 5px; }
           .subtitle { color: #666; margin-bottom: 20px; }
+          .sections { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
           .section { margin-bottom: 20px; }
           .section-title { font-weight: bold; color: #22543d; border-bottom: 2px solid #22543d; padding-bottom: 5px; margin-bottom: 10px; }
           table { width: 100%; border-collapse: collapse; }
-          th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #ddd; }
+          th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #ddd; font-size: 13px; }
           th { background: #f5f5f5; }
           .text-right { text-align: right; }
           .highlight { font-weight: bold; background: #e8f5e9; }
           .profit { color: green; }
           .loss { color: red; }
-          @media print { body { padding: 0; } }
+          .separator { border-bottom: 1px dashed #ccc; }
+          .full-width { grid-column: 1 / -1; }
+          @media print { body { padding: 0; } .sections { gap: 15px; } }
         </style>
       </head>
       <body>
         <h1>Gowda Egg Distributors</h1>
         <p class="subtitle">Daily Summary - ${dateStr}</p>
         
-        <div class="section">
-          <div class="section-title">Crate Information</div>
-          <table>
-            <tr><td>Carryover from Yesterday</td><td class="text-right">${summary.crate_information.carryover_today}</td></tr>
-            <tr><td>Purchased Today</td><td class="text-right">${summary.crate_information.purchase_today}</td></tr>
-            <tr class="highlight"><td>Total Crates</td><td class="text-right">${summary.crate_information.total_crates}</td></tr>
-            <tr><td>Sold Today</td><td class="text-right">${summary.sale_information.total_sales}</td></tr>
-            <tr><td>Damage Today</td><td class="text-right">${summary.crate_information.damage}</td></tr>
-            <tr class="highlight"><td>Remaining Today</td><td class="text-right">${summary.crate_information.remaining_today}</td></tr>
-          </table>
-        </div>
-        
-        <div class="section">
-          <div class="section-title">Expenses & Summary</div>
-          <table>
-            <tr><td>Salesman Expenses</td><td class="text-right">₹${formatNumber(summary.expenses.salesman_expenses)}</td></tr>
-            <tr><td>Other Expenses</td><td class="text-right">₹${formatNumber(summary.expenses.other_expenses)}</td></tr>
-            <tr><td>Damage Loss</td><td class="text-right">₹${formatNumber(summary.expenses.damage_loss || 0)}</td></tr>
-            <tr class="highlight"><td>Total Expenses</td><td class="text-right loss">₹${formatNumber(summary.expenses.total_expenses)}</td></tr>
-            <tr><td>Total Sale Value</td><td class="text-right">₹${formatNumber(summary.expenses.total_sale)}</td></tr>
-            <tr><td>Net Purchase</td><td class="text-right">₹${formatNumber(summary.expenses.net_purchase)}</td></tr>
-            <tr class="highlight"><td>Net Profit</td><td class="text-right ${summary.expenses.net_profit >= 0 ? 'profit' : 'loss'}">₹${formatNumber(summary.expenses.net_profit)}</td></tr>
-          </table>
+        <div class="sections">
+          <div class="section">
+            <div class="section-title">Crate Information</div>
+            <table>
+              <tr><td>Carryover Today</td><td class="text-right">${formatNumber(summary.crate_information.carryover_today)}</td></tr>
+              <tr><td>Carryover Price</td><td class="text-right">₹${summary.crate_information.carryover_price}</td></tr>
+              <tr><td>Carryover Value</td><td class="text-right">${formatCurrency(summary.crate_information.carryover_value)}</td></tr>
+              <tr><td>Purchase Today</td><td class="text-right">${formatNumber(summary.crate_information.purchase_today)}</td></tr>
+              <tr><td>Purchase Rate</td><td class="text-right">₹${summary.crate_information.purchase_rate}</td></tr>
+              <tr><td>Purchase Value</td><td class="text-right">${formatCurrency(summary.crate_information.purchase_value)}</td></tr>
+              <tr class="highlight"><td>Total Crates</td><td class="text-right">${formatNumber(summary.crate_information.total_crates)}</td></tr>
+              <tr><td>Average Rate</td><td class="text-right">₹${summary.crate_information.average_rate}</td></tr>
+              <tr><td>Damage</td><td class="text-right loss">${formatNumber(summary.crate_information.damage)}</td></tr>
+              <tr class="highlight"><td>Net Crates</td><td class="text-right">${formatNumber(summary.crate_information.net_crates)}</td></tr>
+            </table>
+          </div>
+          
+          <div class="section">
+            <div class="section-title">Sale Information</div>
+            <table>
+              <tr><td>Total Initial Load</td><td class="text-right">${formatNumber(summary.sale_information.total_initial_load)}</td></tr>
+              <tr class="highlight"><td>Total Sales</td><td class="text-right">${formatNumber(summary.sale_information.total_sales)}</td></tr>
+              <tr class="highlight"><td>Total Collected</td><td class="text-right profit">${formatCurrency(summary.sale_information.total_collected || 0)}</td></tr>
+              <tr><td>Total Damages</td><td class="text-right loss">${formatNumber(summary.sale_information.total_damages)}</td></tr>
+              <tr><td>Returned</td><td class="text-right">${formatNumber(summary.sale_information.returned)}</td></tr>
+            </table>
+          </div>
+          
+          <div class="section full-width">
+            <div class="section-title">Expenses & Summary</div>
+            <table>
+              <tr><td>Salesman Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.salesman_expenses)}</td></tr>
+              <tr><td>Other Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.other_expenses)}</td></tr>
+              <tr><td>Damage Loss</td><td class="text-right loss">${formatCurrency(summary.expenses.damage_loss || 0)}</td></tr>
+              <tr class="highlight"><td>Total Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.total_expenses)}</td></tr>
+              <tr class="separator"><td colspan="2"></td></tr>
+              <tr><td>Total Sale</td><td class="text-right profit">${formatCurrency(summary.expenses.total_sale)}</td></tr>
+              <tr><td>Net Purchase (COGS)</td><td class="text-right">${formatCurrency(summary.expenses.net_purchase)}</td></tr>
+              <tr class="highlight"><td>Net Profit</td><td class="text-right ${summary.expenses.net_profit >= 0 ? 'profit' : 'loss'}">${formatCurrency(summary.expenses.net_profit)}</td></tr>
+              <tr class="separator"><td colspan="2"></td></tr>
+              <tr class="highlight"><td>Carryover for Tomorrow</td><td class="text-right">${formatNumber(summary.expenses.carryover_tomorrow)} crates</td></tr>
+            </table>
+          </div>
         </div>
         
         <p style="color: #666; font-size: 12px; margin-top: 20px;">Generated on ${format(new Date(), "dd MMM yyyy, hh:mm a")}</p>
