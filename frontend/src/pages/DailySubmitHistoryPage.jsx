@@ -116,6 +116,50 @@ const DailySubmitHistoryPage = () => {
     </div>
   );
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredSummaries.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredSummaries.map((s, i) => ({
+      "#": i+1, "Date": formatDate(s.date),
+      "Carryover": s.crate_information?.carryover_today || 0,
+      "Purchased": s.crate_information?.purchase_today || 0,
+      "Total Crates": s.crate_information?.total_crates || 0,
+      "Sold": s.sale_information?.total_sales || 0,
+      "Returned": s.sale_information?.returned || 0,
+      "Sale Value": s.profit_loss?.sale_value || 0,
+      "Net Profit": s.expenses?.net_profit || 0,
+      "Carryover Tomorrow": s.expenses?.carryover_tomorrow || 0
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Summary History");
+    XLSX.writeFile(wb, `DailySummaryHistory_${format(new Date(), "dd-MMM-yyyy")}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredSummaries.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Daily Summary History", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Total Records: ${filteredSummaries.length} | Generated: ${format(new Date(), "dd MMM yyyy")}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["Date", "Carryover", "Purchased", "Total", "Sold", "Returned", "Sale Value", "Net Profit", "Tomorrow"]],
+      body: filteredSummaries.map(s => [formatDate(s.date), s.crate_information?.carryover_today || 0, s.crate_information?.purchase_today || 0, s.crate_information?.total_crates || 0, s.sale_information?.total_sales || 0, s.sale_information?.returned || 0, `₹${(s.profit_loss?.sale_value||0).toLocaleString()}`, `₹${(s.expenses?.net_profit||0).toLocaleString()}`, s.expenses?.carryover_tomorrow || 0]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 8 }, bodyStyles: { fontSize: 8 }
+    });
+    doc.save(`DailySummaryHistory_${format(new Date(), "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredSummaries.length === 0) { toast.error("No data to print"); return; }
+    const html = `<html><head><title>Summary History</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#22543d;color:#fff;padding:6px}td{padding:5px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}.profit{color:green}.loss{color:red}</style></head><body><h1>Daily Summary History</h1><p>Total: ${filteredSummaries.length} records</p><table><tr><th>Date</th><th>Carryover</th><th>Purchased</th><th>Total</th><th>Sold</th><th>Returned</th><th>Sale Value</th><th>Net Profit</th><th>Tomorrow</th></tr>${filteredSummaries.map(s=>`<tr><td>${formatDate(s.date)}</td><td class="text-right">${s.crate_information?.carryover_today||0}</td><td class="text-right">${s.crate_information?.purchase_today||0}</td><td class="text-right">${s.crate_information?.total_crates||0}</td><td class="text-right">${s.sale_information?.total_sales||0}</td><td class="text-right">${s.sale_information?.returned||0}</td><td class="text-right">₹${(s.profit_loss?.sale_value||0).toLocaleString()}</td><td class="text-right ${(s.expenses?.net_profit||0)>=0?'profit':'loss'}">₹${(s.expenses?.net_profit||0).toLocaleString()}</td><td class="text-right">${s.expenses?.carryover_tomorrow||0}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="daily-submit-history-page">
       {/* Header */}
