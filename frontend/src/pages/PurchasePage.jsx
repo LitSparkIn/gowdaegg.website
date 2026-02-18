@@ -445,6 +445,7 @@ const PurchasePage = () => {
                     mode="single"
                     selected={fromDate}
                     onSelect={setFromDate}
+                    today={new Date()}
                     initialFocus
                   />
                 </PopoverContent>
@@ -470,6 +471,7 @@ const PurchasePage = () => {
                     mode="single"
                     selected={toDate}
                     onSelect={setToDate}
+                    today={new Date()}
                     initialFocus
                   />
                 </PopoverContent>
