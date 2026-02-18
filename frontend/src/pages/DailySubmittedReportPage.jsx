@@ -105,6 +105,15 @@ const DailySubmittedReportPage = () => {
     fetchReports();
   }, [fromDate, toDate, selectedSalesman]);
 
+  // Filter reports based on search query
+  const filteredReports = useMemo(() => {
+    if (!searchQuery.trim()) return reports;
+    const query = searchQuery.toLowerCase();
+    return reports.filter(report => 
+      report.salesman_name?.toLowerCase().includes(query)
+    );
+  }, [reports, searchQuery]);
+
   const clearFilters = () => {
     const today = new Date();
     setFromDate(today);

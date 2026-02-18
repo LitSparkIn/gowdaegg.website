@@ -135,6 +135,17 @@ const TransactionReportPage = () => {
     fetchSales();
   }, [fromDate, toDate, selectedSalesman, selectedType, selectedPayment, selectedRoute, selectedImage]);
 
+  // Filter sales based on search query
+  const filteredSales = useMemo(() => {
+    if (!searchQuery.trim()) return sales;
+    const query = searchQuery.toLowerCase();
+    return sales.filter(sale => 
+      sale.shop_name?.toLowerCase().includes(query) ||
+      sale.salesman_name?.toLowerCase().includes(query) ||
+      sale.route_name?.toLowerCase().includes(query)
+    );
+  }, [sales, searchQuery]);
+
   const clearFilters = () => {
     const today = new Date();
     setFromDate(today);

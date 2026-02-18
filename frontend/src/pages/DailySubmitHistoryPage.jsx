@@ -55,6 +55,15 @@ const DailySubmitHistoryPage = () => {
     fetchSummaries();
   }, []);
 
+  // Filter summaries based on search query
+  const filteredSummaries = useMemo(() => {
+    if (!searchQuery.trim()) return summaries;
+    const query = searchQuery.toLowerCase();
+    return summaries.filter(summary => 
+      formatDate(summary.date)?.toLowerCase().includes(query)
+    );
+  }, [summaries, searchQuery]);
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",

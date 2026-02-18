@@ -102,6 +102,16 @@ const ExpensePage = () => {
     fetchExpenses();
   }, [fromDate, toDate]);
 
+  // Filter expenses based on search query
+  const filteredExpenses = useMemo(() => {
+    if (!searchQuery.trim()) return expenses;
+    const query = searchQuery.toLowerCase();
+    return expenses.filter(expense => 
+      expense.description?.toLowerCase().includes(query) ||
+      expense.category?.toLowerCase().includes(query)
+    );
+  }, [expenses, searchQuery]);
+
   const resetForm = () => {
     setFormData({ amount: "", category: "", description: "" });
   };

@@ -100,6 +100,17 @@ const InitialLoadingReportPage = () => {
     fetchLoads();
   }, [fromDate, toDate, selectedSalesman]);
 
+  // Filter loads based on search query
+  const filteredLoads = useMemo(() => {
+    if (!searchQuery.trim()) return loads;
+    const query = searchQuery.toLowerCase();
+    return loads.filter(load => 
+      load.salesman_name?.toLowerCase().includes(query) ||
+      load.salesman_phone?.toLowerCase().includes(query) ||
+      load.route_name?.toLowerCase().includes(query)
+    );
+  }, [loads, searchQuery]);
+
   const clearFilters = () => {
     const today = new Date();
     setFromDate(today);

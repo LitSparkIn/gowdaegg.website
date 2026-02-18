@@ -72,6 +72,15 @@ const SupplierPage = () => {
     fetchSuppliers();
   }, []);
 
+  // Filter suppliers based on search query
+  const filteredSuppliers = useMemo(() => {
+    if (!searchQuery.trim()) return suppliers;
+    const query = searchQuery.toLowerCase();
+    return suppliers.filter(supplier => 
+      supplier.name?.toLowerCase().includes(query)
+    );
+  }, [suppliers, searchQuery]);
+
   const resetForm = () => {
     setFormData({ name: "", previous_dues: 0 });
   };

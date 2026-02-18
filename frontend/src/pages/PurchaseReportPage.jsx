@@ -110,6 +110,16 @@ const PurchaseReportPage = () => {
     fetchPurchases();
   }, [fromDate, toDate, selectedSupplier]);
 
+  // Filter purchases based on search query
+  const filteredPurchases = useMemo(() => {
+    if (!searchQuery.trim()) return purchases;
+    const query = searchQuery.toLowerCase();
+    return purchases.filter(purchase => 
+      purchase.supplier_name?.toLowerCase().includes(query) ||
+      purchase.payment_mode?.toLowerCase().includes(query)
+    );
+  }, [purchases, searchQuery]);
+
   const clearFilters = () => {
     const today = new Date();
     setFromDate(today);
