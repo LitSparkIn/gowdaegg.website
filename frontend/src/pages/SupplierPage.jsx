@@ -199,12 +199,24 @@ const SupplierPage = () => {
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="supplier-search-input"
+        />
+      </div>
+
       {/* Suppliers Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Truck size={20} className="text-primary" />
-            Suppliers ({suppliers.length})
+            Suppliers ({filteredSuppliers.length}{searchQuery && ` of ${suppliers.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -218,6 +230,12 @@ const SupplierPage = () => {
               <p className="text-muted-foreground">No suppliers found</p>
               <p className="text-sm text-muted-foreground">Click "Add Supplier" to create your first supplier</p>
             </div>
+          ) : filteredSuppliers.length === 0 ? (
+            <div className="text-center py-12">
+              <Truck size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No suppliers match your search</p>
+              <p className="text-sm text-muted-foreground">Try a different search term</p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -230,7 +248,7 @@ const SupplierPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {suppliers.map((supplier, index) => (
+                {filteredSuppliers.map((supplier, index) => (
                   <TableRow key={supplier.id} data-testid={`supplier-row-${index}`}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell className="font-medium">{supplier.name}</TableCell>
