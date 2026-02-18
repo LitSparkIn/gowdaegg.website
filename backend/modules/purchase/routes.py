@@ -76,3 +76,17 @@ async def delete_purchase(
         data=None,
         message="Purchase deleted successfully"
     )
+
+@router.put("/{purchase_id}")
+async def update_purchase(
+    purchase_id: str,
+    request: PurchaseUpdateRequest,
+    service: PurchaseService = Depends(get_service),
+    current_user: dict = Depends(verify_admin)
+):
+    """Update a purchase"""
+    purchase = await service.update_purchase(purchase_id, request)
+    return success_response(
+        data=purchase.model_dump(),
+        message="Purchase updated successfully"
+    )
