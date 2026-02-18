@@ -948,6 +948,15 @@ const TransactionReportPage = () => {
                           <MessageCircle size={14} />
                         )}
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditClick(sale)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-7 px-2"
+                        data-testid={`edit-btn-${index}`}
+                      >
+                        <Pencil size={14} />
+                      </Button>
                     </div>
                   </div>
 
