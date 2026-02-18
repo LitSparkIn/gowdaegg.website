@@ -73,6 +73,30 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
 - [ ] Move WhatsApp API token to environment variable
 - [ ] Standardize admin API responses to `{code, message, data}` format
 - [ ] Add formal API authorization refinement
+- [ ] Remove unused variables (getAuthHeaders, API) from refactored frontend files
+
+---
+
+## Recent Updates
+
+### December 2025
+- ✅ **Search Functionality Added** to all admin pages:
+  - ShopPage (by name, phone, address, route)
+  - RoutePage (by route name)
+  - SupplierPage (by name)
+  - PurchasePage (by supplier, payment mode)
+  - ExpensePage (by description, category)
+  - InitialLoadingReportPage (by salesman, phone, route)
+  - TransactionReportPage (by shop, salesman, route)
+  - PurchaseReportPage (by supplier, payment mode)
+  - DailySubmittedReportPage (by salesman name)
+  - DailySubmitHistoryPage (by date)
+
+- ✅ **Export Feature**: Added PDF/Excel export to transaction report page
+- ✅ **Notification System**: WhatsApp/SMS notification settings page for admins
+- ✅ **Credit Threshold**: Shop credit limits with highlighting in reports
+- ✅ **Global 401 Handler**: Automatic logout on unauthorized API responses
+- ✅ **Admin Report Submission**: Admins can submit reports for salesmen
 
 ---
 
@@ -125,4 +149,4 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
 ---
 
 ## Last Updated
-January 15, 2026 - Added Transaction Report filters (Type, Payment, Route)
+December 2025 - Completed search functionality on all admin pages
