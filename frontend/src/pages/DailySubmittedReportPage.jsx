@@ -161,6 +161,52 @@ const DailySubmittedReportPage = () => {
     setIsDetailDialogOpen(true);
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredReports.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredReports.map((r, i) => ({
+      "#": i+1, "Report Date": formatDate(r.report_date), "Salesman": r.salesman_name,
+      "Initial": r.initial_crates, "Sold": r.crates_sold, "Damaged": r.crates_damaged,
+      "Remaining": r.remaining_crates, "Cash": r.cash_collected, "Expense": r.expense,
+      "Net Cash": r.net_cash, "Cheque": r.cheque_amount || 0, "Online": r.online_amount || 0,
+      "Return Tray": r.empty_crates_returned, "Submitted At": formatDateTime(r.created_at)
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Reports");
+    const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+    XLSX.writeFile(wb, `DailyReports_${fromStr}_to_${toStr}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredReports.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF({ orientation: "landscape" });
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Daily Submitted Reports", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Date: ${fromStr} to ${toStr} | Total Reports: ${filteredReports.length}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["Date", "Salesman", "Initial", "Sold", "Damaged", "Remain", "Cash", "Expense", "Net Cash", "Cheque", "Online", "Ret Tray"]],
+      body: filteredReports.map(r => [formatDate(r.report_date), r.salesman_name, r.initial_crates, r.crates_sold, r.crates_damaged, r.remaining_crates, `₹${r.cash_collected}`, `₹${r.expense}`, `₹${r.net_cash}`, `₹${r.cheque_amount||0}`, `₹${r.online_amount||0}`, r.empty_crates_returned]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 7 }, bodyStyles: { fontSize: 7 }
+    });
+    doc.save(`DailyReports_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredReports.length === 0) { toast.error("No data to print"); return; }
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    const html = `<html><head><title>Daily Reports</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#22543d;color:#fff;padding:5px}td{padding:4px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Daily Submitted Reports</h1><p>Date: ${fromStr} to ${toStr} | Total: ${filteredReports.length}</p><table><tr><th>Date</th><th>Salesman</th><th>Initial</th><th>Sold</th><th>Damaged</th><th>Remain</th><th>Cash</th><th>Expense</th><th>Net Cash</th><th>Cheque</th><th>Online</th><th>Tray</th></tr>${filteredReports.map(r=>`<tr><td>${formatDate(r.report_date)}</td><td>${r.salesman_name}</td><td class="text-right">${r.initial_crates}</td><td class="text-right">${r.crates_sold}</td><td class="text-right">${r.crates_damaged}</td><td class="text-right">${r.remaining_crates}</td><td class="text-right">₹${r.cash_collected}</td><td class="text-right">₹${r.expense}</td><td class="text-right">₹${r.net_cash}</td><td class="text-right">₹${r.cheque_amount||0}</td><td class="text-right">₹${r.online_amount||0}</td><td class="text-right">${r.empty_crates_returned}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="daily-submitted-report-page">
       {/* Header */}
