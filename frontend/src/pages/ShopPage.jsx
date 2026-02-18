@@ -45,10 +45,12 @@ import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 
 const ShopPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [shops, setShops] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRoute, setSelectedRoute] = useState(searchParams.get("route") || "");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingShop, setEditingShop] = useState(null);
