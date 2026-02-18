@@ -221,6 +221,22 @@ const ProfitLossReportPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Profit & Loss Report</h1>
           <p className="text-muted-foreground">Financial overview for selected period</p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToExcel} disabled={loading || !data}>
+            <FileSpreadsheet size={16} className="mr-1" /> Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportToPDF} disabled={loading || !data}>
+            <FileText size={16} className="mr-1" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || !data}>
+            <Printer size={16} className="mr-1" /> Print
+          </Button>
+        </div>
+      </div>
+
+      {/* Date Filters */}
+      <Card className="border-border/50">
+        <CardContent className="pt-4">
         <div className="flex items-center gap-3">
           {/* From Date */}
           <Popover>
