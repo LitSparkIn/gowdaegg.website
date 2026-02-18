@@ -30,7 +30,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Route as RouteIcon, Loader2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Route as RouteIcon, Loader2, Search, FileSpreadsheet, FileText, Printer } from "lucide-react";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { format } from "date-fns";
 
 const RoutePage = () => {
   const [routes, setRoutes] = useState([]);
