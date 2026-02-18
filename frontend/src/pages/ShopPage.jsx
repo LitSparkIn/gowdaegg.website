@@ -232,6 +232,89 @@ const ShopPage = () => {
     }).format(amount);
   };
 
+  // Export functions
+  const getExportData = () => {
+    return filteredShops.map((shop, index) => ({
+      "#": index + 1,
+      "Shop Name": shop.name,
+      "Phone": shop.phone,
+      "Address": shop.address,
+      "Route": shop.route?.route_name || "N/A",
+      "Previous Dues": shop.previous_dues,
+      "Credit Threshold": shop.credit_threshold || 0,
+      "Tray Balance": shop.tray_balance
+    }));
+  };
+
+  const exportToExcel = () => {
+    if (filteredShops.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    const exportData = getExportData();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Shops");
+    XLSX.writeFile(workbook, `Shops_${format(new Date(), "dd-MMM-yyyy")}.xlsx`);
+    toast.success("Excel file downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredShops.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors - Shops List", 14, 15);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${format(new Date(), "dd MMM yyyy, hh:mm a")} | Total: ${filteredShops.length} shops`, 14, 22);
+
+    const tableData = filteredShops.map((shop, i) => [
+      i + 1, shop.name, shop.phone, shop.address, shop.route?.route_name || "N/A",
+      `₹${shop.previous_dues.toLocaleString()}`, `₹${(shop.credit_threshold || 0).toLocaleString()}`, shop.tray_balance
+    ]);
+
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Shop Name", "Phone", "Address", "Route", "Prev Dues", "Credit Limit", "Tray Bal"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 8 },
+      bodyStyles: { fontSize: 8 }
+    });
+    doc.save(`Shops_${format(new Date(), "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF file downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredShops.length === 0) {
+      toast.error("No data to print");
+      return;
+    }
+    const printContent = `
+      <html><head><title>Shops List</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #22543d; } .subtitle { color: #666; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: #22543d; color: white; padding: 8px; text-align: left; }
+        td { padding: 6px 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f9f9f9; }
+      </style></head><body>
+      <h1>Gowda Egg Distributors - Shops List</h1>
+      <p class="subtitle">Generated: ${format(new Date(), "dd MMM yyyy, hh:mm a")} | Total: ${filteredShops.length} shops</p>
+      <table><thead><tr><th>#</th><th>Shop Name</th><th>Phone</th><th>Address</th><th>Route</th><th>Prev Dues</th><th>Credit Limit</th><th>Tray</th></tr></thead><tbody>
+      ${filteredShops.map((shop, i) => `<tr><td>${i+1}</td><td>${shop.name}</td><td>${shop.phone}</td><td>${shop.address}</td><td>${shop.route?.route_name || "N/A"}</td><td>₹${shop.previous_dues.toLocaleString()}</td><td>₹${(shop.credit_threshold||0).toLocaleString()}</td><td>${shop.tray_balance}</td></tr>`).join("")}
+      </tbody></table></body></html>`;
+    const w = window.open("", "_blank");
+    w.document.write(printContent);
+    w.document.close();
+    w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="shop-page">
       {/* Header */}
