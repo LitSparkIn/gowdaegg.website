@@ -65,6 +65,15 @@ const RoutePage = () => {
     }
   };
 
+  // Filter routes based on search query
+  const filteredRoutes = useMemo(() => {
+    if (!searchQuery.trim()) return routes;
+    const query = searchQuery.toLowerCase();
+    return routes.filter(route => 
+      route.route_name?.toLowerCase().includes(query)
+    );
+  }, [routes, searchQuery]);
+
   useEffect(() => {
     fetchRoutes();
   }, []);
