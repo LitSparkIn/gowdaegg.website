@@ -190,6 +190,35 @@ const InitialLoadingReportPage = () => {
     const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
   };
 
+  // Edit functions
+  const handleEditClick = (load) => {
+    setEditingLoad(load);
+    setEditCrates(load.initial_crates.toString());
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editCrates || parseInt(editCrates) <= 0) {
+      toast.error("Please enter valid number of crates");
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      await api.put(`/initial-loads/${editingLoad.id}`, { initial_crates: parseInt(editCrates) });
+      toast.success("Initial load updated successfully");
+      setIsEditDialogOpen(false);
+      setEditingLoad(null);
+      fetchLoads();
+    } catch (error) {
+      console.error("Error updating initial load:", error);
+      toast.error(error.response?.data?.detail || "Failed to update initial load");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="initial-loading-report-page">
       {/* Header */}
