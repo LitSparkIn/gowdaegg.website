@@ -226,6 +226,46 @@ const ExpensePage = () => {
     });
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredExpenses.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredExpenses.map((e, i) => ({ "#": i+1, "Date": formatDate(e.expense_date), "Amount": e.amount, "Description": e.description, "Category": e.category || "N/A" }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+    const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+    XLSX.writeFile(wb, `Expenses_${fromStr}_to_${toStr}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredExpenses.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF();
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors - Expenses", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Date: ${fromStr} to ${toStr} | Total: ₹${totalAmount.toLocaleString()}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Date", "Amount", "Description", "Category"]],
+      body: filteredExpenses.map((e, i) => [i+1, formatDate(e.expense_date), `₹${e.amount.toLocaleString()}`, e.description, e.category || "N/A"]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61] }
+    });
+    doc.save(`Expenses_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredExpenses.length === 0) { toast.error("No data to print"); return; }
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    const html = `<html><head><title>Expenses</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse}th{background:#22543d;color:#fff;padding:8px}td{padding:6px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Expenses Report</h1><p>Date: ${fromStr} to ${toStr} | Total: ₹${totalAmount.toLocaleString()}</p><table><tr><th>#</th><th>Date</th><th class="text-right">Amount</th><th>Description</th><th>Category</th></tr>${filteredExpenses.map((e,i)=>`<tr><td>${i+1}</td><td>${formatDate(e.expense_date)}</td><td class="text-right">₹${e.amount.toLocaleString()}</td><td>${e.description}</td><td>${e.category||"N/A"}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="expense-page">
       {/* Header */}
