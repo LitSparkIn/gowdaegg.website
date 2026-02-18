@@ -168,12 +168,23 @@ const RoutePage = () => {
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search routes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       {/* Routes Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <RouteIcon size={20} className="text-primary" />
-            Routes ({routes.length})
+            Routes ({filteredRoutes.length}{searchQuery && ` of ${routes.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -181,11 +192,11 @@ const RoutePage = () => {
             <div className="flex items-center justify-center py-12">
               <Loader2 size={32} className="animate-spin text-primary" />
             </div>
-          ) : routes.length === 0 ? (
+          ) : filteredRoutes.length === 0 ? (
             <div className="text-center py-12">
               <RouteIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No routes found</p>
-              <p className="text-sm text-muted-foreground">Click "Add Route" to create your first route</p>
+              <p className="text-muted-foreground">{searchQuery ? "No routes match your search" : "No routes found"}</p>
+              <p className="text-sm text-muted-foreground">{searchQuery ? "Try a different search term" : 'Click "Add Route" to create your first route'}</p>
             </div>
           ) : (
             <Table>
