@@ -20,9 +20,15 @@ import {
   Package,
   ShoppingCart,
   Receipt,
-  RefreshCw
+  RefreshCw,
+  FileSpreadsheet,
+  FileText,
+  Printer
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
