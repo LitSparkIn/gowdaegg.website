@@ -325,12 +325,24 @@ const ExpensePage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by description, category..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="expense-search-input"
+        />
+      </div>
+
       {/* Expenses Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Receipt size={20} className="text-primary" />
-            Expenses ({expenses.length})
+            Expenses ({filteredExpenses.length}{searchQuery && ` of ${expenses.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -346,6 +358,12 @@ const ExpensePage = () => {
                 {fromDate || toDate ? "Try adjusting your date filters" : "Click \"Add Expense\" to record your first expense"}
               </p>
             </div>
+          ) : filteredExpenses.length === 0 ? (
+            <div className="text-center py-12">
+              <Receipt size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No expenses match your search</p>
+              <p className="text-sm text-muted-foreground">Try a different search term</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -360,7 +378,7 @@ const ExpensePage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {expenses.map((expense, index) => (
+                  {filteredExpenses.map((expense, index) => (
                     <TableRow key={expense.id} data-testid={`expense-row-${index}`}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell className="text-muted-foreground">
