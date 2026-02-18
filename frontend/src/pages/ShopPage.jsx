@@ -246,12 +246,23 @@ const ShopPage = () => {
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by name, phone, address, route..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       {/* Shops Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Store size={20} className="text-primary" />
-            Shops ({shops.length})
+            Shops ({filteredShops.length}{searchQuery && ` of ${shops.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -259,11 +270,11 @@ const ShopPage = () => {
             <div className="flex items-center justify-center py-12">
               <Loader2 size={32} className="animate-spin text-primary" />
             </div>
-          ) : shops.length === 0 ? (
+          ) : filteredShops.length === 0 ? (
             <div className="text-center py-12">
               <Store size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No shops found</p>
-              <p className="text-sm text-muted-foreground">Click "Add Shop" to create your first shop</p>
+              <p className="text-muted-foreground">{searchQuery ? "No shops match your search" : "No shops found"}</p>
+              <p className="text-sm text-muted-foreground">{searchQuery ? "Try a different search term" : 'Click "Add Shop" to create your first shop'}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
