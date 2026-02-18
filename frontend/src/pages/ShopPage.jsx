@@ -99,22 +99,47 @@ const ShopPage = () => {
     }
   };
 
-  // Filter shops based on search query
+  // Filter shops based on search query and route filter
   const filteredShops = useMemo(() => {
-    if (!searchQuery.trim()) return shops;
-    const query = searchQuery.toLowerCase();
-    return shops.filter(shop => 
-      shop.name?.toLowerCase().includes(query) ||
-      shop.phone?.toLowerCase().includes(query) ||
-      shop.address?.toLowerCase().includes(query) ||
-      shop.route?.route_name?.toLowerCase().includes(query)
-    );
-  }, [shops, searchQuery]);
+    let result = shops;
+    
+    // Filter by route
+    if (selectedRoute) {
+      result = result.filter(shop => shop.route_id === selectedRoute);
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(shop => 
+        shop.name?.toLowerCase().includes(query) ||
+        shop.phone?.toLowerCase().includes(query) ||
+        shop.address?.toLowerCase().includes(query) ||
+        shop.route?.route_name?.toLowerCase().includes(query)
+      );
+    }
+    
+    return result;
+  }, [shops, searchQuery, selectedRoute]);
 
   useEffect(() => {
     fetchRoutes();
     fetchShops();
   }, []);
+
+  // Update URL when route filter changes
+  useEffect(() => {
+    if (selectedRoute) {
+      setSearchParams({ route: selectedRoute });
+    } else {
+      setSearchParams({});
+    }
+  }, [selectedRoute, setSearchParams]);
+
+  const clearFilters = () => {
+    setSelectedRoute("");
+    setSearchQuery("");
+  };
 
   const resetForm = () => {
     setFormData({
