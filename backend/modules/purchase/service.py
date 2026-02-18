@@ -113,3 +113,62 @@ class PurchaseService:
         if not purchase:
             raise NotFoundException(f"Purchase with id '{purchase_id}' not found")
         return await self.repository.delete(purchase_id)
+
+    async def update_purchase(self, purchase_id: str, request: PurchaseUpdateRequest) -> PurchaseResponse:
+        """Update a purchase and recalculate supplier's dues"""
+        # Get existing purchase
+        purchase = await self.repository.get_by_id(purchase_id)
+        if not purchase:
+            raise NotFoundException(f"Purchase with id '{purchase_id}' not found")
+        
+        # Get supplier
+        supplier = await self.db.suppliers.find_one({"id": purchase["supplier_id"]}, {"_id": 0})
+        if not supplier:
+            raise BadRequestException("Supplier not found")
+        
+        # Get the old pending amount to adjust supplier's dues
+        old_pending = purchase.get("pending_amount", 0)
+        
+        # Recalculate totals with new values
+        total = request.crates * 30 * request.price
+        # Use the original previous_dues from the purchase record
+        previous_dues = purchase.get("previous_dues", 0)
+        grand_total = total + previous_dues
+        pending_amount = grand_total - request.amount_paid
+        
+        now = get_ist_now()
+        
+        # Update purchase record
+        update_data = {
+            "crates": request.crates,
+            "price": request.price,
+            "total": total,
+            "grand_total": grand_total,
+            "amount_paid": request.amount_paid,
+            "pending_amount": pending_amount,
+            "payment_mode": request.payment_mode,
+            "updated_at": now.isoformat()
+        }
+        
+        await self.db.purchases.update_one(
+            {"id": purchase_id},
+            {"$set": update_data}
+        )
+        
+        # Update supplier's previous_dues: adjust by the difference
+        current_supplier_dues = supplier.get("previous_dues", 0)
+        new_supplier_dues = current_supplier_dues - old_pending + pending_amount
+        
+        await self.db.suppliers.update_one(
+            {"id": purchase["supplier_id"]},
+            {
+                "$set": {
+                    "previous_dues": new_supplier_dues,
+                    "updated_at": now.isoformat()
+                }
+            }
+        )
+        
+        # Return updated purchase
+        updated_purchase = await self.repository.get_by_id(purchase_id)
+        return PurchaseResponse(**updated_purchase)
