@@ -114,6 +114,58 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const fetchCollectionCounts = async () => {
+    try {
+      const response = await api.get("/admin/collection-counts");
+      setCollectionCounts(response.data.data || {});
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+    }
+  };
+
+  const handleOpenClearDialog = () => {
+    setSelectedCollections([]);
+    fetchCollectionCounts();
+    setShowClearDialog(true);
+  };
+
+  const toggleCollection = (key) => {
+    setSelectedCollections(prev => 
+      prev.includes(key) 
+        ? prev.filter(k => k !== key)
+        : [...prev, key]
+    );
+  };
+
+  const handleClearData = async () => {
+    if (selectedCollections.length === 0) {
+      toast.error("Please select at least one item to clear");
+      return;
+    }
+    
+    try {
+      setClearing(true);
+      const response = await api.post("/admin/clear-data", {
+        collections: selectedCollections
+      });
+      
+      const result = response.data.data;
+      const totalDeleted = result.cleared.reduce((sum, c) => sum + c.deleted_count, 0);
+      
+      toast.success(`Cleared ${totalDeleted} records from ${result.cleared.length} collections`);
+      setShowClearDialog(false);
+      setSelectedCollections([]);
+      
+      // Refresh dashboard data
+      fetchDashboardData(true);
+    } catch (error) {
+      console.error("Error clearing data:", error);
+      toast.error(error.response?.data?.detail || "Failed to clear data");
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
