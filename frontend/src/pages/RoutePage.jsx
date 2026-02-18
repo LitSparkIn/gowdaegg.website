@@ -72,6 +72,22 @@ const RoutePage = () => {
     }
   };
 
+  const fetchShops = async () => {
+    try {
+      const response = await api.get(`/shops`);
+      setShops(response.data.shops || []);
+    } catch (error) {
+      console.error("Error fetching shops:", error);
+    }
+  };
+
+  // Calculate total dues per route
+  const getRouteDues = (routeId) => {
+    return shops
+      .filter(shop => shop.route_id === routeId)
+      .reduce((sum, shop) => sum + (shop.previous_dues || 0), 0);
+  };
+
   // Filter routes based on search query
   const filteredRoutes = useMemo(() => {
     if (!searchQuery.trim()) return routes;
