@@ -511,6 +511,19 @@ const ShopPage = () => {
                 </TableBody>
               </Table>
             </div>
+            
+            {/* Total Dues Footer */}
+            <div className="border-t pt-4 mt-4 flex justify-end">
+              <div className="flex items-center gap-4">
+                <span className="text-muted-foreground">Total Previous Dues:</span>
+                <span className={cn(
+                  "text-xl font-bold",
+                  totalDues > 0 ? "text-red-600" : "text-green-600"
+                )}>
+                  ₹{totalDues.toLocaleString()}
+                </span>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
