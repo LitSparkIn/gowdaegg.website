@@ -176,6 +176,44 @@ const DailySubmittedReportPage = () => {
     setIsDetailDialogOpen(true);
   };
 
+  // Edit functions
+  const handleEditClick = (report) => {
+    setEditingReport(report);
+    setEditForm({
+      crates_damaged: report.crates_damaged?.toString() || "0",
+      expense: report.expense?.toString() || "0",
+      comments: report.comments || ""
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    setSubmitting(true);
+    try {
+      await api.put(`/sale-reports/${editingReport.id}`, {
+        crates_damaged: parseInt(editForm.crates_damaged) || 0,
+        expense: parseFloat(editForm.expense) || 0,
+        comments: editForm.comments || ""
+      });
+      
+      toast.success("Report updated successfully");
+      setIsEditDialogOpen(false);
+      setEditingReport(null);
+      fetchReports();
+    } catch (error) {
+      console.error("Error updating report:", error);
+      toast.error(error.response?.data?.detail || "Failed to update report");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Export functions
   const exportToExcel = () => {
     if (filteredReports.length === 0) { toast.error("No data to export"); return; }
