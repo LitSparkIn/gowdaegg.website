@@ -40,6 +40,7 @@ import { format } from "date-fns";
 const RoutePage = () => {
   const navigate = useNavigate();
   const [routes, setRoutes] = useState([]);
+  const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
