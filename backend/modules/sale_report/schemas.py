@@ -27,6 +27,7 @@ class SaleReportUpdateRequest(BaseModel):
     """Schema for updating a sale report"""
     crates_damaged: int = Field(..., ge=0, description="Damaged Crates")
     expense: float = Field(..., ge=0, description="Expense")
+    empty_crates_returned: int = Field(..., ge=0, description="Empty Crates Returned")
     comments: str = Field(default="", description="Comments")
 
 # ============ Response Schemas ============
