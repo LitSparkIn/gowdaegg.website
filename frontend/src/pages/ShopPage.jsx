@@ -421,8 +421,8 @@ const ShopPage = () => {
           ) : filteredShops.length === 0 ? (
             <div className="text-center py-12">
               <Store size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">{searchQuery ? "No shops match your search" : "No shops found"}</p>
-              <p className="text-sm text-muted-foreground">{searchQuery ? "Try a different search term" : 'Click "Add Shop" to create your first shop'}</p>
+              <p className="text-muted-foreground">{(searchQuery || selectedRoute) ? "No shops match your filters" : "No shops found"}</p>
+              <p className="text-sm text-muted-foreground">{(searchQuery || selectedRoute) ? "Try adjusting your filters" : 'Click "Add Shop" to create your first shop'}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
