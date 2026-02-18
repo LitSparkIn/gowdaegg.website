@@ -399,6 +399,7 @@ const InitialLoadingReportPage = () => {
                     <TableHead className="py-4">Phone</TableHead>
                     <TableHead className="py-4">Route</TableHead>
                     <TableHead className="text-right py-4">Crates</TableHead>
+                    <TableHead className="text-right py-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -422,6 +423,17 @@ const InitialLoadingReportPage = () => {
                       </TableCell>
                       <TableCell className="text-right py-4">
                         <span className="font-semibold text-primary">{load.initial_crates}</span>
+                      </TableCell>
+                      <TableCell className="text-right py-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditClick(load)}
+                          data-testid={`edit-load-${index}`}
+                          className="hover:bg-blue-100 hover:text-blue-600"
+                        >
+                          <Pencil size={16} />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
