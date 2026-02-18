@@ -812,6 +812,8 @@ const PurchasePage = () => {
                     <Loader2 size={16} className="mr-2 animate-spin" />
                     Saving...
                   </>
+                ) : editingPurchase ? (
+                  "Update Purchase"
                 ) : (
                   "Add Purchase"
                 )}
