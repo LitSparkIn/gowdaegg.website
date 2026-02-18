@@ -23,6 +23,12 @@ class AdminSaleReportSubmitRequest(BaseModel):
     comments: str = Field(default="", description="Comments")
     date: Optional[str] = Field(default=None, description="Date for the report (YYYY-MM-DD)")
 
+class SaleReportUpdateRequest(BaseModel):
+    """Schema for updating a sale report"""
+    crates_damaged: int = Field(..., ge=0, description="Damaged Crates")
+    expense: float = Field(..., ge=0, description="Expense")
+    comments: str = Field(default="", description="Comments")
+
 # ============ Response Schemas ============
 
 class SaleReportResponse(BaseModel):
