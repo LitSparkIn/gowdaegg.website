@@ -200,6 +200,7 @@ const DailySubmittedReportPage = () => {
       await api.put(`/sale-reports/${editingReport.id}`, {
         crates_damaged: parseInt(editForm.crates_damaged) || 0,
         expense: parseFloat(editForm.expense) || 0,
+        empty_crates_returned: parseInt(editForm.empty_crates_returned) || 0,
         comments: editForm.comments || ""
       });
       
