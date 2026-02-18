@@ -501,6 +501,7 @@ async def submit_daily_summary(
         "expenses": {
             "salesman_expenses": salesman_expenses,
             "other_expenses": other_expenses,
+            "damage_loss": damage_loss,
             "total_expenses": total_expenses,
             "total_sale": total_sale_value,
             "net_purchase": net_purchase,
