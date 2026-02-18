@@ -136,6 +136,46 @@ const InitialLoadingReportPage = () => {
     });
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredLoads.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredLoads.map((l, i) => ({ "#": i+1, "Date": formatDate(l.load_date), "Time": formatTime(l.created_at), "Salesman": l.salesman_name, "Phone": l.salesman_phone, "Route": l.route_name || "N/A", "Crates": l.initial_crates }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Initial Loads");
+    const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+    XLSX.writeFile(wb, `InitialLoads_${fromStr}_to_${toStr}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredLoads.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF();
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Initial Loading Report", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Date: ${fromStr} to ${toStr} | Total Crates: ${totalCrates}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Date", "Time", "Salesman", "Phone", "Route", "Crates"]],
+      body: filteredLoads.map((l, i) => [i+1, formatDate(l.load_date), formatTime(l.created_at), l.salesman_name, l.salesman_phone, l.route_name || "N/A", l.initial_crates]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61] }
+    });
+    doc.save(`InitialLoads_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredLoads.length === 0) { toast.error("No data to print"); return; }
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    const html = `<html><head><title>Initial Loads</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse}th{background:#22543d;color:#fff;padding:8px}td{padding:6px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Initial Loading Report</h1><p>Date: ${fromStr} to ${toStr} | Total Crates: ${totalCrates}</p><table><tr><th>#</th><th>Date</th><th>Time</th><th>Salesman</th><th>Phone</th><th>Route</th><th class="text-right">Crates</th></tr>${filteredLoads.map((l,i)=>`<tr><td>${i+1}</td><td>${formatDate(l.load_date)}</td><td>${formatTime(l.created_at)}</td><td>${l.salesman_name}</td><td>${l.salesman_phone}</td><td>${l.route_name||"N/A"}</td><td class="text-right">${l.initial_crates}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="initial-loading-report-page">
       {/* Header */}
