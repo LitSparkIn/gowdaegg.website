@@ -159,33 +159,60 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
           onClick={() => navigate("/admin/initial-loading-report")}
           data-testid="quick-link-initial-load"
         >
-          <FileText size={24} className="text-primary" />
-          <span className="font-medium">Initial Load Report</span>
+          <FileText size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Initial Load</span>
         </Button>
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
           onClick={() => navigate("/admin/transaction-report")}
           data-testid="quick-link-transaction"
         >
-          <CreditCard size={24} className="text-primary" />
-          <span className="font-medium">Transaction Report</span>
+          <CreditCard size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Transactions</span>
         </Button>
         <Button
           variant="outline"
-          className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
           onClick={() => navigate("/admin/daily-summary")}
           data-testid="quick-link-daily-summary"
         >
-          <CalendarDays size={24} className="text-primary" />
-          <span className="font-medium">Daily Summary</span>
+          <CalendarDays size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Daily Summary</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          onClick={() => navigate("/admin/daily-submitted-report")}
+          data-testid="quick-link-daily-reports"
+        >
+          <ClipboardList size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Daily Reports</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          onClick={() => navigate("/admin/purchase")}
+          data-testid="quick-link-purchase"
+        >
+          <ShoppingCart size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Purchase</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+          onClick={() => navigate("/admin/expense")}
+          data-testid="quick-link-expense"
+        >
+          <Receipt size={22} className="text-primary" />
+          <span className="font-medium text-xs sm:text-sm">Expenses</span>
         </Button>
       </div>
 
