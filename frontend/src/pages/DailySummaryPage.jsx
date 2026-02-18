@@ -44,9 +44,12 @@ import {
   XCircle,
   AlertCircle,
   Lock,
-  FileText
+  FileText,
+  Printer
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const DailySummaryPage = () => {
   const [summary, setSummary] = useState(null);
