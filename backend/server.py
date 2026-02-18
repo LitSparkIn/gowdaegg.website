@@ -68,6 +68,7 @@ from modules.daily_summary.routes import router as daily_summary_router
 from modules.dashboard.routes import router as dashboard_router
 from modules.settings.routes import router as settings_router
 from modules.public.routes import router as public_router
+from modules.admin.routes import router as admin_data_router
 
 api_router.include_router(auth_router)
 api_router.include_router(route_router)
