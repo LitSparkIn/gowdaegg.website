@@ -165,10 +165,26 @@ const PurchasePage = () => {
       payment_mode: "",
     });
     setSelectedSupplierData(null);
+    setEditingPurchase(null);
   };
 
-  const handleOpenDialog = () => {
-    resetForm();
+  const handleOpenDialog = (purchase = null) => {
+    if (purchase) {
+      // Edit mode
+      setEditingPurchase(purchase);
+      const supplier = suppliers.find(s => s.id === purchase.supplier_id);
+      setSelectedSupplierData(supplier || null);
+      setFormData({
+        supplier_id: purchase.supplier_id,
+        crates: purchase.crates.toString(),
+        price: purchase.price.toString(),
+        amount_paid: purchase.amount_paid.toString(),
+        payment_mode: purchase.payment_mode,
+      });
+    } else {
+      // Add mode
+      resetForm();
+    }
     setIsDialogOpen(true);
   };
 
