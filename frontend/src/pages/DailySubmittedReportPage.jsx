@@ -617,6 +617,82 @@ const DailySubmittedReportPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Sale Report</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="space-y-4 py-4">
+              {editingReport && (
+                <div className="text-sm text-muted-foreground space-y-1 p-3 bg-gray-50 rounded-lg">
+                  <p><strong>Salesman:</strong> {editingReport.salesman_name}</p>
+                  <p><strong>Date:</strong> {formatDate(editingReport.report_date)}</p>
+                  <p><strong>Initial Crates:</strong> {editingReport.initial_crates} | <strong>Sold:</strong> {editingReport.crates_sold}</p>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-damaged">Damaged Crates</Label>
+                <Input
+                  id="edit-damaged"
+                  type="number"
+                  min="0"
+                  value={editForm.crates_damaged}
+                  onChange={(e) => handleEditFormChange("crates_damaged", e.target.value)}
+                  data-testid="edit-damaged-input"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-expense">Expense (₹)</Label>
+                <Input
+                  id="edit-expense"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editForm.expense}
+                  onChange={(e) => handleEditFormChange("expense", e.target.value)}
+                  data-testid="edit-expense-input"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-comments">Comments</Label>
+                <Textarea
+                  id="edit-comments"
+                  placeholder="Add comments..."
+                  value={editForm.comments}
+                  onChange={(e) => handleEditFormChange("comments", e.target.value)}
+                  data-testid="edit-comments-input"
+                  rows={3}
+                />
+              </div>
+
+              {/* Preview calculated values */}
+              {editingReport && (
+                <div className="p-3 bg-blue-50 rounded-lg text-sm space-y-1">
+                  <p className="font-medium text-blue-800">After Update:</p>
+                  <div className="grid grid-cols-2 gap-2 text-blue-700">
+                    <span>Remaining Crates: {editingReport.initial_crates - editingReport.crates_sold - (parseInt(editForm.crates_damaged) || 0)}</span>
+                    <span>Net Cash: ₹{(editingReport.cash_collected - (parseFloat(editForm.expense) || 0)).toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting} className="bg-primary hover:bg-primary-600">
+                {submitting ? <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</> : "Update Report"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
