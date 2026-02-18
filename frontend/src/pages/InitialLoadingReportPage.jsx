@@ -249,12 +249,24 @@ const InitialLoadingReportPage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by salesman, phone, route..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="initial-load-search-input"
+        />
+      </div>
+
       {/* Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <FileText size={20} className="text-primary" />
-            Initial Loads
+            Initial Loads ({filteredLoads.length}{searchQuery && ` of ${loads.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -272,6 +284,12 @@ const InitialLoadingReportPage = () => {
                   : "Initial loads will appear here when salesmen load crates"}
               </p>
             </div>
+          ) : filteredLoads.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No loads match your search</p>
+              <p className="text-sm text-muted-foreground">Try a different search term</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -287,7 +305,7 @@ const InitialLoadingReportPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {loads.map((load, index) => (
+                  {filteredLoads.map((load, index) => (
                     <TableRow 
                       key={load.id} 
                       data-testid={`load-row-${index}`}
