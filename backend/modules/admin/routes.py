@@ -33,7 +33,7 @@ async def clear_data(
     Clear data from selected collections.
     Only accessible by admin users.
     """
-    if current_user.get("role") != "admin":
+    if current_user.get("role") not in ["admin", "superadmin"]:
         raise HTTPException(status_code=403, detail="Only admins can clear data")
     
     cleared = []
@@ -77,7 +77,7 @@ async def get_collection_counts(
     """
     Get count of records in each collection.
     """
-    if current_user.get("role") != "admin":
+    if current_user.get("role") not in ["admin", "superadmin"]:
         raise HTTPException(status_code=403, detail="Only admins can view this")
     
     counts = {}
