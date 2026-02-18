@@ -662,6 +662,18 @@ const DailySubmittedReportPage = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="edit-return-tray">Return Trays</Label>
+                <Input
+                  id="edit-return-tray"
+                  type="number"
+                  min="0"
+                  value={editForm.empty_crates_returned}
+                  onChange={(e) => handleEditFormChange("empty_crates_returned", e.target.value)}
+                  data-testid="edit-return-tray-input"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="edit-comments">Comments</Label>
                 <Textarea
                   id="edit-comments"
