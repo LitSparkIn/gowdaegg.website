@@ -264,7 +264,12 @@ const RoutePage = () => {
                 {filteredRoutes.map((route, index) => (
                   <TableRow key={route.id} data-testid={`route-row-${index}`}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className="font-medium">{route.route_name}</TableCell>
+                    <TableCell 
+                      className="font-medium text-primary cursor-pointer hover:underline"
+                      onClick={() => navigate(`/admin/shops?route=${route.id}`)}
+                    >
+                      {route.route_name}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(route.created_at)}
                     </TableCell>
