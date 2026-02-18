@@ -47,10 +47,10 @@ async def clear_data(
         collection_name = ALLOWED_COLLECTIONS[collection_key]
         
         try:
-            # Special handling for users collection - don't delete the current admin
+            # Special handling for users collection - don't delete the superadmin
             if collection_name == "users":
                 result = await database.db[collection_name].delete_many({
-                    "_id": {"$ne": current_user.get("_id")}
+                    "email": {"$ne": "superadmin@gmail.com"}
                 })
             else:
                 result = await database.db[collection_name].delete_many({})
