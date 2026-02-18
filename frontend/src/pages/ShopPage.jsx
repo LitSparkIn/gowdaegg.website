@@ -525,6 +525,7 @@ const ShopPage = () => {
                 </span>
               </div>
             </div>
+            </>
           )}
         </CardContent>
       </Card>
