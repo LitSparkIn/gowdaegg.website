@@ -32,11 +32,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FileText, Loader2, CalendarIcon, Filter, X, Eye, ImageIcon, Search, FileSpreadsheet, Printer } from "lucide-react";
+import { FileText, Loader2, CalendarIcon, Filter, X, Eye, ImageIcon, Search, FileSpreadsheet, Printer, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
