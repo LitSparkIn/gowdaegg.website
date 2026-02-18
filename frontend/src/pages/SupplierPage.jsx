@@ -242,9 +242,10 @@ const SupplierPage = () => {
             data-testid="add-supplier-btn"
             className="rounded-full bg-primary hover:bg-primary-600"
           >
-          <Plus size={20} className="mr-2" />
-          Add Supplier
-        </Button>
+            <Plus size={20} className="mr-2" />
+            Add Supplier
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
