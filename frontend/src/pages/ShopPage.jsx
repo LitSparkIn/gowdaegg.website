@@ -92,6 +92,18 @@ const ShopPage = () => {
     }
   };
 
+  // Filter shops based on search query
+  const filteredShops = useMemo(() => {
+    if (!searchQuery.trim()) return shops;
+    const query = searchQuery.toLowerCase();
+    return shops.filter(shop => 
+      shop.name?.toLowerCase().includes(query) ||
+      shop.phone?.toLowerCase().includes(query) ||
+      shop.address?.toLowerCase().includes(query) ||
+      shop.route?.route_name?.toLowerCase().includes(query)
+    );
+  }, [shops, searchQuery]);
+
   useEffect(() => {
     fetchRoutes();
     fetchShops();
