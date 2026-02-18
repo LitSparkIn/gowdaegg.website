@@ -150,6 +150,56 @@ async def delete_sale_report(
         message="Sale report deleted successfully"
     )
 
+@admin_router.put("/{report_id}")
+async def update_sale_report(
+    report_id: str,
+    request: SaleReportUpdateRequest,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Update a sale report's damaged crates, expense, and comments.
+    Recalculates remaining_crates and remaining_cash.
+    """
+    from core.timezone import get_ist_now
+    
+    # Get existing report
+    report = await db.sale_reports.find_one({"id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Sale report not found")
+    
+    # Recalculate values
+    initial_crates = report.get("initial_crates", 0)
+    crates_sold = report.get("crates_sold", 0)
+    cash_collected = report.get("cash_collected", 0)
+    
+    remaining_crates = initial_crates - crates_sold - request.crates_damaged
+    remaining_cash = cash_collected - request.expense
+    
+    # Update the report
+    update_data = {
+        "crates_damaged": request.crates_damaged,
+        "expense": request.expense,
+        "comments": request.comments,
+        "remaining_crates": remaining_crates,
+        "remaining_cash": remaining_cash,
+        "net_cash": remaining_cash,
+        "updated_at": get_ist_now().isoformat()
+    }
+    
+    await db.sale_reports.update_one(
+        {"id": report_id},
+        {"$set": update_data}
+    )
+    
+    # Get updated report
+    updated_report = await db.sale_reports.find_one({"id": report_id}, {"_id": 0})
+    
+    return success_response(
+        data=updated_report,
+        message="Sale report updated successfully"
+    )
+
 @admin_router.post("/submit-for-salesman/{salesman_id}")
 async def admin_submit_sale_report(
     salesman_id: str,
