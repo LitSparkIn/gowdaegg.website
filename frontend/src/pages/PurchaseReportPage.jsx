@@ -297,12 +297,24 @@ const PurchaseReportPage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by supplier, payment mode..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="purchase-report-search-input"
+        />
+      </div>
+
       {/* Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Package size={20} className="text-primary" />
-            Purchases ({formatNumber(totals.total_records)})
+            Purchases ({filteredPurchases.length}{searchQuery && ` of ${purchases.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -313,6 +325,10 @@ const PurchaseReportPage = () => {
           ) : purchases.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               No purchases found for the selected filters.
+            </div>
+          ) : filteredPurchases.length === 0 ? (
+            <div className="text-center py-10 text-muted-foreground">
+              No purchases match your search. Try a different term.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -333,7 +349,7 @@ const PurchaseReportPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {purchases.map((purchase, index) => (
+                  {filteredPurchases.map((purchase, index) => (
                     <tr 
                       key={purchase.id} 
                       className={cn(
