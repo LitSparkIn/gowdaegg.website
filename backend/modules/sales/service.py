@@ -470,3 +470,112 @@ class SaleService:
             "total_return_tray": totals.get("total_return_tray", 0),
             "sales": [s.model_dump() for s in enriched_sales]
         }
+
+    async def update_sale(self, sale_id: str, request: SaleUpdateRequest, image_url: Optional[str] = None) -> SaleWithDetailsResponse:
+        """Update a sale transaction"""
+        # Get existing sale
+        sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
+        if not sale:
+            raise NotFoundException(f"Sale with id '{sale_id}' not found")
+        
+        # Get shop details
+        shop = await self.db.shops.find_one({"id": sale["shop_id"]}, {"_id": 0})
+        if not shop:
+            raise BadRequestException("Shop not found")
+        
+        # Calculate new values
+        order_amount = request.crates * 30 * request.price
+        shop_previous_dues = sale.get("shop_previous_dues", 0)
+        total_amount = order_amount + shop_previous_dues
+        pending_amount = total_amount - request.collected_amount
+        
+        # Get old values for adjustments
+        old_pending = sale.get("pending_amount", 0)
+        old_return_tray = sale.get("return_tray", 0)
+        old_tray_balance = sale.get("current_tray_balance", 0)
+        
+        # Calculate new tray balance
+        previous_tray_balance = sale.get("previous_tray_balance", 0)
+        current_tray_balance = previous_tray_balance + request.crates - request.return_tray
+        
+        # Determine transaction type
+        transaction_type = "Sale" if request.crates > 0 else "Collection"
+        
+        now = get_ist_now()
+        
+        # Prepare update data
+        update_data = {
+            "crates": request.crates,
+            "price": request.price,
+            "order_amount": order_amount,
+            "total_amount": total_amount,
+            "collected_amount": request.collected_amount,
+            "pending_amount": pending_amount,
+            "payment_type": request.payment_type,
+            "return_tray": request.return_tray,
+            "current_tray_balance": current_tray_balance,
+            "current_dues": pending_amount,
+            "transaction_type": transaction_type,
+            "updated_at": now.isoformat()
+        }
+        
+        # Update image if provided
+        if image_url is not None:
+            update_data["image_url"] = image_url
+        
+        # Update sale record
+        await self.db.sales.update_one({"id": sale_id}, {"$set": update_data})
+        
+        # Update shop's previous_dues and tray_balance
+        current_shop_dues = shop.get("previous_dues", 0)
+        new_shop_dues = current_shop_dues - old_pending + pending_amount
+        
+        current_shop_tray = shop.get("tray_balance", 0)
+        # Reverse old tray effect and apply new
+        tray_diff = (request.crates - request.return_tray) - (sale.get("crates", 0) - old_return_tray)
+        new_shop_tray = current_shop_tray + tray_diff
+        
+        await self.db.shops.update_one(
+            {"id": sale["shop_id"]},
+            {"$set": {"previous_dues": new_shop_dues, "tray_balance": new_shop_tray, "updated_at": now.isoformat()}}
+        )
+        
+        # Get updated sale with details
+        updated_sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
+        
+        # Get salesman and route details
+        salesman = await self.db.salesmen.find_one({"id": updated_sale["salesman_id"]}, {"_id": 0})
+        salesman_name = salesman.get("name", "Unknown") if salesman else "Unknown"
+        route_name = ""
+        if salesman:
+            route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
+            if route:
+                route_name = route.get("route_name", "")
+        
+        return SaleWithDetailsResponse(
+            id=updated_sale["id"],
+            salesman_id=updated_sale["salesman_id"],
+            salesman_name=salesman_name,
+            shop_id=updated_sale["shop_id"],
+            shop_name=shop.get("name", "Unknown"),
+            shop_phone=shop.get("phone", ""),
+            route_name=route_name,
+            crates=updated_sale["crates"],
+            price=updated_sale["price"],
+            order_amount=updated_sale["order_amount"],
+            shop_previous_dues=updated_sale["shop_previous_dues"],
+            total_amount=updated_sale["total_amount"],
+            collected_amount=updated_sale["collected_amount"],
+            pending_amount=updated_sale["pending_amount"],
+            payment_type=updated_sale["payment_type"],
+            return_tray=updated_sale["return_tray"],
+            previous_tray_balance=updated_sale.get("previous_tray_balance", 0),
+            current_tray_balance=updated_sale.get("current_tray_balance", 0),
+            current_dues=updated_sale.get("current_dues", updated_sale["pending_amount"]),
+            transaction_type=updated_sale.get("transaction_type", "Sale"),
+            image_url=updated_sale.get("image_url"),
+            sale_date=updated_sale["sale_date"],
+            sale_time=updated_sale.get("sale_time", "00:00:00"),
+            created_at=updated_sale["created_at"],
+            credit_threshold=shop.get("credit_threshold", 0)
+        )
