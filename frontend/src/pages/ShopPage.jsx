@@ -122,6 +122,11 @@ const ShopPage = () => {
     return result;
   }, [shops, searchQuery, selectedRoute]);
 
+  // Calculate total dues for filtered shops
+  const totalDues = useMemo(() => {
+    return filteredShops.reduce((sum, shop) => sum + (shop.previous_dues || 0), 0);
+  }, [filteredShops]);
+
   useEffect(() => {
     fetchRoutes();
     fetchShops();
