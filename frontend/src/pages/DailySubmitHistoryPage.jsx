@@ -119,6 +119,18 @@ const DailySubmitHistoryPage = () => {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by date..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="daily-history-search-input"
+        />
+      </div>
+
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 size={40} className="animate-spin text-primary" />
@@ -133,12 +145,20 @@ const DailySubmitHistoryPage = () => {
             </p>
           </CardContent>
         </Card>
+      ) : filteredSummaries.length === 0 ? (
+        <Card className="border-border/50">
+          <CardContent className="py-20 text-center">
+            <CalendarDays size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+            <p className="text-muted-foreground">No summaries match your search</p>
+            <p className="text-sm text-muted-foreground">Try a different search term</p>
+          </CardContent>
+        </Card>
       ) : (
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <CalendarDays size={20} className="text-primary" />
-              Submitted Summaries ({summaries.length})
+              Submitted Summaries ({filteredSummaries.length}{searchQuery && ` of ${summaries.length}`})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -157,7 +177,7 @@ const DailySubmitHistoryPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {summaries.map((summary, index) => (
+                  {filteredSummaries.map((summary, index) => (
                     <tr 
                       key={summary.id}
                       className={cn(
