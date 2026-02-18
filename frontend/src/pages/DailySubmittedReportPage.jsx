@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -266,12 +267,24 @@ const DailySubmittedReportPage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by salesman name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="daily-report-search-input"
+        />
+      </div>
+
       {/* Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <FileText size={20} className="text-primary" />
-            Submitted Reports
+            Submitted Reports ({filteredReports.length}{searchQuery && ` of ${reports.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -288,6 +301,12 @@ const DailySubmittedReportPage = () => {
                   ? "Try adjusting your filters" 
                   : "Reports will appear here when salesmen submit their daily reports"}
               </p>
+            </div>
+          ) : filteredReports.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No reports match your search</p>
+              <p className="text-sm text-muted-foreground">Try a different search term</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -313,7 +332,7 @@ const DailySubmittedReportPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report, index) => (
+                  {filteredReports.map((report, index) => (
                     <TableRow 
                       key={report.id} 
                       data-testid={`report-row-${index}`}
