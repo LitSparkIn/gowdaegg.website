@@ -149,6 +149,70 @@ const ProfitLossReportPage = () => {
     </div>
   );
 
+  // Export functions
+  const exportToExcel = () => {
+    if (!data) { toast.error("No data to export"); return; }
+    const exportData = [
+      { "Category": "PURCHASES", "Description": "Total Purchases", "Value": data.purchases.count },
+      { "Category": "PURCHASES", "Description": "Total Crates", "Value": data.purchases.crates },
+      { "Category": "PURCHASES", "Description": "Total Value", "Value": data.purchases.value },
+      { "Category": "SALES", "Description": "Total Sales", "Value": data.sales.count },
+      { "Category": "SALES", "Description": "Total Crates", "Value": data.sales.crates },
+      { "Category": "SALES", "Description": "Total Value", "Value": data.sales.value },
+      { "Category": "SALES", "Description": "Collected", "Value": data.sales.collected },
+      { "Category": "SALES", "Description": "Pending", "Value": data.sales.pending },
+      { "Category": "EXPENSES", "Description": "Total Expenses", "Value": data.expenses.total },
+      { "Category": "SUMMARY", "Description": "Gross Profit", "Value": data.summary.grossProfit },
+      { "Category": "SUMMARY", "Description": "Net Profit", "Value": data.summary.netProfit },
+      { "Category": "SUMMARY", "Description": "Profit Margin %", "Value": data.summary.profitMargin }
+    ];
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Profit Loss");
+    XLSX.writeFile(wb, `ProfitLoss_${format(fromDate, "dd-MMM")}_to_${format(toDate, "dd-MMM-yyyy")}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (!data) { toast.error("No data to export"); return; }
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Profit & Loss Report", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Period: ${format(fromDate, "dd MMM yyyy")} to ${format(toDate, "dd MMM yyyy")}`, 14, 22);
+    autoTable(doc, {
+      startY: 30,
+      head: [["Category", "Metric", "Value"]],
+      body: [
+        ["Purchases", "Total Value", formatCurrency(data.purchases.value)],
+        ["Purchases", "Total Crates", formatNumber(data.purchases.crates)],
+        ["Sales", "Total Value", formatCurrency(data.sales.value)],
+        ["Sales", "Total Crates", formatNumber(data.sales.crates)],
+        ["Sales", "Collected", formatCurrency(data.sales.collected)],
+        ["Sales", "Pending", formatCurrency(data.sales.pending)],
+        ["Expenses", "Total", formatCurrency(data.expenses.total)],
+        ["Summary", "Gross Profit", formatCurrency(data.summary.grossProfit)],
+        ["Summary", "Net Profit", formatCurrency(data.summary.netProfit)],
+        ["Summary", "Profit Margin", `${data.summary.profitMargin.toFixed(1)}%`]
+      ],
+      theme: "grid", headStyles: { fillColor: [34, 84, 61] }
+    });
+    doc.save(`ProfitLoss_${format(fromDate, "dd-MMM")}_to_${format(toDate, "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (!data) { toast.error("No data to print"); return; }
+    const html = `<html><head><title>Profit & Loss</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}.section{margin:20px 0;padding:15px;background:#f9f9f9;border-radius:8px}.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ddd}.label{color:#666}.value{font-weight:bold}.profit{color:green}.loss{color:red}</style></head><body>
+    <h1>Profit & Loss Report</h1>
+    <p>Period: ${format(fromDate, "dd MMM yyyy")} to ${format(toDate, "dd MMM yyyy")}</p>
+    <div class="section"><h3>Purchases</h3><div class="row"><span class="label">Total Value</span><span class="value">${formatCurrency(data.purchases.value)}</span></div><div class="row"><span class="label">Crates</span><span class="value">${formatNumber(data.purchases.crates)}</span></div></div>
+    <div class="section"><h3>Sales</h3><div class="row"><span class="label">Total Value</span><span class="value">${formatCurrency(data.sales.value)}</span></div><div class="row"><span class="label">Collected</span><span class="value">${formatCurrency(data.sales.collected)}</span></div><div class="row"><span class="label">Pending</span><span class="value">${formatCurrency(data.sales.pending)}</span></div></div>
+    <div class="section"><h3>Summary</h3><div class="row"><span class="label">Expenses</span><span class="value loss">${formatCurrency(data.expenses.total)}</span></div><div class="row"><span class="label">Net Profit</span><span class="value ${data.summary.netProfit >= 0 ? 'profit' : 'loss'}">${formatCurrency(data.summary.netProfit)}</span></div><div class="row"><span class="label">Margin</span><span class="value">${data.summary.profitMargin.toFixed(1)}%</span></div></div>
+    </body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="profit-loss-report-page">
       {/* Header */}
