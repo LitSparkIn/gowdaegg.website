@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 from core.database import database
 from auth.security import get_current_user
-from core.response import api_response
+from core.response import success_response
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -62,7 +62,7 @@ async def clear_data(
         except Exception as e:
             errors.append(f"Error clearing {collection_key}: {str(e)}")
     
-    return api_response(
+    return success_response(
         data={
             "cleared": cleared,
             "errors": errors
@@ -88,4 +88,4 @@ async def get_collection_counts(
         except Exception:
             counts[key] = 0
     
-    return api_response(data=counts)
+    return success_response(data=counts)
