@@ -243,15 +243,21 @@ const PurchasePage = () => {
     setSubmitting(true);
     try {
       const payload = {
-        supplier_id: formData.supplier_id,
         crates: parseInt(formData.crates),
         price: parseFloat(formData.price),
         amount_paid: parseFloat(formData.amount_paid),
         payment_mode: formData.payment_mode,
       };
 
-      await api.post(`/purchases`, payload);
-      toast.success("Purchase added successfully");
+      if (editingPurchase) {
+        // Update existing purchase
+        await api.put(`/purchases/${editingPurchase.id}`, payload);
+        toast.success("Purchase updated successfully");
+      } else {
+        // Create new purchase
+        await api.post(`/purchases`, { ...payload, supplier_id: formData.supplier_id });
+        toast.success("Purchase added successfully");
+      }
       handleCloseDialog();
       fetchPurchases();
       fetchSuppliers(); // Refresh suppliers to get updated dues
