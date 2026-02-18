@@ -451,12 +451,15 @@ async def submit_daily_summary(
     salesman_expenses = round(salesman_expense_result[0]["total"], 2) if salesman_expense_result else 0
     
     other_expense_pipeline = [
-        {"$match": {"date": target_date}},
+        {"$match": {"expense_date": target_date}},
         {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
     ]
     other_expense_result = await db.expenses.aggregate(other_expense_pipeline).to_list(1)
     other_expenses = round(other_expense_result[0]["total"], 2) if other_expense_result else 0
-    total_expenses = round(salesman_expenses + other_expenses, 2)
+    
+    # Damaged eggs loss
+    damage_loss = round(damage_today * 30 * average_rate, 2)
+    total_expenses = round(salesman_expenses + other_expenses + damage_loss, 2)
     
     # Profit calculation
     buy_rate = average_rate
