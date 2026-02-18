@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from modules.sales.repository import SaleRepository
 from modules.sales.models import SaleModel
-from modules.sales.schemas import SaleCreateRequest, SaleResponse, SaleWithDetailsResponse
+from modules.sales.schemas import SaleCreateRequest, SaleUpdateRequest, SaleResponse, SaleWithDetailsResponse
 from core.exceptions import NotFoundException, BadRequestException
 from core.timezone import get_ist_date, get_ist_time, get_ist_now
 from modules.settings.notification_service import NotificationService
