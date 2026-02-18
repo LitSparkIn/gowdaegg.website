@@ -154,6 +154,40 @@ const RoutePage = () => {
     });
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredRoutes.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredRoutes.map((r, i) => ({ "#": i+1, "Route Name": r.route_name, "Created": formatDate(r.created_at), "Updated": formatDate(r.updated_at) }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Routes");
+    XLSX.writeFile(wb, `Routes_${format(new Date(), "dd-MMM-yyyy")}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredRoutes.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors - Routes", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Generated: ${format(new Date(), "dd MMM yyyy")} | Total: ${filteredRoutes.length}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Route Name", "Created", "Updated"]],
+      body: filteredRoutes.map((r, i) => [i+1, r.route_name, formatDate(r.created_at), formatDate(r.updated_at)]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61] }
+    });
+    doc.save(`Routes_${format(new Date(), "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredRoutes.length === 0) { toast.error("No data to print"); return; }
+    const html = `<html><head><title>Routes</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse}th{background:#22543d;color:#fff;padding:8px}td{padding:6px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}</style></head><body><h1>Routes List</h1><p>Generated: ${format(new Date(), "dd MMM yyyy")} | Total: ${filteredRoutes.length}</p><table><tr><th>#</th><th>Route Name</th><th>Created</th><th>Updated</th></tr>${filteredRoutes.map((r,i)=>`<tr><td>${i+1}</td><td>${r.route_name}</td><td>${formatDate(r.created_at)}</td><td>${formatDate(r.updated_at)}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="route-page">
       {/* Header */}
