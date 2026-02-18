@@ -88,6 +88,7 @@ api_router.include_router(daily_summary_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(settings_router)
 api_router.include_router(public_router)
+api_router.include_router(admin_data_router)
 
 # Include the main api router
 app.include_router(api_router)
