@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from modules.initial_load.repository import InitialLoadRepository
 from modules.initial_load.models import InitialLoadModel
-from modules.initial_load.schemas import InitialLoadCreateRequest, InitialLoadResponse, InitialLoadWithSalesmanResponse
+from modules.initial_load.schemas import InitialLoadCreateRequest, InitialLoadUpdateRequest, InitialLoadResponse, InitialLoadWithSalesmanResponse
 from core.exceptions import BadRequestException
 from core.timezone import get_ist_date, get_ist_now
 
