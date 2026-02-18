@@ -39,7 +39,6 @@ async def change_password(
     """Change current user's password"""
     message = await auth_service.change_password(
         email=current_user["email"],
-        current_password=request.current_password,
         new_password=request.new_password
     )
     return MessageResponse(message=message)

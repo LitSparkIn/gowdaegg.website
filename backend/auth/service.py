@@ -154,17 +154,16 @@ class AuthService:
             route_name=route_name
         )
     
-    async def change_password(self, email: str, current_password: str, new_password: str) -> str:
+    async def change_password(self, email: str, new_password: str) -> str:
         """
-        Change user password
+        Change user password (no current password required)
         """
         superadmin = _get_superadmin()
         
         if email == superadmin["email"]:
-            if not verify_password(current_password, superadmin["password_hash"]):
-                raise BadRequestException("Current password is incorrect")
-            # In production, update password in database
-            return "Password change functionality coming soon"
+            # Update the superadmin password hash
+            _SUPERADMIN["password_hash"] = hash_password(new_password)
+            return "Password changed successfully"
         
         raise BadRequestException("User not found")
 
