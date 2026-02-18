@@ -549,8 +549,28 @@ const DailySubmitHistoryPage = () => {
           )}
 
           {selectedSummary && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-muted-foreground">
-              Submitted on {formatDateTime(selectedSummary.submitted_at)}
+            <div className="mt-4 flex items-center justify-between">
+              <div className="p-3 bg-gray-50 rounded-lg text-sm text-muted-foreground">
+                Submitted on {formatDateTime(selectedSummary.submitted_at)}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => exportSingleToPDF(selectedSummary)}
+                  data-testid="dialog-pdf-btn"
+                >
+                  <FileText size={16} className="mr-1" /> PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => printSingleSummary(selectedSummary)}
+                  data-testid="dialog-print-btn"
+                >
+                  <Printer size={16} className="mr-1" /> Print
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
