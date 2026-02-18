@@ -36,6 +36,7 @@ const InitialLoadingReportPage = () => {
   const [loads, setLoads] = useState([]);
   const [salesmen, setSalesmen] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [totalCrates, setTotalCrates] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
   

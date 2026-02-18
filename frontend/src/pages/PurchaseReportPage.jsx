@@ -38,6 +38,7 @@ const PurchaseReportPage = () => {
   const [purchases, setPurchases] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [totals, setTotals] = useState({
     total_records: 0,
     total_amount: 0,

@@ -33,6 +33,7 @@ const TransactionReportPage = () => {
   const [salesmen, setSalesmen] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [totals, setTotals] = useState({
     total_records: 0,
     total_crates: 0,

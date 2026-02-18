@@ -38,6 +38,7 @@ const API = `${BACKEND_URL}/api`;
 const SupplierPage = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);

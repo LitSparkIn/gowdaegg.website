@@ -29,6 +29,7 @@ const API = `${BACKEND_URL}/api`;
 const DailySubmitHistoryPage = () => {
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedSummary, setSelectedSummary] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
 

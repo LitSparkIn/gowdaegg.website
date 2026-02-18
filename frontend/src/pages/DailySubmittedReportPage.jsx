@@ -41,6 +41,7 @@ const DailySubmittedReportPage = () => {
   const [reports, setReports] = useState([]);
   const [salesmen, setSalesmen] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);

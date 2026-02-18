@@ -47,6 +47,7 @@ const API = `${BACKEND_URL}/api`;
 const ExpensePage = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
