@@ -225,6 +225,16 @@ const Dashboard = () => {
             <Button
               variant="secondary"
               size="sm"
+              onClick={handleOpenClearDialog}
+              className="bg-red-500/20 hover:bg-red-500/30 text-white border-0"
+              data-testid="clear-data-btn"
+            >
+              <Trash2 size={16} className="mr-2" />
+              Clear Data
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => fetchDashboardData(true)}
               disabled={refreshing}
               className="bg-white/20 hover:bg-white/30 text-white border-0"
