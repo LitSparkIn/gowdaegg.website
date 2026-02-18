@@ -51,6 +51,20 @@ const TransactionReportPage = () => {
     total_return_tray: 0
   });
   
+  // Edit dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState(null);
+  const [editForm, setEditForm] = useState({
+    crates: "",
+    price: "",
+    collected_amount: "",
+    payment_type: "",
+    return_tray: "",
+    image: null
+  });
+  const [editImagePreview, setEditImagePreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  
   // Filters - default to today
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
