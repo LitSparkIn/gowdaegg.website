@@ -689,9 +689,10 @@ const DailySubmittedReportPage = () => {
               {editingReport && (
                 <div className="p-3 bg-blue-50 rounded-lg text-sm space-y-1">
                   <p className="font-medium text-blue-800">After Update:</p>
-                  <div className="grid grid-cols-2 gap-2 text-blue-700">
-                    <span>Remaining Crates: {editingReport.initial_crates - editingReport.crates_sold - (parseInt(editForm.crates_damaged) || 0)}</span>
+                  <div className="grid grid-cols-3 gap-2 text-blue-700">
+                    <span>Remaining: {editingReport.initial_crates - editingReport.crates_sold - (parseInt(editForm.crates_damaged) || 0)}</span>
                     <span>Net Cash: ₹{(editingReport.cash_collected - (parseFloat(editForm.expense) || 0)).toLocaleString()}</span>
+                    <span>Return Tray: {parseInt(editForm.empty_crates_returned) || 0}</span>
                   </div>
                 </div>
               )}
