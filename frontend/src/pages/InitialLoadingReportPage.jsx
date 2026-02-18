@@ -51,6 +51,12 @@ const InitialLoadingReportPage = () => {
   const [totalCrates, setTotalCrates] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
   
+  // Edit dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingLoad, setEditingLoad] = useState(null);
+  const [editCrates, setEditCrates] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  
   // Filters - default to today
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
