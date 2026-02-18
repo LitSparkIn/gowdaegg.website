@@ -6,7 +6,7 @@ from core.database import get_database
 from core.response import success_response
 from auth.security import get_current_user
 from modules.initial_load.service import InitialLoadService
-from modules.initial_load.schemas import InitialLoadCreateRequest
+from modules.initial_load.schemas import InitialLoadCreateRequest, InitialLoadUpdateRequest
 
 router = APIRouter(prefix="/salesman/initial-loads", tags=["Initial Loads"])
 
