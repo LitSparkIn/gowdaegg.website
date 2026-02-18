@@ -293,7 +293,8 @@ const ProfitLossReportPage = () => {
             <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
           </Button>
         </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
