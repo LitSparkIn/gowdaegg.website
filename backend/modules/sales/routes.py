@@ -228,3 +228,47 @@ async def send_whatsapp_for_sale(
             status_code=500, 
             detail=f"Failed to send WhatsApp: {result.get('error') or result.get('response')}"
         )
+
+@admin_router.put("/{sale_id}")
+async def update_sale(
+    sale_id: str,
+    crates: int = Form(...),
+    price: float = Form(...),
+    collected_amount: float = Form(...),
+    payment_type: str = Form(...),
+    return_tray: int = Form(0),
+    image: Optional[UploadFile] = File(default=None),
+    service: SaleService = Depends(get_service),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Update a sale transaction.
+    Only crates, price, collected_amount, payment_type, return_tray and image can be updated.
+    Order amount, total, and pending are auto-calculated.
+    """
+    try:
+        # Save image if provided
+        image_url = None
+        if image is not None and image.filename and image.filename.strip():
+            try:
+                image_url = await save_upload_file(image, "sale")
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+        
+        request = SaleUpdateRequest(
+            crates=crates,
+            price=price,
+            collected_amount=collected_amount,
+            payment_type=payment_type,
+            return_tray=return_tray
+        )
+        
+        result = await service.update_sale(sale_id, request, image_url)
+        
+        return success_response(
+            data=result.model_dump(),
+            message="Sale updated successfully"
+        )
+    except Exception as e:
+        logger.error(f"Error updating sale: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error updating sale: {str(e)}")
