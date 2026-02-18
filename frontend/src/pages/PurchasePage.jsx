@@ -61,6 +61,7 @@ const PurchasePage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletePurchase, setDeletePurchase] = useState(null);
+  const [editingPurchase, setEditingPurchase] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [totals, setTotals] = useState({
     total_records: 0,
