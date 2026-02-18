@@ -41,6 +41,7 @@ class SaleResponse(BaseModel):
     sale_date: str
     sale_time: str
     created_at: str
+    shop_tray_balance: Optional[int] = None  # Current shop tray balance from shop record
 
 class SaleWithDetailsResponse(BaseModel):
     """Schema for sale with shop and salesman details"""
