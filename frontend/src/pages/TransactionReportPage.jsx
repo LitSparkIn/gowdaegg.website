@@ -496,6 +496,81 @@ const TransactionReportPage = () => {
     printWindow.print();
   };
 
+  // Edit functions
+  const handleEditClick = (sale) => {
+    setEditingSale(sale);
+    setEditForm({
+      crates: sale.crates.toString(),
+      price: sale.price.toString(),
+      collected_amount: sale.collected_amount.toString(),
+      payment_type: sale.payment_type,
+      return_tray: sale.return_tray.toString(),
+      image: null
+    });
+    setEditImagePreview(sale.image_url || null);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditForm(prev => ({ ...prev, image: file }));
+      setEditImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Calculate preview values
+  const getPreviewValues = () => {
+    const crates = parseInt(editForm.crates) || 0;
+    const price = parseFloat(editForm.price) || 0;
+    const collected = parseFloat(editForm.collected_amount) || 0;
+    const orderAmount = crates * 30 * price;
+    const prevDues = editingSale?.shop_previous_dues || 0;
+    const total = orderAmount + prevDues;
+    const pending = total - collected;
+    return { orderAmount, total, pending };
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!editForm.crates || !editForm.price || !editForm.payment_type) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("crates", editForm.crates);
+      formData.append("price", editForm.price);
+      formData.append("collected_amount", editForm.collected_amount || "0");
+      formData.append("payment_type", editForm.payment_type);
+      formData.append("return_tray", editForm.return_tray || "0");
+      if (editForm.image) {
+        formData.append("image", editForm.image);
+      }
+      
+      await api.put(`/sales/${editingSale.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      toast.success("Transaction updated successfully");
+      setIsEditDialogOpen(false);
+      setEditingSale(null);
+      fetchSales();
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      toast.error(error.response?.data?.detail || "Failed to update transaction");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
