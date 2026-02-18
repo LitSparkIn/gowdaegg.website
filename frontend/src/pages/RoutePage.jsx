@@ -210,7 +210,7 @@ const RoutePage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {routes.map((route, index) => (
+                {filteredRoutes.map((route, index) => (
                   <TableRow key={route.id} data-testid={`route-row-${index}`}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell className="font-medium">{route.route_name}</TableCell>
