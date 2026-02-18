@@ -180,6 +180,8 @@ async def update_sale_report(
     update_data = {
         "crates_damaged": request.crates_damaged,
         "expense": request.expense,
+        "empty_crates_returned": request.empty_crates_returned,
+        "return_tray": request.empty_crates_returned,
         "comments": request.comments,
         "remaining_crates": remaining_crates,
         "remaining_cash": remaining_cash,
