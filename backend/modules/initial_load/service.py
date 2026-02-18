@@ -118,3 +118,44 @@ class InitialLoadService:
             "total_records": total_records,
             "initial_loads": [load.model_dump() for load in enriched_loads]
         }
+
+    async def update_initial_load(self, load_id: str, request: InitialLoadUpdateRequest) -> InitialLoadWithSalesmanResponse:
+        """Update an initial load's crates"""
+        # Get existing load
+        load = await self.db.initial_loads.find_one({"id": load_id}, {"_id": 0})
+        if not load:
+            raise BadRequestException(f"Initial load with id '{load_id}' not found")
+        
+        now = get_ist_now()
+        
+        # Update the load
+        await self.db.initial_loads.update_one(
+            {"id": load_id},
+            {"$set": {"initial_crates": request.initial_crates, "updated_at": now.isoformat()}}
+        )
+        
+        # Get updated load with salesman details
+        updated_load = await self.db.initial_loads.find_one({"id": load_id}, {"_id": 0})
+        
+        salesman = await self.db.salesmen.find_one({"id": updated_load["salesman_id"]}, {"_id": 0})
+        route_name = ""
+        salesman_name = "Unknown"
+        salesman_phone = ""
+        
+        if salesman:
+            salesman_name = salesman.get("name", "Unknown")
+            salesman_phone = salesman.get("phone", "")
+            route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
+            if route:
+                route_name = route.get("route_name", "")
+        
+        return InitialLoadWithSalesmanResponse(
+            id=updated_load["id"],
+            salesman_id=updated_load["salesman_id"],
+            salesman_name=salesman_name,
+            salesman_phone=salesman_phone,
+            route_name=route_name,
+            initial_crates=updated_load["initial_crates"],
+            load_date=updated_load["load_date"],
+            created_at=updated_load["created_at"]
+        )
