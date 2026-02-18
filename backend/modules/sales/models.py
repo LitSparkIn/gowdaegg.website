@@ -8,6 +8,7 @@ class SaleModel(BaseModel):
     id: str
     salesman_id: str
     shop_id: str
+    shop_name: Optional[str] = None  # Shop name for easy reference
     crates: int
     price: float  # Price per egg
     order_amount: float
