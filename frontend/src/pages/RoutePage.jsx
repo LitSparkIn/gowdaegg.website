@@ -99,6 +99,7 @@ const RoutePage = () => {
 
   useEffect(() => {
     fetchRoutes();
+    fetchShops();
   }, []);
 
   const handleOpenDialog = (route = null) => {
