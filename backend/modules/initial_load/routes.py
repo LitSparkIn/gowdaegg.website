@@ -91,3 +91,20 @@ async def get_all_initial_loads_admin(
         data=result,
         message="Initial loads fetched successfully"
     )
+
+@admin_router.put("/{load_id}")
+async def update_initial_load(
+    load_id: str,
+    request: InitialLoadUpdateRequest,
+    service: InitialLoadService = Depends(get_service),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Update an initial load's crates.
+    """
+    result = await service.update_initial_load(load_id, request)
+    
+    return success_response(
+        data=result.model_dump(),
+        message="Initial load updated successfully"
+    )
