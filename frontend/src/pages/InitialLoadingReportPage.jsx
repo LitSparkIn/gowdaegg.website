@@ -443,6 +443,45 @@ const InitialLoadingReportPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Initial Load</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="space-y-4 py-4">
+              {editingLoad && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p><strong>Salesman:</strong> {editingLoad.salesman_name}</p>
+                  <p><strong>Date:</strong> {formatDate(editingLoad.load_date)}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="edit-crates">Number of Crates *</Label>
+                <Input
+                  id="edit-crates"
+                  type="number"
+                  min="1"
+                  placeholder="Enter crates"
+                  value={editCrates}
+                  onChange={(e) => setEditCrates(e.target.value)}
+                  data-testid="edit-crates-input"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting} className="bg-primary hover:bg-primary-600">
+                {submitting ? <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</> : "Update"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
