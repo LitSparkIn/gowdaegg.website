@@ -658,18 +658,22 @@ const PurchasePage = () => {
         </CardContent>
       </Card>
 
-      {/* Add Purchase Dialog */}
+      {/* Add/Edit Purchase Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add New Purchase</DialogTitle>
+            <DialogTitle>{editingPurchase ? "Edit Purchase" : "Add New Purchase"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               {/* Supplier */}
               <div className="space-y-2">
                 <Label>Supplier *</Label>
-                <Select value={formData.supplier_id} onValueChange={handleSupplierChange}>
+                <Select 
+                  value={formData.supplier_id} 
+                  onValueChange={handleSupplierChange}
+                  disabled={!!editingPurchase}
+                >
                   <SelectTrigger data-testid="supplier-select">
                     <SelectValue placeholder="Select Supplier" />
                   </SelectTrigger>
@@ -681,6 +685,9 @@ const PurchasePage = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {editingPurchase && (
+                  <p className="text-xs text-muted-foreground">Supplier cannot be changed when editing</p>
+                )}
               </div>
               
               {/* Crates and Price */}
