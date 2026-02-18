@@ -145,6 +145,50 @@ const PurchaseReportPage = () => {
     return new Intl.NumberFormat("en-IN").format(num || 0);
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredPurchases.map((p, i) => ({
+      "#": i+1, "Date": format(new Date(p.purchase_date), "dd MMM yyyy"), "Time": p.purchase_time || "N/A",
+      "Supplier": p.supplier_name, "Crates": p.crates, "Rate": p.price, "Total": p.total,
+      "Prev Dues": p.supplier_previous_dues, "Grand Total": p.grand_total, "Paid": p.paid_amount, "Pending": p.pending_amount, "Payment": p.payment_mode
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Purchase Report");
+    const fromStr = fromDate ? format(fromDate, "dd-MMM-yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd-MMM-yyyy") : "All";
+    XLSX.writeFile(wb, `PurchaseReport_${fromStr}_to_${toStr}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF({ orientation: "landscape" });
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Purchase Report", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Date: ${fromStr} to ${toStr} | Total: ₹${(totals.total_amount||0).toLocaleString()} | Paid: ₹${(totals.total_paid||0).toLocaleString()} | Pending: ₹${(totals.total_pending||0).toLocaleString()}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["Date", "Time", "Supplier", "Crates", "Rate", "Total", "Prev Dues", "Grand Total", "Paid", "Pending", "Payment"]],
+      body: filteredPurchases.map(p => [format(new Date(p.purchase_date), "dd MMM"), p.purchase_time || "-", p.supplier_name, p.crates, `₹${p.price}`, `₹${p.total.toLocaleString()}`, `₹${p.supplier_previous_dues.toLocaleString()}`, `₹${p.grand_total.toLocaleString()}`, `₹${p.paid_amount.toLocaleString()}`, `₹${p.pending_amount.toLocaleString()}`, p.payment_mode]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 7 }, bodyStyles: { fontSize: 7 }
+    });
+    doc.save(`PurchaseReport_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredPurchases.length === 0) { toast.error("No data to print"); return; }
+    const fromStr = fromDate ? format(fromDate, "dd MMM yyyy") : "All";
+    const toStr = toDate ? format(toDate, "dd MMM yyyy") : "All";
+    const html = `<html><head><title>Purchase Report</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#22543d;color:#fff;padding:6px}td{padding:5px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Purchase Report</h1><p>Date: ${fromStr} to ${toStr} | Total: ₹${(totals.total_amount||0).toLocaleString()}</p><table><tr><th>Date</th><th>Supplier</th><th>Crates</th><th>Rate</th><th>Total</th><th>Prev Dues</th><th>Grand Total</th><th>Paid</th><th>Pending</th><th>Payment</th></tr>${filteredPurchases.map(p=>`<tr><td>${format(new Date(p.purchase_date), "dd MMM")}</td><td>${p.supplier_name}</td><td class="text-right">${p.crates}</td><td class="text-right">₹${p.price}</td><td class="text-right">₹${p.total.toLocaleString()}</td><td class="text-right">₹${p.supplier_previous_dues.toLocaleString()}</td><td class="text-right">₹${p.grand_total.toLocaleString()}</td><td class="text-right">₹${p.paid_amount.toLocaleString()}</td><td class="text-right">₹${p.pending_amount.toLocaleString()}</td><td>${p.payment_mode}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="purchase-report-page">
       {/* Header */}
