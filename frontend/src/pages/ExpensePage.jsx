@@ -38,7 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Pencil, Trash2, Receipt, Loader2, CalendarIcon, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Receipt, Loader2, CalendarIcon, Filter, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

@@ -25,7 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { FileText, Loader2, CalendarIcon, Filter, X, Package } from "lucide-react";
+import { FileText, Loader2, CalendarIcon, Filter, X, Package, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

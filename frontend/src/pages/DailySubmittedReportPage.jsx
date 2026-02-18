@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FileText, Loader2, CalendarIcon, Filter, X, Eye, ImageIcon } from "lucide-react";
+import { FileText, Loader2, CalendarIcon, Filter, X, Eye, ImageIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

@@ -17,7 +17,8 @@ import {
   TrendingUp, 
   Wallet,
   Eye,
-  CheckCircle2
+  CheckCircle2,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
