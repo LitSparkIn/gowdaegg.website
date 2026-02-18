@@ -427,6 +427,18 @@ const PurchasePage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <Input
+          placeholder="Search by supplier, payment mode..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+          data-testid="purchase-search-input"
+        />
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="border-border/50">
@@ -460,7 +472,7 @@ const PurchasePage = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <ShoppingCart size={20} className="text-primary" />
-            Purchases
+            Purchases ({filteredPurchases.length}{searchQuery && ` of ${purchases.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -477,6 +489,12 @@ const PurchasePage = () => {
                   ? "Try adjusting your filters" 
                   : "Click \"Add Purchase\" to record your first purchase"}
               </p>
+            </div>
+          ) : filteredPurchases.length === 0 ? (
+            <div className="text-center py-12">
+              <ShoppingCart size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No purchases match your search</p>
+              <p className="text-sm text-muted-foreground">Try a different search term</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -497,7 +515,7 @@ const PurchasePage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {purchases.map((purchase, index) => (
+                  {filteredPurchases.map((purchase, index) => (
                     <TableRow 
                       key={purchase.id} 
                       data-testid={`purchase-row-${index}`}
