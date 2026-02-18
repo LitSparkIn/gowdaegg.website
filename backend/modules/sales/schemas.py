@@ -16,6 +16,14 @@ class SaleCreateRequest(BaseModel):
     payment_type: str = Field(..., description="Payment type (Cash, UPI, Credit, etc.)")
     return_tray: int = Field(default=0, ge=0, description="Number of trays returned")
 
+class SaleUpdateRequest(BaseModel):
+    """Schema for updating a sale"""
+    crates: int = Field(..., ge=0, description="Number of crates")
+    price: float = Field(..., ge=0, description="Price per egg")
+    collected_amount: float = Field(default=0, ge=0, description="Amount collected")
+    payment_type: str = Field(..., description="Payment type (Cash, UPI, Credit, etc.)")
+    return_tray: int = Field(default=0, ge=0, description="Number of trays returned")
+
 # ============ Response Schemas ============
 
 class SaleResponse(BaseModel):
