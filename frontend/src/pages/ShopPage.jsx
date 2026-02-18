@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer } from "lucide-react";
+import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
