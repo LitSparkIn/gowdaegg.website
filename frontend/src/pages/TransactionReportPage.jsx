@@ -1026,6 +1026,132 @@ const TransactionReportPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Transaction</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="space-y-4 py-4">
+              {editingSale && (
+                <div className="text-sm text-muted-foreground space-y-1 p-3 bg-gray-50 rounded-lg">
+                  <p><strong>Shop:</strong> {editingSale.shop_name}</p>
+                  <p><strong>Salesman:</strong> {editingSale.salesman_name}</p>
+                  <p><strong>Date:</strong> {formatDate(editingSale.sale_date)}</p>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-crates">Crates *</Label>
+                  <Input
+                    id="edit-crates"
+                    type="number"
+                    min="0"
+                    value={editForm.crates}
+                    onChange={(e) => handleEditFormChange("crates", e.target.value)}
+                    data-testid="edit-crates-input"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-price">Price/Egg *</Label>
+                  <Input
+                    id="edit-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editForm.price}
+                    onChange={(e) => handleEditFormChange("price", e.target.value)}
+                    data-testid="edit-price-input"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-collected">Collected Amount</Label>
+                  <Input
+                    id="edit-collected"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editForm.collected_amount}
+                    onChange={(e) => handleEditFormChange("collected_amount", e.target.value)}
+                    data-testid="edit-collected-input"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-payment">Payment Mode *</Label>
+                  <Select 
+                    value={editForm.payment_type} 
+                    onValueChange={(value) => handleEditFormChange("payment_type", value)}
+                  >
+                    <SelectTrigger data-testid="edit-payment-select">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="UPI">UPI</SelectItem>
+                      <SelectItem value="Cheque">Cheque</SelectItem>
+                      <SelectItem value="Credit">Credit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-return-tray">Return Trays</Label>
+                <Input
+                  id="edit-return-tray"
+                  type="number"
+                  min="0"
+                  value={editForm.return_tray}
+                  onChange={(e) => handleEditFormChange("return_tray", e.target.value)}
+                  data-testid="edit-return-tray-input"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-image">Image (optional)</Label>
+                <Input
+                  id="edit-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditImageChange}
+                  data-testid="edit-image-input"
+                />
+                {editImagePreview && (
+                  <img 
+                    src={editImagePreview.startsWith("blob:") ? editImagePreview : `${BACKEND_URL}${editImagePreview}`} 
+                    alt="Preview" 
+                    className="h-20 w-auto rounded border mt-2"
+                  />
+                )}
+              </div>
+
+              {/* Auto-calculated preview */}
+              <div className="p-3 bg-blue-50 rounded-lg text-sm space-y-1">
+                <p className="font-medium text-blue-800">Auto-calculated Values:</p>
+                <div className="grid grid-cols-3 gap-2 text-blue-700">
+                  <span>Order: {formatCurrency(getPreviewValues().orderAmount)}</span>
+                  <span>Total: {formatCurrency(getPreviewValues().total)}</span>
+                  <span>Pending: {formatCurrency(getPreviewValues().pending)}</span>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting} className="bg-primary hover:bg-primary-600">
+                {submitting ? <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</> : "Update Transaction"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
