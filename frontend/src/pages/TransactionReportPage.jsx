@@ -1093,9 +1093,8 @@ const TransactionReportPage = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="UPI">UPI</SelectItem>
                       <SelectItem value="Cheque">Cheque</SelectItem>
-                      <SelectItem value="Credit">Credit</SelectItem>
+                      <SelectItem value="Online">Online</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
