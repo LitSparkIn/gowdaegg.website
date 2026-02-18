@@ -323,14 +323,25 @@ const ShopPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Shop Management</h1>
           <p className="text-muted-foreground">Manage your shops and their details</p>
         </div>
-        <Button
-          onClick={() => handleOpenDialog()}
-          data-testid="add-shop-btn"
-          className="rounded-full bg-primary hover:bg-primary-600"
-        >
-          <Plus size={20} className="mr-2" />
-          Add Shop
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToExcel} disabled={loading || filteredShops.length === 0}>
+            <FileSpreadsheet size={16} className="mr-1" /> Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportToPDF} disabled={loading || filteredShops.length === 0}>
+            <FileText size={16} className="mr-1" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || filteredShops.length === 0}>
+            <Printer size={16} className="mr-1" /> Print
+          </Button>
+          <Button
+            onClick={() => handleOpenDialog()}
+            data-testid="add-shop-btn"
+            className="rounded-full bg-primary hover:bg-primary-600"
+          >
+            <Plus size={20} className="mr-2" />
+            Add Shop
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
