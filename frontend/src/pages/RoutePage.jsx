@@ -273,6 +273,7 @@ const RoutePage = () => {
                 <TableRow>
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Route Name</TableHead>
+                  <TableHead className="text-right">Total Dues</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Updated</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -287,6 +288,14 @@ const RoutePage = () => {
                       onClick={() => navigate(`/admin/shop?route=${route.id}`)}
                     >
                       {route.route_name}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className={cn(
+                        "font-semibold",
+                        getRouteDues(route.id) > 0 ? "text-red-600" : "text-green-600"
+                      )}>
+                        ₹{getRouteDues(route.id).toLocaleString()}
+                      </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(route.created_at)}
