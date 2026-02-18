@@ -55,6 +55,16 @@ const DailySubmittedReportPage = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   
+  // Edit dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingReport, setEditingReport] = useState(null);
+  const [editForm, setEditForm] = useState({
+    crates_damaged: "",
+    expense: "",
+    comments: ""
+  });
+  const [submitting, setSubmitting] = useState(false);
+  
   // Filters - default to today
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
