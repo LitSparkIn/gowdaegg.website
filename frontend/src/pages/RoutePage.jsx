@@ -38,6 +38,7 @@ import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 
 const RoutePage = () => {
+  const navigate = useNavigate();
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
