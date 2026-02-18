@@ -194,6 +194,135 @@ const DailySummaryPage = () => {
     });
   };
 
+  // Export functions
+  const exportToPDF = () => {
+    if (!summary) { toast.error("No summary to export"); return; }
+    
+    const doc = new jsPDF();
+    const dateStr = format(selectedDate, "dd MMM yyyy");
+    
+    doc.setFontSize(18);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors", 14, 15);
+    doc.setFontSize(14);
+    doc.text(`Daily Summary - ${dateStr}`, 14, 24);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${format(new Date(), "dd MMM yyyy, hh:mm a")}`, 14, 31);
+    
+    let yPos = 40;
+    
+    // Crate Information
+    doc.setFontSize(12);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Crate Information", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Value"]],
+      body: [
+        ["Carryover from Yesterday", summary.crate_information.carryover_today],
+        ["Purchased Today", summary.crate_information.purchase_today],
+        ["Total Crates", summary.crate_information.total_crates],
+        ["Sold Today", summary.sale_information.total_sales],
+        ["Damage Today", summary.crate_information.damage],
+        ["Remaining Today", summary.crate_information.remaining_today],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    
+    // Expenses & Summary
+    doc.text("Expenses & Summary", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Amount"]],
+      body: [
+        ["Salesman Expenses", `₹${formatNumber(summary.expenses.salesman_expenses)}`],
+        ["Other Expenses", `₹${formatNumber(summary.expenses.other_expenses)}`],
+        ["Damage Loss", `₹${formatNumber(summary.expenses.damage_loss || 0)}`],
+        ["Total Expenses", `₹${formatNumber(summary.expenses.total_expenses)}`],
+        ["Total Sale Value", `₹${formatNumber(summary.expenses.total_sale)}`],
+        ["Net Purchase", `₹${formatNumber(summary.expenses.net_purchase)}`],
+        ["Net Profit", `₹${formatNumber(summary.expenses.net_profit)}`],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    doc.save(`DailySummary_${format(selectedDate, "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (!summary) { toast.error("No summary to print"); return; }
+    
+    const dateStr = format(selectedDate, "dd MMM yyyy");
+    const html = `
+      <html>
+      <head>
+        <title>Daily Summary - ${dateStr}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #22543d; margin-bottom: 5px; }
+          .subtitle { color: #666; margin-bottom: 20px; }
+          .section { margin-bottom: 20px; }
+          .section-title { font-weight: bold; color: #22543d; border-bottom: 2px solid #22543d; padding-bottom: 5px; margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #ddd; }
+          th { background: #f5f5f5; }
+          .text-right { text-align: right; }
+          .highlight { font-weight: bold; background: #e8f5e9; }
+          .profit { color: green; }
+          .loss { color: red; }
+          @media print { body { padding: 0; } }
+        </style>
+      </head>
+      <body>
+        <h1>Gowda Egg Distributors</h1>
+        <p class="subtitle">Daily Summary - ${dateStr}</p>
+        
+        <div class="section">
+          <div class="section-title">Crate Information</div>
+          <table>
+            <tr><td>Carryover from Yesterday</td><td class="text-right">${summary.crate_information.carryover_today}</td></tr>
+            <tr><td>Purchased Today</td><td class="text-right">${summary.crate_information.purchase_today}</td></tr>
+            <tr class="highlight"><td>Total Crates</td><td class="text-right">${summary.crate_information.total_crates}</td></tr>
+            <tr><td>Sold Today</td><td class="text-right">${summary.sale_information.total_sales}</td></tr>
+            <tr><td>Damage Today</td><td class="text-right">${summary.crate_information.damage}</td></tr>
+            <tr class="highlight"><td>Remaining Today</td><td class="text-right">${summary.crate_information.remaining_today}</td></tr>
+          </table>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Expenses & Summary</div>
+          <table>
+            <tr><td>Salesman Expenses</td><td class="text-right">₹${formatNumber(summary.expenses.salesman_expenses)}</td></tr>
+            <tr><td>Other Expenses</td><td class="text-right">₹${formatNumber(summary.expenses.other_expenses)}</td></tr>
+            <tr><td>Damage Loss</td><td class="text-right">₹${formatNumber(summary.expenses.damage_loss || 0)}</td></tr>
+            <tr class="highlight"><td>Total Expenses</td><td class="text-right loss">₹${formatNumber(summary.expenses.total_expenses)}</td></tr>
+            <tr><td>Total Sale Value</td><td class="text-right">₹${formatNumber(summary.expenses.total_sale)}</td></tr>
+            <tr><td>Net Purchase</td><td class="text-right">₹${formatNumber(summary.expenses.net_purchase)}</td></tr>
+            <tr class="highlight"><td>Net Profit</td><td class="text-right ${summary.expenses.net_profit >= 0 ? 'profit' : 'loss'}">₹${formatNumber(summary.expenses.net_profit)}</td></tr>
+          </table>
+        </div>
+        
+        <p style="color: #666; font-size: 12px; margin-top: 20px;">Generated on ${format(new Date(), "dd MMM yyyy, hh:mm a")}</p>
+      </body>
+      </html>
+    `;
+    
+    const w = window.open("", "_blank");
+    w.document.write(html);
+    w.document.close();
+    w.print();
+  };
+
   const SummaryRow = ({ label, value, valueClass = "", highlight = false }) => (
     <div className={cn(
       "flex justify-between items-center py-3 px-4",
