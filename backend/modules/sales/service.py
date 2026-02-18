@@ -255,12 +255,17 @@ class SaleService:
         total_pending = sum(s["pending_amount"] for s in sales)
         total_return_tray = sum(s["return_tray"] for s in sales)
         
-        # Add transaction_type for backward compatibility
+        # Add transaction_type and shop_tray_balance for each sale
         enriched_sales = []
         for s in sales:
             sale_data = dict(s)
             if "transaction_type" not in sale_data:
                 sale_data["transaction_type"] = "Sale" if sale_data["crates"] > 0 else "Collection"
+            
+            # Fetch current shop tray balance
+            shop = await self.db.shops.find_one({"id": sale_data["shop_id"]}, {"_id": 0, "tray_balance": 1})
+            sale_data["shop_tray_balance"] = shop.get("tray_balance", 0) if shop else 0
+            
             enriched_sales.append(SaleResponse(**sale_data).model_dump())
         
         return {
