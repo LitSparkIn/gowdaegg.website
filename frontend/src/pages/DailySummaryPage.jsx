@@ -353,7 +353,13 @@ const DailySummaryPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Daily Summary</h1>
           <p className="text-muted-foreground">Overview of daily business operations</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToPDF} disabled={loading || !summary}>
+            <FileText size={16} className="mr-1" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || !summary}>
+            <Printer size={16} className="mr-1" /> Print
+          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button
