@@ -10,9 +10,9 @@ class SaleCreateRequest(BaseModel):
     price: float = Field(..., ge=0, description="Price per egg")
     order_amount: float = Field(..., ge=0, description="Order amount")
     shop_previous_dues: float = Field(default=0, description="Shop's previous dues")
-    total_amount: float = Field(..., ge=0, description="Total amount")
+    total_amount: float = Field(..., description="Total amount")
     collected_amount: float = Field(default=0, ge=0, description="Amount collected")
-    pending_amount: float = Field(default=0, ge=0, description="Pending amount")
+    pending_amount: float = Field(default=0, description="Pending amount (can be negative if overpaid)")
     payment_type: str = Field(..., description="Payment type (Cash, UPI, Credit, etc.)")
     return_tray: int = Field(default=0, ge=0, description="Number of trays returned")
 
@@ -23,6 +23,7 @@ class SaleResponse(BaseModel):
     id: str
     salesman_id: str
     shop_id: str
+    shop_name: Optional[str] = None
     crates: int
     price: float
     order_amount: float
