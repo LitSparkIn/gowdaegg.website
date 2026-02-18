@@ -31,7 +31,7 @@ async def submit_sale_report(
     online: float = Form(0),
     return_tray: int = Form(0),
     comments: str = Form(""),
-    image: Optional[UploadFile] = File(None),
+    image: Optional[UploadFile] = File(default=None),
     service: SaleReportService = Depends(get_service),
     current_user: dict = Depends(verify_salesman)
 ):
@@ -41,9 +41,9 @@ async def submit_sale_report(
     """
     salesman_id = current_user["sub"]
     
-    # Save image if provided
+    # Save image if provided and has a valid filename
     image_url = None
-    if image and image.filename:
+    if image is not None and image.filename and image.filename.strip():
         try:
             image_url = await save_upload_file(image, "report")
         except ValueError as e:
