@@ -372,15 +372,37 @@ const ShopPage = () => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-        <Input
-          placeholder="Search by name, phone, address, route..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
+      {/* Search and Filter */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input
+            placeholder="Search by name, phone, address..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={selectedRoute} onValueChange={setSelectedRoute}>
+            <SelectTrigger className="w-[180px]" data-testid="route-filter">
+              <Filter size={16} className="mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Filter by Route" />
+            </SelectTrigger>
+            <SelectContent>
+              {routes.map((route) => (
+                <SelectItem key={route.id} value={route.id}>
+                  {route.route_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {(selectedRoute || searchQuery) && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+              <X size={16} className="mr-1" /> Clear
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Shops Table */}
