@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime, timezone
 from core.timezone import get_ist_now
 
@@ -19,7 +20,7 @@ class SaleReportModel(BaseModel):
     online: float
     return_tray: int  # User entered
     comments: str  # User entered
-    image_url: str = None  # Optional image
+    image_url: Optional[str] = None  # Optional image
     submitted_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
     
     class Config:
