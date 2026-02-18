@@ -410,7 +410,7 @@ const ShopPage = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Store size={20} className="text-primary" />
-            Shops ({filteredShops.length}{searchQuery && ` of ${shops.length}`})
+            Shops ({filteredShops.length}{(searchQuery || selectedRoute) && ` of ${shops.length}`})
           </CardTitle>
         </CardHeader>
         <CardContent>
