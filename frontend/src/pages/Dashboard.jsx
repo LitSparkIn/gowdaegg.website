@@ -68,6 +68,23 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState(null);
+  
+  // Clear Data state
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [selectedCollections, setSelectedCollections] = useState([]);
+  const [clearing, setClearing] = useState(false);
+  const [collectionCounts, setCollectionCounts] = useState({});
+
+  const CLEAR_OPTIONS = [
+    { key: "routes", label: "Routes", icon: Truck, color: "text-blue-600" },
+    { key: "shops", label: "Shops", icon: Store, color: "text-purple-600" },
+    { key: "admins", label: "Admins", icon: Users, color: "text-red-600" },
+    { key: "salesmen", label: "Salesmen", icon: Users, color: "text-green-600" },
+    { key: "suppliers", label: "Suppliers", icon: ShoppingCart, color: "text-orange-600" },
+    { key: "purchases", label: "Purchases", icon: Package, color: "text-cyan-600" },
+    { key: "expenses", label: "Expenses", icon: Receipt, color: "text-pink-600" },
+    { key: "daily_summaries", label: "Daily Summary", icon: CalendarDays, color: "text-indigo-600" },
+  ];
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
