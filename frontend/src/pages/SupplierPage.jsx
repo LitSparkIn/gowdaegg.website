@@ -185,6 +185,40 @@ const SupplierPage = () => {
     });
   };
 
+  // Export functions
+  const exportToExcel = () => {
+    if (filteredSuppliers.length === 0) { toast.error("No data to export"); return; }
+    const data = filteredSuppliers.map((s, i) => ({ "#": i+1, "Name": s.name, "Previous Dues": s.previous_dues, "Created": formatDate(s.created_at) }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Suppliers");
+    XLSX.writeFile(wb, `Suppliers_${format(new Date(), "dd-MMM-yyyy")}.xlsx`);
+    toast.success("Excel downloaded!");
+  };
+
+  const exportToPDF = () => {
+    if (filteredSuppliers.length === 0) { toast.error("No data to export"); return; }
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors - Suppliers", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(`Generated: ${format(new Date(), "dd MMM yyyy")} | Total: ${filteredSuppliers.length}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Name", "Previous Dues", "Created"]],
+      body: filteredSuppliers.map((s, i) => [i+1, s.name, `₹${s.previous_dues.toLocaleString()}`, formatDate(s.created_at)]),
+      theme: "grid", headStyles: { fillColor: [34, 84, 61] }
+    });
+    doc.save(`Suppliers_${format(new Date(), "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const handlePrint = () => {
+    if (filteredSuppliers.length === 0) { toast.error("No data to print"); return; }
+    const html = `<html><head><title>Suppliers</title><style>body{font-family:Arial;padding:20px}h1{color:#22543d}table{width:100%;border-collapse:collapse}th{background:#22543d;color:#fff;padding:8px}td{padding:6px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f9f9f9}.text-right{text-align:right}</style></head><body><h1>Suppliers List</h1><p>Generated: ${format(new Date(), "dd MMM yyyy")} | Total: ${filteredSuppliers.length}</p><table><tr><th>#</th><th>Name</th><th class="text-right">Previous Dues</th><th>Created</th></tr>${filteredSuppliers.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td class="text-right">₹${s.previous_dues.toLocaleString()}</td><td>${formatDate(s.created_at)}</td></tr>`).join("")}</table></body></html>`;
+    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="supplier-page">
       {/* Header */}
