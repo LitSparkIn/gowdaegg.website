@@ -492,7 +492,7 @@ const TransactionReportPage = () => {
             data-testid="export-excel-btn"
           >
             <FileSpreadsheet size={16} />
-            Export Excel
+            Excel
           </Button>
           <Button
             variant="outline"
@@ -503,7 +503,18 @@ const TransactionReportPage = () => {
             data-testid="export-pdf-btn"
           >
             <FileText size={16} />
-            Export PDF
+            PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            disabled={loading || sales.length === 0}
+            className="flex items-center gap-2"
+            data-testid="print-btn"
+          >
+            <Printer size={16} />
+            Print
           </Button>
         </div>
       </div>
