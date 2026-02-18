@@ -160,6 +160,169 @@ const DailySubmitHistoryPage = () => {
     const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
   };
 
+  // Export single summary from View Dialog
+  const exportSingleToPDF = (summary) => {
+    if (!summary) { toast.error("No summary to export"); return; }
+    const doc = new jsPDF();
+    const dateStr = formatDate(summary.date);
+    
+    doc.setFontSize(18);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Gowda Egg Distributors", 14, 15);
+    doc.setFontSize(14);
+    doc.text(`Daily Summary - ${dateStr}`, 14, 24);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${format(new Date(), "dd MMM yyyy, hh:mm a")}`, 14, 31);
+    
+    let yPos = 40;
+    
+    // Crate Information
+    doc.setFontSize(12);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Crate Information", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Value"]],
+      body: [
+        ["Carryover", summary.crate_information?.carryover_today || 0],
+        ["Purchased", summary.crate_information?.purchase_today || 0],
+        ["Total Crates", summary.crate_information?.total_crates || 0],
+        ["Damage", summary.crate_information?.damage || 0],
+        ["Net Crates", summary.crate_information?.net_crates || 0],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    
+    // Sale Information
+    doc.text("Sale Information", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Value"]],
+      body: [
+        ["Initial Load", summary.sale_information?.total_initial_load || 0],
+        ["Total Sales", summary.sale_information?.total_sales || 0],
+        ["Damages", summary.sale_information?.total_damages || 0],
+        ["Returned", summary.sale_information?.returned || 0],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+    
+    // Expenses & Summary
+    doc.text("Expenses & Summary", 14, yPos);
+    autoTable(doc, {
+      startY: yPos + 3,
+      head: [["Description", "Amount"]],
+      body: [
+        ["Salesman Expenses", `₹${(summary.expenses?.salesman_expenses || 0).toLocaleString()}`],
+        ["Other Expenses", `₹${(summary.expenses?.other_expenses || 0).toLocaleString()}`],
+        ["Total Expenses", `₹${(summary.expenses?.total_expenses || 0).toLocaleString()}`],
+        ["Buy Value", `₹${(summary.profit_loss?.buy_value || 0).toLocaleString()}`],
+        ["Sale Value", `₹${(summary.profit_loss?.sale_value || 0).toLocaleString()}`],
+        ["Net Profit", `₹${(summary.expenses?.net_profit || 0).toLocaleString()}`],
+        ["Carryover Tomorrow", `${summary.expenses?.carryover_tomorrow || 0} crates`],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 1: { halign: "right" } }
+    });
+    
+    doc.save(`DailySummary_${format(new Date(summary.date), "dd-MMM-yyyy")}.pdf`);
+    toast.success("PDF downloaded!");
+  };
+
+  const printSingleSummary = (summary) => {
+    if (!summary) { toast.error("No summary to print"); return; }
+    const dateStr = formatDate(summary.date);
+    const html = `
+      <html>
+      <head>
+        <title>Daily Summary - ${dateStr}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #22543d; margin-bottom: 5px; }
+          .subtitle { color: #666; margin-bottom: 20px; }
+          .section { margin-bottom: 20px; }
+          .section-title { font-weight: bold; color: #22543d; border-bottom: 2px solid #22543d; padding-bottom: 5px; margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #ddd; }
+          th { background: #f5f5f5; }
+          .text-right { text-align: right; }
+          .highlight { font-weight: bold; background: #e8f5e9; }
+          .profit { color: green; }
+          .loss { color: red; }
+          @media print { body { padding: 0; } }
+        </style>
+      </head>
+      <body>
+        <h1>Gowda Egg Distributors</h1>
+        <p class="subtitle">Daily Summary - ${dateStr}</p>
+        
+        <div class="section">
+          <div class="section-title">Crate Information</div>
+          <table>
+            <tr><td>Carryover</td><td class="text-right">${summary.crate_information?.carryover_today || 0}</td></tr>
+            <tr><td>Purchased Today</td><td class="text-right">${summary.crate_information?.purchase_today || 0}</td></tr>
+            <tr class="highlight"><td>Total Crates</td><td class="text-right">${summary.crate_information?.total_crates || 0}</td></tr>
+            <tr><td>Average Rate</td><td class="text-right">₹${summary.crate_information?.average_rate || 0}</td></tr>
+            <tr><td>Damage</td><td class="text-right">${summary.crate_information?.damage || 0}</td></tr>
+            <tr class="highlight"><td>Net Crates</td><td class="text-right">${summary.crate_information?.net_crates || 0}</td></tr>
+          </table>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Sale Information</div>
+          <table>
+            <tr><td>Initial Load</td><td class="text-right">${summary.sale_information?.total_initial_load || 0}</td></tr>
+            <tr class="highlight"><td>Total Sales</td><td class="text-right">${summary.sale_information?.total_sales || 0}</td></tr>
+            <tr><td>Damages</td><td class="text-right">${summary.sale_information?.total_damages || 0}</td></tr>
+            <tr><td>Returned</td><td class="text-right">${summary.sale_information?.returned || 0}</td></tr>
+          </table>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Profit | Loss</div>
+          <table>
+            <tr><td>Buy Value</td><td class="text-right loss">₹${(summary.profit_loss?.buy_value || 0).toLocaleString()}</td></tr>
+            <tr><td>Sale Value</td><td class="text-right profit">₹${(summary.profit_loss?.sale_value || 0).toLocaleString()}</td></tr>
+            <tr><td>Buy Rate</td><td class="text-right">₹${summary.profit_loss?.buy_rate || 0}</td></tr>
+            <tr><td>Sale Rate</td><td class="text-right">₹${summary.profit_loss?.sale_rate || 0}</td></tr>
+          </table>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Expenses & Summary</div>
+          <table>
+            <tr><td>Salesman Expenses</td><td class="text-right loss">₹${(summary.expenses?.salesman_expenses || 0).toLocaleString()}</td></tr>
+            <tr><td>Other Expenses</td><td class="text-right loss">₹${(summary.expenses?.other_expenses || 0).toLocaleString()}</td></tr>
+            <tr class="highlight"><td>Total Expenses</td><td class="text-right loss">₹${(summary.expenses?.total_expenses || 0).toLocaleString()}</td></tr>
+            <tr><td>Net Purchase (COGS)</td><td class="text-right">₹${(summary.expenses?.net_purchase || 0).toLocaleString()}</td></tr>
+            <tr class="highlight"><td>Net Profit</td><td class="text-right ${(summary.expenses?.net_profit || 0) >= 0 ? 'profit' : 'loss'}">₹${(summary.expenses?.net_profit || 0).toLocaleString()}</td></tr>
+            <tr><td>Carryover Tomorrow</td><td class="text-right">${summary.expenses?.carryover_tomorrow || 0} crates</td></tr>
+          </table>
+        </div>
+        
+        <p style="color: #666; font-size: 12px; margin-top: 20px;">Generated on ${format(new Date(), "dd MMM yyyy, hh:mm a")}</p>
+      </body>
+      </html>
+    `;
+    const w = window.open("", "_blank");
+    w.document.write(html);
+    w.document.close();
+    w.print();
+  };
+
   return (
     <div className="space-y-6" data-testid="daily-submit-history-page">
       {/* Header */}
