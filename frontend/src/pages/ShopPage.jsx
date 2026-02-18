@@ -430,6 +430,7 @@ const ShopPage = () => {
               <p className="text-sm text-muted-foreground">{(searchQuery || selectedRoute) ? "Try adjusting your filters" : 'Click "Add Shop" to create your first shop'}</p>
             </div>
           ) : (
+            <>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
