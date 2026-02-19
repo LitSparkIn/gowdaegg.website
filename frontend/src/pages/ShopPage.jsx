@@ -322,7 +322,7 @@ const ShopPage = () => {
 
     const tableData = filteredShops.map((shop, i) => [
       i + 1, shop.name, shop.phone, shop.address, shop.route?.route_name || "N/A",
-      `₹${shop.previous_dues.toLocaleString()}`, `₹${(shop.credit_threshold || 0).toLocaleString()}`, shop.tray_balance
+      `Rs.${shop.previous_dues.toLocaleString()}`, `Rs.${(shop.credit_threshold || 0).toLocaleString()}`, shop.tray_balance
     ]);
 
     autoTable(doc, {
