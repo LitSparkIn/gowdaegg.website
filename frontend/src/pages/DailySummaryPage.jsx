@@ -624,9 +624,9 @@ const DailySummaryPage = () => {
                 <div className="border-t pt-2 mt-2">
                   <SummaryRowWithCalc 
                     label="Rate Difference" 
-                    value={`₹${(summary.profit_loss.buy_rate - summary.profit_loss.sale_rate).toFixed(2)}`}
-                    calculation="Buy Rate - Sale Rate"
-                    valueClass={summary.profit_loss.buy_rate - summary.profit_loss.sale_rate > 0 ? "text-red-600" : "text-green-600"}
+                    value={`₹${(summary.profit_loss.sale_rate - summary.profit_loss.buy_rate).toFixed(2)}`}
+                    calculation="Sale Rate - Buy Rate"
+                    valueClass={summary.profit_loss.sale_rate - summary.profit_loss.buy_rate >= 0 ? "text-green-600" : "text-red-600"}
                   />
                 </div>
               </div>
