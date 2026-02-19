@@ -173,6 +173,17 @@ const SupplierPage = () => {
     }
   };
 
+  const handleActivate = async (supplier) => {
+    try {
+      await api.post(`/suppliers/${supplier.id}/activate`);
+      toast.success("Supplier activated successfully");
+      fetchSuppliers();
+    } catch (error) {
+      console.error("Error activating supplier:", error);
+      toast.error(error.response?.data?.detail || "Failed to activate supplier");
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
