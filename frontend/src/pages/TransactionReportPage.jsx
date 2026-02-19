@@ -164,9 +164,19 @@ const TransactionReportPage = () => {
     fetchRoutes();
   }, []);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
-    fetchSales();
-  }, [fromDate, toDate, selectedSalesman, selectedType, selectedPayment, selectedRoute, selectedImage]);
+    setCurrentPage(1);
+    fetchSales(1);
+  }, [fromDate, toDate, selectedSalesman, selectedType, selectedPayment, selectedRoute, selectedImage, pageSize]);
+
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchSales(newPage);
+    }
+  };
 
   // Filter sales based on search query
   const filteredSales = useMemo(() => {
