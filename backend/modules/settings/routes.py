@@ -38,6 +38,7 @@ async def get_settings(
             "msg91_auth_key": None,
             "msg91_template_id": None,
             "todays_egg_rate": 0.0,
+            "allow_multiple_reports": False,
             "updated_at": get_ist_now().isoformat()
         }
         await db.settings.insert_one(default_settings)
@@ -55,6 +56,7 @@ async def get_settings(
         msg91_auth_key_set=bool(settings.get("msg91_auth_key")),
         msg91_template_id=settings.get("msg91_template_id"),
         todays_egg_rate=settings.get("todays_egg_rate", 0.0),
+        allow_multiple_reports=settings.get("allow_multiple_reports", False),
         updated_at=settings.get("updated_at", "")
     )
     
