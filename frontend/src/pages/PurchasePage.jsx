@@ -406,14 +406,16 @@ const PurchasePage = () => {
           <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || filteredPurchases.length === 0}>
             <Printer size={16} className="mr-1" /> Print
           </Button>
-          <Button
-            onClick={handleOpenDialog}
-            data-testid="add-purchase-btn"
-            className="rounded-full bg-primary hover:bg-primary-600"
-          >
-            <Plus size={20} className="mr-2" />
-            Add Purchase
-          </Button>
+          {!isReadOnly && (
+            <Button
+              onClick={handleOpenDialog}
+              data-testid="add-purchase-btn"
+              className="rounded-full bg-primary hover:bg-primary-600"
+            >
+              <Plus size={20} className="mr-2" />
+              Add Purchase
+            </Button>
+          )}
         </div>
       </div>
 
