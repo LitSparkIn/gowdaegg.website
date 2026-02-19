@@ -20,12 +20,14 @@ class SupplierResponse(BaseModel):
     id: str
     name: str
     previous_dues: float
+    is_active: Optional[bool] = True
     created_at: str
     updated_at: str
 
 class SupplierListResponse(BaseModel):
     """Schema for list of suppliers response"""
     suppliers: list[SupplierResponse]
+    inactive_suppliers: Optional[list[SupplierResponse]] = []
     total: int
 
 class MessageResponse(BaseModel):
