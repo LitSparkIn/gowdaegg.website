@@ -33,12 +33,21 @@ class SalesmanRepository:
         cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
     
+    async def get_inactive(self, skip: int = 0, limit: int = 1000) -> list[dict]:
+        """Get all inactive salesmen"""
+        cursor = self.collection.find({"is_active": False}, {"_id": 0}).skip(skip).limit(limit)
+        return await cursor.to_list(length=limit)
+    
     async def get_count(self, route_id: Optional[str] = None) -> int:
         """Get total count of active salesmen"""
         query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
         if route_id:
             query = {"$and": [query, {"route_id": route_id}]}
         return await self.collection.count_documents(query)
+    
+    async def get_inactive_count(self) -> int:
+        """Get count of inactive salesmen"""
+        return await self.collection.count_documents({"is_active": False})
     
     async def update(self, salesman_id: str, update_data: dict) -> Optional[dict]:
         """Update a salesman by ID"""
