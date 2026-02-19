@@ -82,20 +82,22 @@ class RouteService:
     
     async def get_all_routes(self, skip: int = 0, limit: int = 1000) -> RouteListResponse:
         """
-        Get all routes with pagination
+        Get all routes with pagination (active and inactive)
         
         Args:
             skip: Number of records to skip
             limit: Maximum number of records to return
             
         Returns:
-            RouteListResponse with list of routes and total count
+            RouteListResponse with list of active routes, inactive routes, and total count
         """
         routes = await self.repository.get_all(skip=skip, limit=limit)
+        inactive_routes = await self.repository.get_inactive(skip=0, limit=1000)
         total = await self.repository.get_count()
         
         return RouteListResponse(
             routes=[RouteResponse(**route) for route in routes],
+            inactive_routes=[RouteResponse(**route) for route in inactive_routes],
             total=total
         )
     
