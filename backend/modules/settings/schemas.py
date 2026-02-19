@@ -11,6 +11,7 @@ class SettingsUpdateRequest(BaseModel):
     whatsapp_header_image_url: Optional[str] = None
     msg91_auth_key: Optional[str] = None
     msg91_template_id: Optional[str] = None
+    todays_egg_rate: Optional[float] = None
 
 class SettingsResponse(BaseModel):
     """Schema for settings response"""
@@ -24,4 +25,5 @@ class SettingsResponse(BaseModel):
     whatsapp_api_token_set: bool
     msg91_auth_key_set: bool
     msg91_template_id: Optional[str]
+    todays_egg_rate: Optional[float] = 0.0
     updated_at: str
