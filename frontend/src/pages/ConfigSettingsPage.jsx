@@ -47,6 +47,7 @@ const ConfigSettingsPage = () => {
         whatsapp_api_token: "", // Don't show actual token
         whatsapp_phone_number_id: data.whatsapp_phone_number_id || "109780805521902",
         whatsapp_template_id: data.whatsapp_template_id || "gowda_egg_sale_receipt",
+        whatsapp_header_image_url: data.whatsapp_header_image_url || "",
         msg91_auth_key: "", // Don't show actual key
         msg91_template_id: data.msg91_template_id || "",
         whatsapp_api_token_set: data.whatsapp_api_token_set || false,
