@@ -20,6 +20,7 @@ const ConfigSettingsPage = () => {
     whatsapp_api_token: "",
     whatsapp_phone_number_id: "109780805521902",
     whatsapp_template_id: "gowda_egg_sale_receipt",
+    whatsapp_header_image_url: "",
     msg91_auth_key: "",
     msg91_template_id: "",
     whatsapp_api_token_set: false,
