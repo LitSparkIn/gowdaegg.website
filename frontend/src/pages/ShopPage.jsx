@@ -262,6 +262,17 @@ const ShopPage = () => {
     }
   };
 
+  const handleActivate = async (shop) => {
+    try {
+      await api.post(`/shops/${shop.id}/activate`);
+      toast.success("Shop activated successfully");
+      fetchShops();
+    } catch (error) {
+      console.error("Error activating shop:", error);
+      toast.error(error.response?.data?.detail || "Failed to activate shop");
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
