@@ -1,14 +1,34 @@
 import httpx
 import logging
 from datetime import datetime
+from core.database import database
 
 logger = logging.getLogger(__name__)
 
-# WhatsApp Business API Configuration
-WHATSAPP_TOKEN = "EAAOHfZAef0okBO7qZAeZCwEKK1HeGbtHoZBRCBZA5zzapsfVIsiCcKhWOHm96i08VLH1uI38OycyJxlVhyt6vyZBt6ZA6nqsCTnWzAorkyu5n0SBD69oOsHDyQYr6PrkJsiEuEROrgCxcvj7gnqb49iJOwse8xQ1ISsoWFAyZCEkrm0syNNPWvKfl8FS5JUlht4j"
-WHATSAPP_API_URL = "https://graph.facebook.com/v17.0/937349779458170/messages"
-TEMPLATE_NAME = "gowda_egg_wa_template"
-HEADER_IMAGE_URL = "https://i.postimg.cc/8PFxyMx6/gowda.png"
+# Default WhatsApp Business API Configuration
+DEFAULT_WHATSAPP_TOKEN = "EAAOHfZAef0okBO7qZAeZCwEKK1HeGbtHoZBRCBZA5zzapsfVIsiCcKhWOHm96i08VLH1uI38OycyJxlVhyt6vyZBt6ZA6nqsCTnWzAorkyu5n0SBD69oOsHDyQYr6PrkJsiEuEROrgCxcvj7gnqb49iJOwse8xQ1ISsoWFAyZCEkrm0syNNPWvKfl8FS5JUlht4j"
+DEFAULT_PHONE_NUMBER_ID = "937349779458170"
+DEFAULT_TEMPLATE_NAME = "gowda_egg_wa_template"
+DEFAULT_HEADER_IMAGE_URL = "https://litspark.solutions/litspark-logo.png"
+
+
+async def get_whatsapp_settings():
+    """Fetch WhatsApp settings from database"""
+    db = database.get_db()
+    settings = await db.settings.find_one({}, {"_id": 0})
+    if settings:
+        return {
+            "token": settings.get("whatsapp_api_token") or DEFAULT_WHATSAPP_TOKEN,
+            "phone_number_id": settings.get("whatsapp_phone_number_id") or DEFAULT_PHONE_NUMBER_ID,
+            "template_name": settings.get("whatsapp_template_id") or DEFAULT_TEMPLATE_NAME,
+            "header_image_url": settings.get("whatsapp_header_image_url") or DEFAULT_HEADER_IMAGE_URL
+        }
+    return {
+        "token": DEFAULT_WHATSAPP_TOKEN,
+        "phone_number_id": DEFAULT_PHONE_NUMBER_ID,
+        "template_name": DEFAULT_TEMPLATE_NAME,
+        "header_image_url": DEFAULT_HEADER_IMAGE_URL
+    }
 
 
 async def send_transaction_whatsapp(
