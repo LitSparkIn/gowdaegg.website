@@ -69,6 +69,7 @@ from modules.dashboard.routes import router as dashboard_router
 from modules.settings.routes import router as settings_router
 from modules.public.routes import router as public_router
 from modules.admin.routes import router as admin_data_router
+from modules.admin_users.routes import router as admin_users_router
 
 api_router.include_router(auth_router)
 api_router.include_router(route_router)
@@ -89,6 +90,7 @@ api_router.include_router(dashboard_router)
 api_router.include_router(settings_router)
 api_router.include_router(public_router)
 api_router.include_router(admin_data_router)
+api_router.include_router(admin_users_router)
 
 # Include the main api router
 app.include_router(api_router)
