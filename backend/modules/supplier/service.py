@@ -84,3 +84,11 @@ class SupplierService:
             raise NotFoundException("Supplier", supplier_id)
         await self.repository.delete(supplier_id)
         return True
+
+    async def activate_supplier(self, supplier_id: str) -> bool:
+        """Activate an inactive supplier"""
+        exists = await self.repository.exists(supplier_id)
+        if not exists:
+            raise NotFoundException("Supplier", supplier_id)
+        await self.repository.activate(supplier_id)
+        return True
