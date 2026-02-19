@@ -48,6 +48,7 @@ import { format } from "date-fns";
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [shops, setShops] = useState([]);
+  const [inactiveShops, setInactiveShops] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +58,7 @@ const ShopPage = () => {
   const [editingShop, setEditingShop] = useState(null);
   const [deleteShop, setDeleteShop] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
   
   // Form fields
   const [formData, setFormData] = useState({
@@ -92,6 +94,7 @@ const ShopPage = () => {
       setLoading(true);
       const response = await api.get(`/shops`);
       setShops(response.data.shops || []);
+      setInactiveShops(response.data.inactive_shops || []);
     } catch (error) {
       console.error("Error fetching shops:", error);
       toast.error("Failed to fetch shops");
