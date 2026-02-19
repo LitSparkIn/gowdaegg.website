@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,11 +29,13 @@ import {
   History,
 } from "lucide-react";
 
-const menuItems = [
+// Menu items with role restrictions
+// superadminOnly: only visible to superadmin
+const allMenuItems = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Route", path: "/admin/route", icon: Route },
   { name: "Shop", path: "/admin/shop", icon: Store },
-  { name: "Admin", path: "/admin/admin", icon: UserCog },
+  { name: "Admin", path: "/admin/admin", icon: UserCog, superadminOnly: true },
   { name: "Salesman", path: "/admin/salesman", icon: Users },
   { name: "Supplier", path: "/admin/supplier", icon: Truck },
   { name: "Purchase", path: "/admin/purchase", icon: ShoppingCart },
@@ -43,13 +45,13 @@ const menuItems = [
   { name: "Transaction Report", path: "/admin/transaction-report", icon: CreditCard },
   { name: "Purchase Report", path: "/admin/purchase-report", icon: PieChart },
   { name: "Daily Submitted Report", path: "/admin/daily-submitted-report", icon: Calendar },
-  { name: "Profit Loss Report", path: "/admin/profit-loss-report", icon: BarChart3 },
-  { name: "Daily Summary", path: "/admin/daily-summary", icon: CalendarDays },
-  { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History },
+  { name: "Profit Loss Report", path: "/admin/profit-loss-report", icon: BarChart3, superadminOnly: true },
+  { name: "Daily Summary", path: "/admin/daily-summary", icon: CalendarDays, superadminOnly: true },
+  { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History, superadminOnly: true },
   { type: "divider", label: "Settings" },
-  { name: "Change Password", path: "/admin/change-password", icon: Lock },
-  { name: "Current Active Balance", path: "/admin/current-active-balance", icon: Wallet },
-  { name: "Config Setting", path: "/admin/config-setting", icon: Settings },
+  { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
+  { name: "Current Active Balance", path: "/admin/current-active-balance", icon: Wallet, superadminOnly: true },
+  { name: "Config Setting", path: "/admin/config-setting", icon: Settings, superadminOnly: true },
 ];
 
 const DashboardLayout = () => {
