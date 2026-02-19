@@ -47,11 +47,13 @@ class SupplierService:
         return SupplierResponse(**supplier)
     
     async def get_all_suppliers(self, skip: int = 0, limit: int = 1000) -> SupplierListResponse:
-        """Get all suppliers with pagination"""
+        """Get all suppliers with pagination (active and inactive)"""
         suppliers = await self.repository.get_all(skip=skip, limit=limit)
+        inactive_suppliers = await self.repository.get_inactive(skip=0, limit=1000)
         total = await self.repository.get_count()
         return SupplierListResponse(
             suppliers=[SupplierResponse(**s) for s in suppliers],
+            inactive_suppliers=[SupplierResponse(**s) for s in inactive_suppliers],
             total=total
         )
     
@@ -76,7 +78,7 @@ class SupplierService:
         return SupplierResponse(**updated)
     
     async def delete_supplier(self, supplier_id: str) -> bool:
-        """Delete a supplier"""
+        """Soft delete a supplier (mark as inactive)"""
         exists = await self.repository.exists(supplier_id)
         if not exists:
             raise NotFoundException("Supplier", supplier_id)
