@@ -54,6 +54,14 @@ class SupplierRepository:
             {"$set": {"is_active": False}}
         )
         return result.modified_count > 0
+
+    async def activate(self, supplier_id: str) -> bool:
+        """Activate a supplier by ID (set is_active to True)"""
+        result = await self.collection.update_one(
+            {"id": supplier_id},
+            {"$set": {"is_active": True}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, supplier_id: str) -> bool:
         """Check if a supplier exists"""
