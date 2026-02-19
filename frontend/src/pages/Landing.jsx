@@ -11,7 +11,7 @@ const Landing = () => {
       <header className="container mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
-            src="https://customer-assets.emergentagent.com/job_ged-dashboard/artifacts/8aiex40c_Gowda%20egg%20dist%20logo.png"
+            src="/logo.png"
             alt="Gowda Egg Distributors Logo"
             className="w-12 h-12"
           />
@@ -54,7 +54,7 @@ const Landing = () => {
           </div>
           <div className="flex-1 flex justify-center">
             <img
-              src="https://customer-assets.emergentagent.com/job_ged-dashboard/artifacts/8aiex40c_Gowda%20egg%20dist%20logo.png"
+              src="/logo.png"
               alt="Gowda Egg Distributors"
               className="w-64 h-64 lg:w-80 lg:h-80 drop-shadow-2xl"
             />
