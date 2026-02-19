@@ -93,8 +93,9 @@ class ShopService:
         limit: int = 1000,
         route_id: Optional[str] = None
     ) -> ShopListResponse:
-        """Get all shops with pagination and optional route filter"""
+        """Get all shops with pagination and optional route filter (active and inactive)"""
         shops = await self.repository.get_all(skip=skip, limit=limit, route_id=route_id)
+        inactive_shops = await self.repository.get_inactive(skip=0, limit=1000)
         total = await self.repository.get_count(route_id=route_id)
         
         # Build responses with route info
@@ -103,7 +104,12 @@ class ShopService:
             shop_response = await self._build_shop_response(shop)
             shop_responses.append(shop_response)
         
-        return ShopListResponse(shops=shop_responses, total=total)
+        inactive_responses = []
+        for shop in inactive_shops:
+            shop_response = await self._build_shop_response(shop)
+            inactive_responses.append(shop_response)
+        
+        return ShopListResponse(shops=shop_responses, inactive_shops=inactive_responses, total=total)
     
     async def update_shop(self, shop_id: str, request: ShopUpdateRequest) -> ShopResponse:
         """Update an existing shop"""
