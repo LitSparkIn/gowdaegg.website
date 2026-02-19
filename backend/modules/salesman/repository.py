@@ -68,6 +68,14 @@ class SalesmanRepository:
             {"$set": {"is_active": False}}
         )
         return result.modified_count > 0
+
+    async def activate(self, salesman_id: str) -> bool:
+        """Activate a salesman by ID (set is_active to True)"""
+        result = await self.collection.update_one(
+            {"id": salesman_id},
+            {"$set": {"is_active": True}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, salesman_id: str) -> bool:
         """Check if a salesman exists"""
