@@ -157,3 +157,12 @@ class RouteService:
         # Soft delete (mark as inactive)
         await self.repository.delete(route_id)
         return True
+
+    async def activate_route(self, route_id: str) -> bool:
+        """Activate an inactive route"""
+        exists = await self.repository.exists(route_id)
+        if not exists:
+            raise NotFoundException("Route", route_id)
+        
+        await self.repository.activate(route_id)
+        return True
