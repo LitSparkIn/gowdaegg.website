@@ -165,7 +165,7 @@ const Dashboard = () => {
       setUser(JSON.parse(userData));
     }
     fetchDashboardData();
-    fetchEggRate();
+    fetchSettings();
   }, []);
 
   const fetchCollectionCounts = async () => {
