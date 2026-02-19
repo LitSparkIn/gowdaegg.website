@@ -153,4 +153,27 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
 ---
 
 ## Last Updated
-December 2025 - Added Clear Data feature on Dashboard
+February 2026 - Performance Optimizations Implemented
+
+### February 2026 Updates
+- ✅ **MongoDB Indexes**: Added indexes on frequently queried fields for performance:
+  - `sales` collection: `sale_date`, `salesman_id`, `shop_id`, compound indexes
+  - `purchases` collection: `purchase_date`, `supplier_id`
+  - `initial_loads` collection: `load_date`, `salesman_id`
+  - `sale_reports` collection: `report_date`, `salesman_id`
+  - `expenses` collection: `expense_date`
+
+- ✅ **Pagination on Transaction Report**: 
+  - Added server-side pagination (default 50 records per page)
+  - Page navigation controls (first, prev, page numbers, next, last)
+  - Configurable page size (25, 50, 100, 200)
+  - Shows "Showing X - Y of Z" indicator
+
+- ✅ **Default Date Range**: Transaction Report now defaults to last 30 days instead of loading all records
+
+### API Changes
+- `GET /api/sales` now supports:
+  - `page` (default: 1) - Page number
+  - `limit` (default: 50, max: 200) - Records per page
+  - Returns additional fields: `page`, `limit`, `total_pages`
+
