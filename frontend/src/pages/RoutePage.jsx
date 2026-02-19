@@ -170,6 +170,17 @@ const RoutePage = () => {
     }
   };
 
+  const handleActivate = async (route) => {
+    try {
+      await api.post(`/routes/${route.id}/activate`);
+      toast.success("Route activated successfully");
+      fetchRoutes();
+    } catch (error) {
+      console.error("Error activating route:", error);
+      toast.error(error.response?.data?.detail || "Failed to activate route");
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       day: "2-digit",
