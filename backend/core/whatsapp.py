@@ -64,6 +64,15 @@ async def send_transaction_whatsapp(
         API response dict
     """
     
+    # Get settings from database
+    wa_settings = await get_whatsapp_settings()
+    whatsapp_token = wa_settings["token"]
+    phone_number_id = wa_settings["phone_number_id"]
+    template_name = wa_settings["template_name"]
+    header_image_url = wa_settings["header_image_url"]
+    
+    api_url = f"https://graph.facebook.com/v17.0/{phone_number_id}/messages"
+    
     # Format phone number - ensure it has country code
     phone_formatted = phone.strip()
     if not phone_formatted.startswith("91"):
@@ -80,7 +89,7 @@ async def send_transaction_whatsapp(
         "to": phone_formatted,
         "type": "template",
         "template": {
-            "name": TEMPLATE_NAME,
+            "name": template_name,
             "language": {
                 "code": "en"
             },
@@ -91,7 +100,7 @@ async def send_transaction_whatsapp(
                         {
                             "type": "image",
                             "image": {
-                                "link": HEADER_IMAGE_URL
+                                "link": header_image_url
                             }
                         }
                     ]
@@ -116,14 +125,14 @@ async def send_transaction_whatsapp(
     }
     
     headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Authorization": f"Bearer {whatsapp_token}",
         "Content-Type": "application/json"
     }
     
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                WHATSAPP_API_URL,
+                api_url,
                 json=payload,
                 headers=headers
             )
