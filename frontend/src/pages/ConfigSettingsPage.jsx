@@ -106,6 +106,9 @@ const ConfigSettingsPage = () => {
       if (settings.whatsapp_template_id) {
         updateData.whatsapp_template_id = settings.whatsapp_template_id;
       }
+      if (settings.whatsapp_header_image_url) {
+        updateData.whatsapp_header_image_url = settings.whatsapp_header_image_url;
+      }
       if (settings.msg91_auth_key) {
         updateData.msg91_auth_key = settings.msg91_auth_key;
       }
