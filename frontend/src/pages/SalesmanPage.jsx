@@ -44,6 +44,7 @@ const API = `${BACKEND_URL}/api`;
 
 const SalesmanPage = () => {
   const [salesmen, setSalesmen] = useState([]);
+  const [inactiveSalesmen, setInactiveSalesmen] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -51,6 +52,7 @@ const SalesmanPage = () => {
   const [editingSalesman, setEditingSalesman] = useState(null);
   const [deleteSalesman, setDeleteSalesman] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
   
   const [formData, setFormData] = useState({
     route_id: "",
@@ -84,6 +86,7 @@ const SalesmanPage = () => {
       setLoading(true);
       const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
+      setInactiveSalesmen(response.data.inactive_salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
       toast.error("Failed to fetch salesmen");
