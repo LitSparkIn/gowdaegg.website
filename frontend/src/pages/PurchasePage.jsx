@@ -371,7 +371,7 @@ const PurchasePage = () => {
     autoTable(doc, {
       startY: 28,
       head: [["Date", "Time", "Supplier", "Payment", "Crates", "Price", "Total", "Prev Dues", "Grand Total", "Paid", "Pending"]],
-      body: filteredPurchases.map(p => [formatDate(p.purchase_date), formatTimeIST(p.purchase_time), p.supplier_name, p.payment_mode, p.crates, `₹${p.price}`, `₹${p.total.toLocaleString()}`, `₹${p.supplier_previous_dues.toLocaleString()}`, `₹${p.grand_total.toLocaleString()}`, `₹${p.paid_amount.toLocaleString()}`, `₹${p.pending_amount.toLocaleString()}`]),
+      body: filteredPurchases.map(p => [formatDate(p.purchase_date), formatTimeIST(p.purchase_time), p.supplier_name, p.payment_mode, p.crates, `Rs.${p.price}`, `Rs.${p.total.toLocaleString()}`, `Rs.${p.supplier_previous_dues.toLocaleString()}`, `Rs.${p.grand_total.toLocaleString()}`, `Rs.${p.paid_amount.toLocaleString()}`, `Rs.${p.pending_amount.toLocaleString()}`]),
       theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 7 }, bodyStyles: { fontSize: 7 }
     });
     doc.save(`Purchases_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
