@@ -68,6 +68,19 @@ const DashboardLayout = () => {
     }
   }, []);
 
+  // Filter menu items based on user role
+  const menuItems = useMemo(() => {
+    const isSuperadmin = user?.role === "superadmin";
+    return allMenuItems.filter(item => {
+      if (item.type === "divider") return true;
+      if (item.superadminOnly && !isSuperadmin) return false;
+      return true;
+    });
+  }, [user?.role]);
+
+  // Check if user is admin (read-only mode)
+  const isReadOnly = user?.role === "admin";
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
