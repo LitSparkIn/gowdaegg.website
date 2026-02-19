@@ -285,6 +285,46 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Today's Egg Rate */}
+      <Card className="border-border/50 bg-white">
+        <CardContent className="py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <IndianRupee size={20} className="text-primary" />
+              <span className="font-medium text-primary-950">Today's Egg Rate</span>
+            </div>
+            <div className="flex items-center gap-2 flex-1 max-w-xs">
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="Enter rate per egg"
+                value={eggRate}
+                onChange={(e) => setEggRate(e.target.value)}
+                className="w-40"
+                data-testid="egg-rate-input"
+              />
+              <Button
+                onClick={updateEggRate}
+                disabled={updatingRate}
+                size="sm"
+                data-testid="update-egg-rate-btn"
+              >
+                {updatingRate ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "Update"
+                )}
+              </Button>
+            </div>
+            {eggRate && (
+              <span className="text-sm text-muted-foreground">
+                Current: ₹{parseFloat(eggRate || 0).toFixed(2)} per egg
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Quick Links */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Button
