@@ -7,6 +7,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Dashboard from "@/pages/Dashboard";
 import RoutePage from "@/pages/RoutePage";
 import ShopPage from "@/pages/ShopPage";
+import AdminPage from "@/pages/AdminPage";
 import SalesmanPage from "@/pages/SalesmanPage";
 import SupplierPage from "@/pages/SupplierPage";
 import ExpensePage from "@/pages/ExpensePage";
