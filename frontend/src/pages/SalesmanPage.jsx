@@ -38,11 +38,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Users, Loader2, Phone, Mail, RotateCcw } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const SalesmanPage = () => {
+  const { isReadOnly } = useUserRole();
   const [salesmen, setSalesmen] = useState([]);
   const [inactiveSalesmen, setInactiveSalesmen] = useState([]);
   const [routes, setRoutes] = useState([]);
