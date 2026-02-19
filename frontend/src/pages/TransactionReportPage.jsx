@@ -51,6 +51,11 @@ const TransactionReportPage = () => {
     total_return_tray: 0
   });
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  
   // Edit dialog state
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
@@ -65,8 +70,8 @@ const TransactionReportPage = () => {
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   
-  // Filters - default to today
-  const [fromDate, setFromDate] = useState(new Date());
+  // Filters - default to last 30 days
+  const [fromDate, setFromDate] = useState(subDays(new Date(), 30));
   const [toDate, setToDate] = useState(new Date());
   const [selectedSalesman, setSelectedSalesman] = useState("");
   const [selectedType, setSelectedType] = useState("");
