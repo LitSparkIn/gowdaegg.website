@@ -24,19 +24,20 @@ class SalesmanRepository:
         return await self.collection.find_one({"id": salesman_id}, {"_id": 0})
     
     async def get_all(self, skip: int = 0, limit: int = 1000, route_id: Optional[str] = None) -> list[dict]:
-        """Get all salesmen with optional filtering by route"""
-        query = {}
+        """Get all active salesmen with optional filtering by route"""
+        # Only get active salesmen (is_active=True or field doesn't exist for backward compatibility)
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
         if route_id:
-            query["route_id"] = route_id
+            query = {"$and": [query, {"route_id": route_id}]}
             
         cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
     
     async def get_count(self, route_id: Optional[str] = None) -> int:
-        """Get total count of salesmen"""
-        query = {}
+        """Get total count of active salesmen"""
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
         if route_id:
-            query["route_id"] = route_id
+            query = {"$and": [query, {"route_id": route_id}]}
         return await self.collection.count_documents(query)
     
     async def update(self, salesman_id: str, update_data: dict) -> Optional[dict]:
@@ -52,9 +53,12 @@ class SalesmanRepository:
         return await self.get_by_id(salesman_id)
     
     async def delete(self, salesman_id: str) -> bool:
-        """Delete a salesman by ID"""
-        result = await self.collection.delete_one({"id": salesman_id})
-        return result.deleted_count > 0
+        """Soft delete a salesman by ID (set is_active to False)"""
+        result = await self.collection.update_one(
+            {"id": salesman_id},
+            {"$set": {"is_active": False}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, salesman_id: str) -> bool:
         """Check if a salesman exists"""
