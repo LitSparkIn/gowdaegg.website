@@ -74,6 +74,10 @@ const Dashboard = () => {
   const [selectedCollections, setSelectedCollections] = useState([]);
   const [clearing, setClearing] = useState(false);
   const [collectionCounts, setCollectionCounts] = useState({});
+  
+  // Egg Rate state
+  const [eggRate, setEggRate] = useState("");
+  const [updatingRate, setUpdatingRate] = useState(false);
 
   const CLEAR_OPTIONS = [
     { key: "routes", label: "Routes", icon: Truck, color: "text-blue-600" },
@@ -106,12 +110,41 @@ const Dashboard = () => {
     }
   };
 
+  const fetchEggRate = async () => {
+    try {
+      const response = await api.get("/settings");
+      const rate = response.data.data?.todays_egg_rate || 0;
+      setEggRate(rate.toString());
+    } catch (error) {
+      console.error("Error fetching egg rate:", error);
+    }
+  };
+
+  const updateEggRate = async () => {
+    if (!eggRate || isNaN(parseFloat(eggRate))) {
+      toast.error("Please enter a valid rate");
+      return;
+    }
+    
+    try {
+      setUpdatingRate(true);
+      await api.put("/settings", { todays_egg_rate: parseFloat(eggRate) });
+      toast.success("Egg rate updated successfully");
+    } catch (error) {
+      console.error("Error updating egg rate:", error);
+      toast.error("Failed to update egg rate");
+    } finally {
+      setUpdatingRate(false);
+    }
+  };
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
     fetchDashboardData();
+    fetchEggRate();
   }, []);
 
   const fetchCollectionCounts = async () => {
