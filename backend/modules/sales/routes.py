@@ -143,11 +143,13 @@ async def get_all_sales_admin(
     payment_type: Optional[str] = Query(None, description="Filter by payment type (Cash/Cheque/Online/Bill)"),
     route_id: Optional[str] = Query(None, description="Filter by route ID"),
     has_image: Optional[str] = Query(None, description="Filter by image (with/without)"),
+    page: int = Query(1, ge=1, description="Page number (starting from 1)"),
+    limit: int = Query(50, ge=1, le=200, description="Number of records per page"),
     service: SaleService = Depends(get_service),
     current_user: dict = Depends(verify_admin)
 ):
     """
-    Get all sales for admin panel with filters.
+    Get all sales for admin panel with filters and pagination.
     """
     result = await service.get_all_sales_admin(
         from_date=from_date,
@@ -157,7 +159,9 @@ async def get_all_sales_admin(
         transaction_type=transaction_type,
         payment_type=payment_type,
         route_id=route_id,
-        has_image=has_image
+        has_image=has_image,
+        page=page,
+        limit=limit
     )
     
     return success_response(
