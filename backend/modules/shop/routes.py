@@ -67,3 +67,13 @@ async def delete_shop(
     """Deactivate a shop (soft delete)"""
     await service.delete_shop(shop_id)
     return MessageResponse(message="Shop deactivated successfully")
+
+@router.post("/{shop_id}/activate", response_model=MessageResponse)
+async def activate_shop(
+    shop_id: str,
+    service: ShopService = Depends(get_shop_service),
+    current_user: dict = Depends(get_current_user)
+):
+    """Activate an inactive shop"""
+    await service.activate_shop(shop_id)
+    return MessageResponse(message="Shop activated successfully")
