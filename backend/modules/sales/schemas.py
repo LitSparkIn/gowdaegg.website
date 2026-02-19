@@ -30,6 +30,7 @@ class SaleResponse(BaseModel):
     """Schema for sale response"""
     id: str
     salesman_id: str
+    salesman_name: Optional[str] = None
     shop_id: str
     shop_name: Optional[str] = None
     crates: int
