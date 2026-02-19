@@ -912,7 +912,9 @@ const TransactionReportPage = () => {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Shop Name</p>
-                      <p className="font-medium">{sale.shop_name}</p>
+                      <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium inline-block">
+                        {sale.shop_name}
+                      </span>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Route</p>
