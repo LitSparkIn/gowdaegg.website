@@ -289,6 +289,7 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Export Data and Clear Data buttons hidden - functionality preserved in backend
             <Button
               variant="secondary"
               size="sm"
@@ -314,6 +315,7 @@ const Dashboard = () => {
               <Trash2 size={16} className="mr-2" />
               Clear Data
             </Button>
+            */}
             <Button
               variant="secondary"
               size="sm"
