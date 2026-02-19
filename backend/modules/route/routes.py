@@ -65,3 +65,13 @@ async def delete_route(
     """Deactivate a route (soft delete)"""
     await service.delete_route(route_id)
     return MessageResponse(message="Route deactivated successfully")
+
+@router.post("/{route_id}/activate", response_model=MessageResponse)
+async def activate_route(
+    route_id: str,
+    service: RouteService = Depends(get_route_service),
+    current_user: dict = Depends(get_current_user)
+):
+    """Activate an inactive route"""
+    await service.activate_route(route_id)
+    return MessageResponse(message="Route activated successfully")
