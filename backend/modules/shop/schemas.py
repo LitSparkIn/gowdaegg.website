@@ -61,12 +61,14 @@ class ShopResponse(BaseModel):
     route_id: str
     route: Optional[RouteInfo] = None
     tray_balance: int
+    is_active: Optional[bool] = True
     created_at: str
     updated_at: str
 
 class ShopListResponse(BaseModel):
     """Schema for list of shops response"""
     shops: list[ShopResponse]
+    inactive_shops: Optional[list[ShopResponse]] = []
     total: int
 
 class MessageResponse(BaseModel):
