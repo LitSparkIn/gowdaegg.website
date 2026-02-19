@@ -32,6 +32,7 @@ class AuthService:
         """
         superadmin = _get_superadmin()
         
+        # Check superadmin first
         if email == superadmin["email"]:
             if verify_password(password, superadmin["password_hash"]):
                 token = create_access_token(
@@ -44,6 +45,28 @@ class AuthService:
                     email=superadmin["email"],
                     name=superadmin["name"],
                     role=superadmin["role"]
+                )
+                return token, user
+        
+        # Check admin users from database
+        db = database.get_db()
+        admin = await db.admin_users.find_one({"email": email}, {"_id": 0})
+        
+        if admin:
+            if not admin.get("is_active", True):
+                raise UnauthorizedException("Account is deactivated. Please contact superadmin.")
+            
+            if verify_password(password, admin.get("password_hash", "")):
+                token = create_access_token(
+                    admin["id"],
+                    admin["email"],
+                    admin["role"]
+                )
+                user = UserResponse(
+                    id=admin["id"],
+                    email=admin["email"],
+                    name=admin["name"],
+                    role=admin["role"]
                 )
                 return token, user
         
