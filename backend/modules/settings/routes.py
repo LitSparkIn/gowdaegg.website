@@ -37,6 +37,7 @@ async def get_settings(
             "whatsapp_header_image_url": "https://litspark.solutions/litspark-logo.png",
             "msg91_auth_key": None,
             "msg91_template_id": None,
+            "todays_egg_rate": 0.0,
             "updated_at": get_ist_now().isoformat()
         }
         await db.settings.insert_one(default_settings)
@@ -53,6 +54,7 @@ async def get_settings(
         whatsapp_api_token_set=bool(settings.get("whatsapp_api_token")),
         msg91_auth_key_set=bool(settings.get("msg91_auth_key")),
         msg91_template_id=settings.get("msg91_template_id"),
+        todays_egg_rate=settings.get("todays_egg_rate", 0.0),
         updated_at=settings.get("updated_at", "")
     )
     
