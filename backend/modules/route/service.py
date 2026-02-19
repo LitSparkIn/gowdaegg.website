@@ -136,13 +136,13 @@ class RouteService:
     
     async def delete_route(self, route_id: str) -> bool:
         """
-        Delete a route
+        Soft delete a route (mark as inactive)
         
         Args:
-            route_id: ID of the route to delete
+            route_id: ID of the route to deactivate
             
         Returns:
-            True if deleted
+            True if deactivated
             
         Raises:
             NotFoundException: If route not found
@@ -152,6 +152,6 @@ class RouteService:
         if not exists:
             raise NotFoundException("Route", route_id)
         
-        # Delete from database
+        # Soft delete (mark as inactive)
         await self.repository.delete(route_id)
         return True

@@ -140,7 +140,7 @@ class ShopService:
         return await self._build_shop_response(updated_shop)
     
     async def delete_shop(self, shop_id: str) -> bool:
-        """Delete a shop"""
+        """Soft delete a shop (mark as inactive)"""
         exists = await self.repository.exists(shop_id)
         if not exists:
             raise NotFoundException("Shop", shop_id)

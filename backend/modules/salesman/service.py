@@ -144,7 +144,7 @@ class SalesmanService:
         return await self._build_response(updated)
     
     async def delete_salesman(self, salesman_id: str) -> bool:
-        """Delete a salesman"""
+        """Soft delete a salesman (mark as inactive)"""
         exists = await self.repository.exists(salesman_id)
         if not exists:
             raise NotFoundException("Salesman", salesman_id)
