@@ -429,7 +429,14 @@ class SaleService:
             
             route_name = ""
             if salesman and salesman.get("route_id"):
+                # Look for route including inactive ones (for historical data integrity)
                 route = await self.db.routes.find_one({"id": salesman["route_id"]}, {"_id": 0})
+                if route:
+                    route_name = route.get("route_name", "")
+            
+            # If salesman not found but we have a shop, try to get route from shop
+            if not route_name and shop and shop.get("route_id"):
+                route = await self.db.routes.find_one({"id": shop["route_id"]}, {"_id": 0})
                 if route:
                     route_name = route.get("route_name", "")
             
