@@ -22,13 +22,20 @@ class SupplierRepository:
         return await self.collection.find_one({"id": supplier_id}, {"_id": 0})
     
     async def get_all(self, skip: int = 0, limit: int = 1000) -> list[dict]:
-        """Get all suppliers"""
-        cursor = self.collection.find({}, {"_id": 0}).skip(skip).limit(limit)
+        """Get all active suppliers"""
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
+        return await cursor.to_list(length=limit)
+    
+    async def get_inactive(self, skip: int = 0, limit: int = 1000) -> list[dict]:
+        """Get all inactive suppliers"""
+        cursor = self.collection.find({"is_active": False}, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
     
     async def get_count(self) -> int:
-        """Get total count of suppliers"""
-        return await self.collection.count_documents({})
+        """Get total count of active suppliers"""
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        return await self.collection.count_documents(query)
     
     async def update(self, supplier_id: str, update_data: dict) -> Optional[dict]:
         """Update a supplier by ID"""
@@ -41,9 +48,12 @@ class SupplierRepository:
         return await self.get_by_id(supplier_id)
     
     async def delete(self, supplier_id: str) -> bool:
-        """Delete a supplier by ID"""
-        result = await self.collection.delete_one({"id": supplier_id})
-        return result.deleted_count > 0
+        """Soft delete a supplier by ID (set is_active to False)"""
+        result = await self.collection.update_one(
+            {"id": supplier_id},
+            {"$set": {"is_active": False}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, supplier_id: str) -> bool:
         """Check if a supplier exists"""
