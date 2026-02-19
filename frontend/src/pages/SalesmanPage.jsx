@@ -317,26 +317,28 @@ const SalesmanPage = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(salesman)}
-                            data-testid={`edit-salesman-${index}`}
-                            className="hover:bg-primary/10 hover:text-primary"
-                          >
-                            <Pencil size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(salesman)}
-                            data-testid={`delete-salesman-${index}`}
-                            className="hover:bg-red-100 hover:text-red-600"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
+                        {!isReadOnly && (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(salesman)}
+                              data-testid={`edit-salesman-${index}`}
+                              className="hover:bg-primary/10 hover:text-primary"
+                            >
+                              <Pencil size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteClick(salesman)}
+                              data-testid={`delete-salesman-${index}`}
+                              className="hover:bg-red-100 hover:text-red-600"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
