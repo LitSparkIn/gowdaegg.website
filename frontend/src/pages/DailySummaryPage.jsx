@@ -698,22 +698,30 @@ const DailySummaryPage = () => {
                 {/* Profit per Egg calculations */}
                 {(() => {
                   const totalEggsSold = summary.sale_information.total_sales * 30;
-                  const profitPerEgg = totalEggsSold > 0 ? summary.expenses.net_profit / totalEggsSold : 0;
+                  const profitBeforeExpenses = summary.expenses.total_sale - summary.expenses.net_purchase;
+                  const profitPerEggBeforeExp = totalEggsSold > 0 ? profitBeforeExpenses / totalEggsSold : 0;
+                  const profitPerEggAfterExp = totalEggsSold > 0 ? summary.expenses.net_profit / totalEggsSold : 0;
                   const saleRate = summary.profit_loss.sale_rate || 0;
-                  const rateDiff = profitPerEgg - saleRate;
+                  const rateDiff = saleRate - profitPerEggAfterExp;
                   return (
                     <>
                       <div className="my-3 border-t border-dashed" />
                       <SummaryRowWithCalc 
-                        label="Profit per Egg" 
-                        value={`₹${profitPerEgg.toFixed(2)}`}
-                        calculation={`Net Profit ÷ Total Eggs = ${formatCurrency(summary.expenses.net_profit)} ÷ ${formatNumber(totalEggsSold)}`}
-                        valueClass={profitPerEgg >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
+                        label="Profit/Egg Before Expenses" 
+                        value={`₹${profitPerEggBeforeExp.toFixed(2)}`}
+                        calculation={`(Total Sale - COGS) ÷ Eggs = (${formatCurrency(summary.expenses.total_sale)} - ${formatCurrency(summary.expenses.net_purchase)}) ÷ ${formatNumber(totalEggsSold)}`}
+                        valueClass={profitPerEggBeforeExp >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
+                      />
+                      <SummaryRowWithCalc 
+                        label="Profit/Egg After Expenses" 
+                        value={`₹${profitPerEggAfterExp.toFixed(2)}`}
+                        calculation={`Net Profit ÷ Eggs = ${formatCurrency(summary.expenses.net_profit)} ÷ ${formatNumber(totalEggsSold)}`}
+                        valueClass={profitPerEggAfterExp >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
                       />
                       <SummaryRowWithCalc 
                         label="Rate Difference" 
                         value={`₹${rateDiff.toFixed(2)}`}
-                        calculation={`Profit per Egg - Sale Rate = ₹${profitPerEgg.toFixed(2)} - ₹${saleRate.toFixed(2)}`}
+                        calculation={`Sale Rate - Profit/Egg After Exp = ₹${saleRate.toFixed(2)} - ₹${profitPerEggAfterExp.toFixed(2)}`}
                         valueClass={rateDiff >= 0 ? "text-green-600" : "text-red-600"}
                       />
                     </>
