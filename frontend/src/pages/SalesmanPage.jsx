@@ -229,6 +229,17 @@ const SalesmanPage = () => {
     }
   };
 
+  const handleActivate = async (salesman) => {
+    try {
+      await api.post(`/salesmen/${salesman.id}/activate`);
+      toast.success("Salesman activated successfully");
+      fetchSalesmen();
+    } catch (error) {
+      console.error("Error activating salesman:", error);
+      toast.error(error.response?.data?.detail || "Failed to activate salesman");
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="salesman-page">
       {/* Header */}
