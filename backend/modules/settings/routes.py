@@ -87,6 +87,7 @@ async def update_settings(
             "whatsapp_header_image_url": "https://litspark.solutions/litspark-logo.png",
             "msg91_auth_key": None,
             "msg91_template_id": None,
+            "todays_egg_rate": 0.0,
             "updated_at": get_ist_now().isoformat()
         }
         await db.settings.insert_one(settings)
@@ -109,6 +110,8 @@ async def update_settings(
         update_data["msg91_auth_key"] = request.msg91_auth_key
     if request.msg91_template_id is not None:
         update_data["msg91_template_id"] = request.msg91_template_id
+    if request.todays_egg_rate is not None:
+        update_data["todays_egg_rate"] = request.todays_egg_rate
     
     if update_data:
         update_data["updated_at"] = get_ist_now().isoformat()
