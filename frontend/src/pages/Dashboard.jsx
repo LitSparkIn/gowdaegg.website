@@ -80,10 +80,6 @@ const Dashboard = () => {
   // Egg Rate state
   const [eggRate, setEggRate] = useState("");
   const [updatingRate, setUpdatingRate] = useState(false);
-  
-  // Allow Multiple Reports state
-  const [allowMultipleReports, setAllowMultipleReports] = useState(false);
-  const [updatingMultipleReports, setUpdatingMultipleReports] = useState(false);
 
   const CLEAR_OPTIONS = [
     { key: "routes", label: "Routes", icon: Truck, color: "text-blue-600" },
@@ -116,14 +112,13 @@ const Dashboard = () => {
     }
   };
 
-  const fetchSettings = async () => {
+  const fetchEggRate = async () => {
     try {
       const response = await api.get("/settings");
-      const settings = response.data.data;
-      setEggRate((settings?.todays_egg_rate || 0).toString());
-      setAllowMultipleReports(settings?.allow_multiple_reports || false);
+      const rate = response.data.data?.todays_egg_rate || 0;
+      setEggRate(rate.toString());
     } catch (error) {
-      console.error("Error fetching settings:", error);
+      console.error("Error fetching egg rate:", error);
     }
   };
 
@@ -142,21 +137,6 @@ const Dashboard = () => {
       toast.error("Failed to update egg rate");
     } finally {
       setUpdatingRate(false);
-    }
-  };
-
-  const toggleMultipleReports = async () => {
-    try {
-      setUpdatingMultipleReports(true);
-      const newValue = !allowMultipleReports;
-      await api.put("/settings", { allow_multiple_reports: newValue });
-      setAllowMultipleReports(newValue);
-      toast.success(`Multiple reports ${newValue ? "enabled" : "disabled"}`);
-    } catch (error) {
-      console.error("Error updating setting:", error);
-      toast.error("Failed to update setting");
-    } finally {
-      setUpdatingMultipleReports(false);
     }
   };
 
