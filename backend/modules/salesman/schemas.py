@@ -86,12 +86,14 @@ class SalesmanResponse(BaseModel):
     name: str
     phone: str
     email: str
+    is_active: Optional[bool] = True
     created_at: str
     updated_at: str
 
 class SalesmanListResponse(BaseModel):
     """Schema for list of salesmen response"""
     salesmen: list[SalesmanResponse]
+    inactive_salesmen: Optional[list[SalesmanResponse]] = []
     total: int
 
 class MessageResponse(BaseModel):
