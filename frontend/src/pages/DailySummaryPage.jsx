@@ -621,6 +621,14 @@ const DailySummaryPage = () => {
                   calculation={`= ${formatCurrency(summary.profit_loss.sale_value)}`}
                   valueClass="text-green-600"
                 />
+                <div className="border-t pt-2 mt-2">
+                  <SummaryRowWithCalc 
+                    label="Rate Difference" 
+                    value={`₹${(summary.profit_loss.buy_rate - summary.profit_loss.sale_rate).toFixed(2)}`}
+                    calculation="Buy Rate - Sale Rate"
+                    valueClass={summary.profit_loss.buy_rate - summary.profit_loss.sale_rate > 0 ? "text-red-600" : "text-green-600"}
+                  />
+                </div>
               </div>
               
               {/* Profit Summary */}
