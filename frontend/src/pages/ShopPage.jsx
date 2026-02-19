@@ -44,9 +44,11 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isReadOnly } = useUserRole();
   const [shops, setShops] = useState([]);
   const [inactiveShops, setInactiveShops] = useState([]);
   const [routes, setRoutes] = useState([]);
