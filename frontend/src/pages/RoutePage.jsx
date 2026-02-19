@@ -41,6 +41,7 @@ import { format } from "date-fns";
 const RoutePage = () => {
   const navigate = useNavigate();
   const [routes, setRoutes] = useState([]);
+  const [inactiveRoutes, setInactiveRoutes] = useState([]);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +51,7 @@ const RoutePage = () => {
   const [deleteRoute, setDeleteRoute] = useState(null);
   const [routeName, setRouteName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -65,6 +67,7 @@ const RoutePage = () => {
       setLoading(true);
       const response = await api.get(`/routes`);
       setRoutes(response.data.routes || []);
+      setInactiveRoutes(response.data.inactive_routes || []);
     } catch (error) {
       console.error("Error fetching routes:", error);
       toast.error("Failed to fetch routes");
