@@ -139,6 +139,7 @@ async def update_settings(
         msg91_auth_key_set=bool(updated_settings.get("msg91_auth_key")),
         msg91_template_id=updated_settings.get("msg91_template_id"),
         todays_egg_rate=updated_settings.get("todays_egg_rate", 0.0),
+        allow_multiple_reports=updated_settings.get("allow_multiple_reports", False),
         updated_at=updated_settings.get("updated_at", "")
     )
     
