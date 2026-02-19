@@ -153,9 +153,45 @@ Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Le
 ---
 
 ## Last Updated
-February 2026 - Performance Optimizations Implemented
+February 2026 - Admin User Management & Role-Based Access Control
 
-### February 2026 Updates
+### February 2026 Updates (Latest)
+
+#### Admin User Management
+- ✅ **Create Admin Users**: Superadmin can create admin users (Name, Email, Phone, Password)
+- ✅ **Edit Admin Users**: Update admin name, email, phone
+- ✅ **Change Admin Password**: Superadmin can change any admin's password
+- ✅ **Deactivate/Activate Admins**: Soft delete functionality for admin users
+- ✅ **Admin Login**: Admin users can login with email + password
+
+#### Role-Based Access Control
+- ✅ **Admin Role Restrictions**: Admin users have READ-ONLY access:
+  - No Add, Edit, Delete buttons visible on any page
+  - Hidden menu items: Profit Loss Report, Daily Summary, Daily Summary History, Change Password, Current Active Balance, Config Setting
+  - Admin menu item only visible to superadmin
+
+- ✅ **Pages with Read-Only Mode for Admin**:
+  - RoutePage
+  - ShopPage
+  - SalesmanPage
+  - SupplierPage
+  - PurchasePage
+  - ExpensePage
+  - TransactionReportPage
+
+#### New API Endpoints
+- `GET /api/admin-users` - List all admin users (superadmin only)
+- `POST /api/admin-users` - Create admin user (superadmin only)
+- `PUT /api/admin-users/{id}` - Update admin user (superadmin only)
+- `POST /api/admin-users/{id}/change-password` - Change admin password (superadmin only)
+- `POST /api/admin-users/{id}/activate` - Activate admin (superadmin only)
+- `POST /api/admin-users/{id}/deactivate` - Deactivate admin (superadmin only)
+
+#### UI Updates
+- ✅ **Logo Update**: Changed to new Gowda Egg Distributors logo
+- ✅ **Favicon Added**: Added favicon.ico to the app
+
+### Previous February 2026 Updates
 - ✅ **MongoDB Indexes**: Added indexes on frequently queried fields for performance:
   - `sales` collection: `sale_date`, `salesman_id`, `shop_id`, compound indexes
   - `purchases` collection: `purchase_date`, `supplier_id`
