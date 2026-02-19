@@ -701,8 +701,7 @@ const DailySummaryPage = () => {
                   const profitBeforeExpenses = summary.expenses.total_sale - summary.expenses.net_purchase;
                   const profitPerEggBeforeExp = totalEggsSold > 0 ? profitBeforeExpenses / totalEggsSold : 0;
                   const profitPerEggAfterExp = totalEggsSold > 0 ? summary.expenses.net_profit / totalEggsSold : 0;
-                  const saleRate = summary.profit_loss.sale_rate || 0;
-                  const rateDiff = saleRate - profitPerEggAfterExp;
+                  const expensePerEgg = profitPerEggBeforeExp - profitPerEggAfterExp;
                   return (
                     <>
                       <div className="my-3 border-t border-dashed" />
@@ -719,10 +718,10 @@ const DailySummaryPage = () => {
                         valueClass={profitPerEggAfterExp >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
                       />
                       <SummaryRowWithCalc 
-                        label="Rate Difference" 
-                        value={`₹${rateDiff.toFixed(2)}`}
-                        calculation={`Sale Rate - Profit/Egg After Exp = ₹${saleRate.toFixed(2)} - ₹${profitPerEggAfterExp.toFixed(2)}`}
-                        valueClass={rateDiff >= 0 ? "text-green-600" : "text-red-600"}
+                        label="Expense Per Egg" 
+                        value={`₹${expensePerEgg.toFixed(2)}`}
+                        calculation={`₹${profitPerEggBeforeExp.toFixed(2)} - ₹${profitPerEggAfterExp.toFixed(2)}`}
+                        valueClass="text-red-600"
                       />
                     </>
                   );
