@@ -69,6 +69,14 @@ class ShopRepository:
             {"$set": {"is_active": False}}
         )
         return result.modified_count > 0
+
+    async def activate(self, shop_id: str) -> bool:
+        """Activate a shop by ID (set is_active to True)"""
+        result = await self.collection.update_one(
+            {"id": shop_id},
+            {"$set": {"is_active": True}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, shop_id: str) -> bool:
         """Check if a shop exists"""
