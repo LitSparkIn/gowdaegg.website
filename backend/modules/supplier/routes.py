@@ -61,6 +61,6 @@ async def delete_supplier(
     service: SupplierService = Depends(get_supplier_service),
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete a supplier"""
+    """Deactivate a supplier (soft delete)"""
     await service.delete_supplier(supplier_id)
-    return MessageResponse(message="Supplier deleted successfully")
+    return MessageResponse(message="Supplier deactivated successfully")
