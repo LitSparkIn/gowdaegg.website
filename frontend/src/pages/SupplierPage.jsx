@@ -41,6 +41,7 @@ const API = `${BACKEND_URL}/api`;
 
 const SupplierPage = () => {
   const [suppliers, setSuppliers] = useState([]);
+  const [inactiveSuppliers, setInactiveSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,6 +49,7 @@ const SupplierPage = () => {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [deleteSupplier, setDeleteSupplier] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -64,6 +66,7 @@ const SupplierPage = () => {
       setLoading(true);
       const response = await api.get(`/suppliers`);
       setSuppliers(response.data.suppliers || []);
+      setInactiveSuppliers(response.data.inactive_suppliers || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
       toast.error("Failed to fetch suppliers");
