@@ -56,6 +56,16 @@ class RouteRepository:
         cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
     
+    async def get_inactive(self, skip: int = 0, limit: int = 1000) -> list[dict]:
+        """
+        Get all inactive routes with pagination
+        
+        Returns:
+            List of inactive route dicts
+        """
+        cursor = self.collection.find({"is_active": False}, {"_id": 0}).skip(skip).limit(limit)
+        return await cursor.to_list(length=limit)
+    
     async def get_count(self) -> int:
         """
         Get total count of active routes
@@ -65,6 +75,10 @@ class RouteRepository:
         """
         query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
         return await self.collection.count_documents(query)
+    
+    async def get_inactive_count(self) -> int:
+        """Get count of inactive routes"""
+        return await self.collection.count_documents({"is_active": False})
     
     async def update(self, route_id: str, update_data: dict) -> Optional[dict]:
         """
