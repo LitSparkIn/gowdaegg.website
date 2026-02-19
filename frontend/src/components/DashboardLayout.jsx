@@ -130,8 +130,8 @@ const DashboardLayout = () => {
       <div className="p-4 border-b border-green-700/30">
         <div className="flex items-center gap-3">
           <img
-            src="https://customer-assets.emergentagent.com/job_ged-dashboard/artifacts/8aiex40c_Gowda%20egg%20dist%20logo.png"
-            alt="Logo"
+            src="/logo.png"
+            alt="Gowda Egg Distributors Logo"
             className="w-12 h-12"
           />
           <div className="flex-1 min-w-0">
