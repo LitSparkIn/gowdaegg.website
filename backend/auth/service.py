@@ -142,7 +142,19 @@ class AuthService:
                 role=superadmin["role"]
             )
         
-        # For future users from DB
+        # Check admin users from database
+        db = database.get_db()
+        admin = await db.admin_users.find_one({"id": user_id}, {"_id": 0})
+        
+        if admin:
+            return UserResponse(
+                id=admin["id"],
+                email=admin["email"],
+                name=admin["name"],
+                role=admin["role"]
+            )
+        
+        # Fallback for other users
         return UserResponse(
             id=user_id,
             email=email,
