@@ -64,6 +64,6 @@ async def delete_salesman(
     service: SalesmanService = Depends(get_salesman_service),
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete a salesman"""
+    """Deactivate a salesman (soft delete)"""
     await service.delete_salesman(salesman_id)
-    return MessageResponse(message="Salesman deleted successfully")
+    return MessageResponse(message="Salesman deactivated successfully")

@@ -64,6 +64,6 @@ async def delete_shop(
     service: ShopService = Depends(get_shop_service),
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete a shop"""
+    """Deactivate a shop (soft delete)"""
     await service.delete_shop(shop_id)
-    return MessageResponse(message="Shop deleted successfully")
+    return MessageResponse(message="Shop deactivated successfully")

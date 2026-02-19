@@ -62,6 +62,6 @@ async def delete_route(
     service: RouteService = Depends(get_route_service),
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete a route"""
+    """Deactivate a route (soft delete)"""
     await service.delete_route(route_id)
-    return MessageResponse(message="Route deleted successfully")
+    return MessageResponse(message="Route deactivated successfully")
