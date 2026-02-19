@@ -250,14 +250,16 @@ const SalesmanPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Salesman Management</h1>
           <p className="text-muted-foreground">Manage your sales team</p>
         </div>
-        <Button
-          onClick={() => handleOpenDialog()}
-          data-testid="add-salesman-btn"
-          className="rounded-full bg-primary hover:bg-primary-600"
-        >
-          <Plus size={20} className="mr-2" />
-          Add Salesman
-        </Button>
+        {!isReadOnly && (
+          <Button
+            onClick={() => handleOpenDialog()}
+            data-testid="add-salesman-btn"
+            className="rounded-full bg-primary hover:bg-primary-600"
+          >
+            <Plus size={20} className="mr-2" />
+            Add Salesman
+          </Button>
+        )}
       </div>
 
       {/* Salesmen Table */}
