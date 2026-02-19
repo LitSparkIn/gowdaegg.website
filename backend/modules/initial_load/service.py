@@ -148,9 +148,11 @@ class InitialLoadService:
         if salesman:
             salesman_name = salesman.get("name", "Unknown")
             salesman_phone = salesman.get("phone", "")
-            route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
-            if route:
-                route_name = route.get("route_name", "")
+            if salesman.get("route_id"):
+                # Include inactive routes for historical data
+                route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
+                if route:
+                    route_name = route.get("route_name", "")
         
         return InitialLoadWithSalesmanResponse(
             id=updated_load["id"],
