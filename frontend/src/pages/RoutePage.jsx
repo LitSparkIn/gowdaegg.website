@@ -337,6 +337,57 @@ const RoutePage = () => {
         </CardContent>
       </Card>
 
+      {/* Inactive Routes Section */}
+      {inactiveRoutes.length > 0 && (
+        <Card className="border-border/50 mt-6">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-muted-foreground flex items-center gap-2">
+                <RouteIcon size={20} />
+                Inactive Routes ({inactiveRoutes.length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowInactive(!showInactive)}
+              >
+                {showInactive ? "Hide" : "Show"}
+              </Button>
+            </div>
+          </CardHeader>
+          {showInactive && (
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Route Name</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inactiveRoutes.map((route, index) => (
+                    <TableRow key={route.id} className="opacity-60">
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className="font-medium">{route.route_name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(route.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                          Inactive
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          )}
+        </Card>
+      )}
+
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
