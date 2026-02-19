@@ -17,12 +17,14 @@ class RouteResponse(BaseModel):
     """Schema for route response"""
     id: str
     route_name: str
+    is_active: Optional[bool] = True
     created_at: str
     updated_at: str
 
 class RouteListResponse(BaseModel):
     """Schema for list of routes response"""
     routes: list[RouteResponse]
+    inactive_routes: Optional[list[RouteResponse]] = []
     total: int
 
 class MessageResponse(BaseModel):
