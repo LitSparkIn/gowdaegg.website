@@ -22,6 +22,11 @@ class InitialLoadService:
     
     async def _check_sale_report_submitted(self, salesman_id: str, date: str) -> bool:
         """Check if sale report has been submitted for the given date"""
+        # First check if multiple reports are allowed
+        settings = await self.db.settings.find_one({"id": "global_settings"}, {"_id": 0, "allow_multiple_reports": 1})
+        if settings and settings.get("allow_multiple_reports", False):
+            return False  # Allow initial load even if report submitted
+        
         report = await self.db.sale_reports.find_one(
             {"salesman_id": salesman_id, "report_date": date},
             {"_id": 0, "id": 1}
