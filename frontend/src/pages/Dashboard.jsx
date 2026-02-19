@@ -289,6 +289,21 @@ const Dashboard = () => {
             <Button
               variant="secondary"
               size="sm"
+              onClick={handleExportData}
+              disabled={exporting}
+              className="bg-blue-500/20 hover:bg-blue-500/30 text-white border-0"
+              data-testid="export-data-btn"
+            >
+              {exporting ? (
+                <Loader2 size={16} className="mr-2 animate-spin" />
+              ) : (
+                <Download size={16} className="mr-2" />
+              )}
+              Export Data
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleOpenClearDialog}
               className="bg-red-500/20 hover:bg-red-500/30 text-white border-0"
               data-testid="clear-data-btn"
