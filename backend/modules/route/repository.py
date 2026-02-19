@@ -116,6 +116,14 @@ class RouteRepository:
             {"$set": {"is_active": False}}
         )
         return result.modified_count > 0
+
+    async def activate(self, route_id: str) -> bool:
+        """Activate a route by ID (set is_active to True)"""
+        result = await self.collection.update_one(
+            {"id": route_id},
+            {"$set": {"is_active": True}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, route_id: str) -> bool:
         """
