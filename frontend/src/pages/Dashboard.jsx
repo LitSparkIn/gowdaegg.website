@@ -327,8 +327,8 @@ const Dashboard = () => {
               Refresh
             </Button>
             <img
-              src="https://customer-assets.emergentagent.com/job_ged-dashboard/artifacts/8aiex40c_Gowda%20egg%20dist%20logo.png"
-              alt="Logo"
+              src="/logo.png"
+              alt="Gowda Egg Distributors Logo"
               className="w-16 h-16 lg:w-20 lg:h-20 opacity-90"
             />
           </div>
