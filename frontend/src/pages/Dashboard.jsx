@@ -201,6 +201,35 @@ const Dashboard = () => {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+  
+  const handleExportData = async () => {
+    try {
+      setExporting(true);
+      const response = await api.get("/admin/export-data");
+      const exportData = response.data.data;
+      
+      // Create and download JSON file
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `GowdaEgg_Backup_${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Data exported successfully!");
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast.error(error.response?.data?.detail || "Failed to export data");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
