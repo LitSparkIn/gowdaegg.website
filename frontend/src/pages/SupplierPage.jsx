@@ -35,11 +35,13 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const SupplierPage = () => {
+  const { isReadOnly } = useUserRole();
   const [suppliers, setSuppliers] = useState([]);
   const [inactiveSuppliers, setInactiveSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
