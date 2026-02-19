@@ -102,7 +102,7 @@ const TransactionReportPage = () => {
     }
   };
 
-  const fetchSales = async () => {
+  const fetchSales = async (page = currentPage) => {
     try {
       setLoading(true);
       let url = `/sales`;
@@ -130,6 +130,10 @@ const TransactionReportPage = () => {
         params.append("has_image", selectedImage);
       }
       
+      // Add pagination parameters
+      params.append("page", page.toString());
+      params.append("limit", pageSize.toString());
+      
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -145,6 +149,8 @@ const TransactionReportPage = () => {
         total_pending: data.total_pending || 0,
         total_return_tray: data.total_return_tray || 0
       });
+      setTotalPages(data.total_pages || 0);
+      setCurrentPage(data.page || 1);
     } catch (error) {
       console.error("Error fetching sales:", error);
       toast.error("Failed to fetch transactions");
