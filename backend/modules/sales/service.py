@@ -365,9 +365,13 @@ class SaleService:
         transaction_type: Optional[str] = None,
         payment_type: Optional[str] = None,
         route_id: Optional[str] = None,
-        has_image: Optional[str] = None
+        has_image: Optional[str] = None,
+        page: int = 1,
+        limit: int = 50
     ) -> dict:
-        """Get all sales for admin with details"""
+        """Get all sales for admin with details and pagination"""
+        skip = (page - 1) * limit
+        
         # If route_id is provided, first get all salesman IDs for that route
         filtered_salesman_ids = None
         if route_id:
@@ -383,10 +387,27 @@ class SaleService:
                     "total_order_amount": 0,
                     "total_collected": 0,
                     "total_pending": 0,
-                    "total_return_tray": 0
+                    "total_return_tray": 0,
+                    "page": page,
+                    "limit": limit,
+                    "total_pages": 0
                 }
         
+        # Get total count first (for pagination info)
+        total_count = await self.repository.get_count(
+            from_date=from_date,
+            to_date=to_date,
+            salesman_id=salesman_id,
+            shop_id=shop_id,
+            transaction_type=transaction_type,
+            payment_type=payment_type,
+            has_image=has_image
+        )
+        
+        # Get paginated sales
         sales = await self.repository.get_all(
+            skip=skip,
+            limit=limit,
             from_date=from_date,
             to_date=to_date,
             salesman_id=salesman_id,
@@ -399,34 +420,22 @@ class SaleService:
         # Filter by route_id if provided (via salesman's route)
         if filtered_salesman_ids is not None:
             sales = [s for s in sales if s["salesman_id"] in filtered_salesman_ids]
-            # Recalculate totals from filtered sales
-            count = len(sales)
-            totals = {
-                "total_crates": sum(s.get("crates", 0) for s in sales),
-                "total_order_amount": sum(s.get("order_amount", 0) for s in sales),
-                "total_collected": sum(s.get("collected_amount", 0) for s in sales),
-                "total_pending": sum(s.get("pending_amount", 0) for s in sales),
-                "total_return_tray": sum(s.get("return_tray", 0) for s in sales)
-            }
-        else:
-            totals = await self.repository.get_totals(
-                from_date=from_date,
-                to_date=to_date,
-                salesman_id=salesman_id,
-                shop_id=shop_id,
-                transaction_type=transaction_type,
-                payment_type=payment_type,
-                has_image=has_image
-            )
-            count = await self.repository.get_count(
-                from_date=from_date,
-                to_date=to_date,
-                salesman_id=salesman_id,
-                shop_id=shop_id,
-                transaction_type=transaction_type,
-                payment_type=payment_type,
-                has_image=has_image
-            )
+            # Get count of filtered sales for proper totals
+            total_count = len(sales)
+        
+        # Get totals for the ENTIRE filtered dataset (not just current page)
+        totals = await self.repository.get_totals(
+            from_date=from_date,
+            to_date=to_date,
+            salesman_id=salesman_id,
+            shop_id=shop_id,
+            transaction_type=transaction_type,
+            payment_type=payment_type,
+            has_image=has_image
+        )
+        
+        # Calculate total pages
+        total_pages = (total_count + limit - 1) // limit if total_count > 0 else 0
         
         # Enrich with details
         enriched_sales = []
@@ -481,12 +490,15 @@ class SaleService:
             ))
         
         return {
-            "total_records": count,
+            "total_records": total_count,
             "total_crates": totals.get("total_crates", 0),
             "total_order_amount": totals.get("total_order_amount", 0),
             "total_collected": totals.get("total_collected", 0),
             "total_pending": totals.get("total_pending", 0),
             "total_return_tray": totals.get("total_return_tray", 0),
+            "page": page,
+            "limit": limit,
+            "total_pages": total_pages,
             "sales": [s.model_dump() for s in enriched_sales]
         }
 
