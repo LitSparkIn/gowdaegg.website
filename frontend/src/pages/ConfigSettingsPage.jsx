@@ -213,6 +213,45 @@ const ConfigSettingsPage = () => {
         </CardContent>
       </Card>
 
+      {/* Salesman Settings */}
+      <Card className="border-border/50">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <FileText size={20} className="text-primary" />
+            Salesman Settings
+          </CardTitle>
+          <CardDescription>
+            Configure salesman report submission behavior
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Allow Multiple Reports Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg border bg-orange-50/50 border-orange-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-orange-100">
+                <FileText size={24} className="text-orange-600" />
+              </div>
+              <div>
+                <Label htmlFor="multiple-reports-toggle" className="text-base font-medium cursor-pointer">
+                  Allow Multiple Reports
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {settings.allow_multiple_reports 
+                    ? "Salesmen can add sales/initial loads after report submission" 
+                    : "Sales and initial loads are blocked after report submission"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              id="multiple-reports-toggle"
+              checked={settings.allow_multiple_reports}
+              onCheckedChange={(checked) => handleToggleChange("allow_multiple_reports", checked)}
+              className="data-[state=checked]:bg-orange-600"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* WhatsApp Configuration */}
       <Card className="border-border/50">
         <CardHeader>
