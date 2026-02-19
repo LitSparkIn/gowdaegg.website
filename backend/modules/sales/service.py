@@ -255,12 +255,19 @@ class SaleService:
         total_pending = sum(s["pending_amount"] for s in sales)
         total_return_tray = sum(s["return_tray"] for s in sales)
         
-        # Add transaction_type and shop_tray_balance for each sale
+        # Get salesman name once
+        salesman = await self.db.salesmen.find_one({"id": salesman_id}, {"_id": 0, "name": 1})
+        salesman_name = salesman.get("name", "Unknown") if salesman else "Unknown"
+        
+        # Add transaction_type, shop_tray_balance, and salesman_name for each sale
         enriched_sales = []
         for s in sales:
             sale_data = dict(s)
             if "transaction_type" not in sale_data:
                 sale_data["transaction_type"] = "Sale" if sale_data["crates"] > 0 else "Collection"
+            
+            # Add salesman_name
+            sale_data["salesman_name"] = salesman_name
             
             # Fetch current shop tray balance
             shop = await self.db.shops.find_one({"id": sale_data["shop_id"]}, {"_id": 0, "tray_balance": 1})
