@@ -190,14 +190,14 @@ const TransactionReportPage = () => {
   }, [sales, searchQuery]);
 
   const clearFilters = () => {
-    const today = new Date();
-    setFromDate(today);
-    setToDate(today);
+    setFromDate(subDays(new Date(), 30));
+    setToDate(new Date());
     setSelectedSalesman("");
     setSelectedType("");
     setSelectedPayment("");
     setSelectedRoute("");
     setSelectedImage("");
+    setCurrentPage(1);
   };
 
   const sendWhatsApp = async (saleId) => {
