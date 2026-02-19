@@ -157,3 +157,12 @@ class SalesmanService:
         
         await self.repository.delete(salesman_id)
         return True
+
+    async def activate_salesman(self, salesman_id: str) -> bool:
+        """Activate an inactive salesman"""
+        exists = await self.repository.exists(salesman_id)
+        if not exists:
+            raise NotFoundException("Salesman", salesman_id)
+        
+        await self.repository.activate(salesman_id)
+        return True
