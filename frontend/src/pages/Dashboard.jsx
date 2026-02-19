@@ -90,6 +90,9 @@ const Dashboard = () => {
     { key: "purchases", label: "Purchases", icon: Package, color: "text-cyan-600" },
     { key: "expenses", label: "Expenses", icon: Receipt, color: "text-pink-600" },
     { key: "daily_summaries", label: "Daily Summary", icon: CalendarDays, color: "text-indigo-600" },
+    { key: "sales", label: "Transactions", icon: CreditCard, color: "text-emerald-600" },
+    { key: "initial_loads", label: "Initial Loads", icon: Package, color: "text-amber-600" },
+    { key: "sale_reports", label: "Sale Reports", icon: FileText, color: "text-slate-600" },
   ];
 
   const getAuthHeaders = () => {
