@@ -534,6 +534,64 @@ const ShopPage = () => {
         </CardContent>
       </Card>
 
+      {/* Inactive Shops Section */}
+      {inactiveShops.length > 0 && (
+        <Card className="border-border/50 mt-6">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-muted-foreground flex items-center gap-2">
+                <Store size={20} />
+                Inactive Shops ({inactiveShops.length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowInactive(!showInactive)}
+              >
+                {showInactive ? "Hide" : "Show"}
+              </Button>
+            </div>
+          </CardHeader>
+          {showInactive && (
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Route</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {inactiveShops.map((shop, index) => (
+                      <TableRow key={shop.id} className="opacity-60">
+                        <TableCell className="font-medium">{index + 1}</TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{shop.name}</p>
+                            <p className="text-xs text-muted-foreground">{shop.address}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{shop.phone}</TableCell>
+                        <TableCell>{shop.route?.route_name || "N/A"}</TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                            Inactive
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
+
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-lg">
