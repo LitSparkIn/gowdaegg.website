@@ -251,14 +251,16 @@ const RoutePage = () => {
           <Button variant="outline" size="sm" onClick={handlePrint} disabled={loading || filteredRoutes.length === 0}>
             <Printer size={16} className="mr-1" /> Print
           </Button>
-          <Button
-            onClick={() => handleOpenDialog()}
-            data-testid="add-route-btn"
-            className="rounded-full bg-primary hover:bg-primary-600"
-          >
-            <Plus size={20} className="mr-2" />
-            Add Route
-          </Button>
+          {!isReadOnly && (
+            <Button
+              onClick={() => handleOpenDialog()}
+              data-testid="add-route-btn"
+              className="rounded-full bg-primary hover:bg-primary-600"
+            >
+              <Plus size={20} className="mr-2" />
+              Add Route
+            </Button>
+          )}
         </div>
       </div>
 
