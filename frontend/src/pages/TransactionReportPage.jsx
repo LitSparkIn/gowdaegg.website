@@ -35,7 +35,10 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+import { useUserRole } from "@/hooks/useUserRole";
+
 const TransactionReportPage = () => {
+  const { isReadOnly } = useUserRole();
   const [sales, setSales] = useState([]);
   const [sendingWhatsApp, setSendingWhatsApp] = useState({});
   const [salesmen, setSalesmen] = useState([]);
