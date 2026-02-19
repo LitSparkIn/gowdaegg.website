@@ -42,7 +42,7 @@ class RouteRepository:
     
     async def get_all(self, skip: int = 0, limit: int = 1000) -> list[dict]:
         """
-        Get all routes with pagination
+        Get all active routes with pagination
         
         Args:
             skip: Number of records to skip
@@ -51,17 +51,20 @@ class RouteRepository:
         Returns:
             List of route dicts
         """
-        cursor = self.collection.find({}, {"_id": 0}).skip(skip).limit(limit)
+        # Only get active routes (is_active=True or field doesn't exist for backward compatibility)
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
     
     async def get_count(self) -> int:
         """
-        Get total count of routes
+        Get total count of active routes
         
         Returns:
-            Total number of routes
+            Total number of active routes
         """
-        return await self.collection.count_documents({})
+        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        return await self.collection.count_documents(query)
     
     async def update(self, route_id: str, update_data: dict) -> Optional[dict]:
         """
@@ -86,16 +89,19 @@ class RouteRepository:
     
     async def delete(self, route_id: str) -> bool:
         """
-        Delete a route by ID
+        Soft delete a route by ID (set is_active to False)
         
         Args:
-            route_id: Route ID to delete
+            route_id: Route ID to deactivate
             
         Returns:
-            True if deleted, False if not found
+            True if deactivated, False if not found
         """
-        result = await self.collection.delete_one({"id": route_id})
-        return result.deleted_count > 0
+        result = await self.collection.update_one(
+            {"id": route_id},
+            {"$set": {"is_active": False}}
+        )
+        return result.modified_count > 0
     
     async def exists(self, route_id: str) -> bool:
         """
