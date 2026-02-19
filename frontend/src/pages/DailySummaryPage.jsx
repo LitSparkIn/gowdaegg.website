@@ -695,6 +695,30 @@ const DailySummaryPage = () => {
                   calculation={`Total Sale - COGS - Expenses = ${formatCurrency(summary.expenses.total_sale)} - ${formatCurrency(summary.expenses.net_purchase)} - ${formatCurrency(summary.expenses.total_expenses)}`}
                   valueClass={summary.expenses.net_profit >= 0 ? "text-green-600 font-bold text-lg" : "text-red-600 font-bold text-lg"}
                 />
+                {/* Profit per Egg calculations */}
+                {(() => {
+                  const totalEggsSold = summary.sale_information.total_sales * 30;
+                  const profitPerEgg = totalEggsSold > 0 ? summary.expenses.net_profit / totalEggsSold : 0;
+                  const saleRate = summary.profit_loss.sale_rate || 0;
+                  const rateDiff = profitPerEgg - saleRate;
+                  return (
+                    <>
+                      <div className="my-3 border-t border-dashed" />
+                      <SummaryRowWithCalc 
+                        label="Profit per Egg" 
+                        value={`₹${profitPerEgg.toFixed(2)}`}
+                        calculation={`Net Profit ÷ Total Eggs = ${formatCurrency(summary.expenses.net_profit)} ÷ ${formatNumber(totalEggsSold)}`}
+                        valueClass={profitPerEgg >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
+                      />
+                      <SummaryRowWithCalc 
+                        label="Rate Difference" 
+                        value={`₹${rateDiff.toFixed(2)}`}
+                        calculation={`Profit per Egg - Sale Rate = ₹${profitPerEgg.toFixed(2)} - ₹${saleRate.toFixed(2)}`}
+                        valueClass={rateDiff >= 0 ? "text-green-600" : "text-red-600"}
+                      />
+                    </>
+                  );
+                })()}
                 <div className="my-3 border-t border-dashed" />
                 <SummaryRowWithCalc 
                   label="Carryover for Tomorrow" 
