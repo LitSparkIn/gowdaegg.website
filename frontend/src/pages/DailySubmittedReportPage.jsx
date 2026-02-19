@@ -247,7 +247,7 @@ const DailySubmittedReportPage = () => {
     autoTable(doc, {
       startY: 28,
       head: [["Date", "Salesman", "Initial", "Sold", "Damaged", "Remain", "Cash", "Expense", "Net Cash", "Cheque", "Online", "Ret Tray"]],
-      body: filteredReports.map(r => [formatDate(r.report_date), r.salesman_name, r.initial_crates, r.crates_sold, r.crates_damaged, r.remaining_crates, `₹${r.cash_collected}`, `₹${r.expense}`, `₹${r.net_cash}`, `₹${r.cheque_amount||0}`, `₹${r.online_amount||0}`, r.empty_crates_returned]),
+      body: filteredReports.map(r => [formatDate(r.report_date), r.salesman_name, r.initial_crates, r.crates_sold, r.crates_damaged, r.remaining_crates, `Rs.${r.cash_collected}`, `Rs.${r.expense}`, `Rs.${r.net_cash}`, `Rs.${r.cheque_amount||0}`, `Rs.${r.online_amount||0}`, r.empty_crates_returned]),
       theme: "grid", headStyles: { fillColor: [34, 84, 61], fontSize: 7 }, bodyStyles: { fontSize: 7 }
     });
     doc.save(`DailyReports_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
