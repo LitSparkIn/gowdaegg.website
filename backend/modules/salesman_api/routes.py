@@ -82,7 +82,7 @@ async def get_home_data(
             "total_crates_sold": {"$sum": "$crates"},
             "total_cash": {"$sum": {"$cond": [{"$eq": ["$payment_type", "Cash"]}, "$collected_amount", 0]}},
             "total_cheque": {"$sum": {"$cond": [{"$eq": ["$payment_type", "Cheque"]}, "$collected_amount", 0]}},
-            "total_actransfer": {"$sum": {"$cond": [{"$in": ["$payment_type", ["UPI", "AC Transfer", "Credit"]]}, "$collected_amount", 0]}}
+            "total_actransfer": {"$sum": {"$cond": [{"$not": {"$in": ["$payment_type", ["Cash", "Cheque", "Bill"]]}}, "$collected_amount", 0]}}
         }}
     ]
     sales_result = await db.sales.aggregate(sales_pipeline).to_list(1)
