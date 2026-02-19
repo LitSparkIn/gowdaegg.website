@@ -375,11 +375,12 @@ const RoutePage = () => {
                     <TableHead>Route Name</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {inactiveRoutes.map((route, index) => (
-                    <TableRow key={route.id} className="opacity-60">
+                    <TableRow key={route.id} className="opacity-70 hover:opacity-100">
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell className="font-medium">{route.route_name}</TableCell>
                       <TableCell className="text-muted-foreground">
@@ -389,6 +390,17 @@ const RoutePage = () => {
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
                           Inactive
                         </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleActivate(route)}
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        >
+                          <RotateCcw size={14} className="mr-1" />
+                          Activate
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
