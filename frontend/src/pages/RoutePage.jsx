@@ -37,9 +37,11 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const RoutePage = () => {
   const navigate = useNavigate();
+  const { isReadOnly } = useUserRole();
   const [routes, setRoutes] = useState([]);
   const [inactiveRoutes, setInactiveRoutes] = useState([]);
   const [shops, setShops] = useState([]);
