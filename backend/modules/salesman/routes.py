@@ -67,3 +67,13 @@ async def delete_salesman(
     """Deactivate a salesman (soft delete)"""
     await service.delete_salesman(salesman_id)
     return MessageResponse(message="Salesman deactivated successfully")
+
+@router.post("/{salesman_id}/activate", response_model=MessageResponse)
+async def activate_salesman(
+    salesman_id: str,
+    service: SalesmanService = Depends(get_salesman_service),
+    current_user: dict = Depends(get_current_user)
+):
+    """Activate an inactive salesman"""
+    await service.activate_salesman(salesman_id)
+    return MessageResponse(message="Salesman activated successfully")
