@@ -12,6 +12,7 @@ class SettingsUpdateRequest(BaseModel):
     msg91_auth_key: Optional[str] = None
     msg91_template_id: Optional[str] = None
     todays_egg_rate: Optional[float] = None
+    allow_multiple_reports: Optional[bool] = None
 
 class SettingsResponse(BaseModel):
     """Schema for settings response"""
@@ -26,4 +27,5 @@ class SettingsResponse(BaseModel):
     msg91_auth_key_set: bool
     msg91_template_id: Optional[str]
     todays_egg_rate: Optional[float] = 0.0
+    allow_multiple_reports: bool = False
     updated_at: str
