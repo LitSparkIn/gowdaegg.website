@@ -153,3 +153,12 @@ class ShopService:
         
         await self.repository.delete(shop_id)
         return True
+
+    async def activate_shop(self, shop_id: str) -> bool:
+        """Activate an inactive shop"""
+        exists = await self.repository.exists(shop_id)
+        if not exists:
+            raise NotFoundException("Shop", shop_id)
+        
+        await self.repository.activate(shop_id)
+        return True
