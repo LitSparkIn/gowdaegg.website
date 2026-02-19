@@ -133,6 +133,7 @@ async def update_settings(
         whatsapp_api_token_set=bool(updated_settings.get("whatsapp_api_token")),
         msg91_auth_key_set=bool(updated_settings.get("msg91_auth_key")),
         msg91_template_id=updated_settings.get("msg91_template_id"),
+        todays_egg_rate=updated_settings.get("todays_egg_rate", 0.0),
         updated_at=updated_settings.get("updated_at", "")
     )
     
