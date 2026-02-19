@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 class GowdaEggAPITester:
-    def __init__(self, base_url="https://egg-dist-mgmt.preview.emergentagent.com"):
+    def __init__(self, base_url="https://egg-perf-boost.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.token = None
