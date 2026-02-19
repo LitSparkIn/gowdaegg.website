@@ -207,10 +207,18 @@ const RoutePage = () => {
     doc.text("Gowda Egg Distributors - Routes", 14, 15);
     doc.setFontSize(10); doc.setTextColor(100);
     doc.text(`Generated: ${format(new Date(), "dd MMM yyyy")} | Total: ${filteredRoutes.length}`, 14, 22);
+    
+    // Calculate dues for each route
+    const routesWithDues = filteredRoutes.map((r) => {
+      const routeShops = shops.filter(s => s.route_id === r.id);
+      const totalDues = routeShops.reduce((sum, shop) => sum + (shop.previous_dues || 0), 0);
+      return { ...r, totalDues };
+    });
+    
     autoTable(doc, {
       startY: 28,
-      head: [["#", "Route Name", "Created", "Updated"]],
-      body: filteredRoutes.map((r, i) => [i+1, r.route_name, formatDate(r.created_at), formatDate(r.updated_at)]),
+      head: [["#", "Route Name", "Total Dues", "Created", "Updated"]],
+      body: routesWithDues.map((r, i) => [i+1, r.route_name, `Rs.${r.totalDues.toLocaleString()}`, formatDate(r.created_at), formatDate(r.updated_at)]),
       theme: "grid", headStyles: { fillColor: [34, 84, 61] }
     });
     doc.save(`Routes_${format(new Date(), "dd-MMM-yyyy")}.pdf`);
