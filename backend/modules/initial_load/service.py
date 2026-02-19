@@ -90,6 +90,7 @@ class InitialLoadService:
         # Enrich with salesman details
         enriched_loads = []
         for load in loads:
+            # Include inactive salesmen for historical data
             salesman = await self.db.salesmen.find_one({"id": load["salesman_id"]}, {"_id": 0})
             route_name = ""
             salesman_name = "Unknown"
@@ -98,9 +99,11 @@ class InitialLoadService:
             if salesman:
                 salesman_name = salesman.get("name", "Unknown")
                 salesman_phone = salesman.get("phone", "")
-                route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
-                if route:
-                    route_name = route.get("route_name", "")
+                if salesman.get("route_id"):
+                    # Include inactive routes for historical data
+                    route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
+                    if route:
+                        route_name = route.get("route_name", "")
             
             enriched_loads.append(InitialLoadWithSalesmanResponse(
                 id=load["id"],
