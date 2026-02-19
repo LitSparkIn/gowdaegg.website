@@ -64,3 +64,13 @@ async def delete_supplier(
     """Deactivate a supplier (soft delete)"""
     await service.delete_supplier(supplier_id)
     return MessageResponse(message="Supplier deactivated successfully")
+
+@router.post("/{supplier_id}/activate", response_model=MessageResponse)
+async def activate_supplier(
+    supplier_id: str,
+    service: SupplierService = Depends(get_supplier_service),
+    current_user: dict = Depends(get_current_user)
+):
+    """Activate an inactive supplier"""
+    await service.activate_supplier(supplier_id)
+    return MessageResponse(message="Supplier activated successfully")
