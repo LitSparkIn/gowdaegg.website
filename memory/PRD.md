@@ -4,7 +4,8 @@
 Build a sales dashboard for "Gowda Egg Distributors" with greenish theme and "Lexend Deca" font. The application manages the entire sales and purchasing lifecycle including admin panel, salesman mobile APIs, and comprehensive reporting.
 
 ## User Personas
-- **Super Admin**: Full access to manage routes, shops, salesmen, suppliers, purchases, expenses, and all reports
+- **Super Admin**: Full access to manage routes, shops, salesmen, suppliers, purchases, expenses, admin users, and all reports including profit/loss, daily summaries, and configuration settings
+- **Admin**: Read-only access to view routes, shops, salesmen, suppliers, purchases, expenses, and basic reports. Cannot add, edit, or delete any data. No access to profit/loss reports, daily summaries, or config settings.
 - **Salesman**: Mobile app user who performs daily sales, creates initial loads, records transactions, and submits daily reports
 
 ## Core Requirements
