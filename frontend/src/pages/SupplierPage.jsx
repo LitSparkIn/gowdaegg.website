@@ -403,15 +403,17 @@ const SupplierPage = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleActivate(supplier)}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                        >
-                          <RotateCcw size={14} className="mr-1" />
-                          Activate
-                        </Button>
+                        {!isReadOnly && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleActivate(supplier)}
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          >
+                            <RotateCcw size={14} className="mr-1" />
+                            Activate
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
