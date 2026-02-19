@@ -312,6 +312,20 @@ const ConfigSettingsPage = () => {
               />
             </div>
           </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="whatsapp-image-url">Header Image URL</Label>
+            <Input
+              id="whatsapp-image-url"
+              type="text"
+              placeholder="https://example.com/logo.png"
+              value={settings.whatsapp_header_image_url}
+              onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_header_image_url: e.target.value }))}
+            />
+            <p className="text-xs text-muted-foreground">
+              Image displayed in WhatsApp message header (recommended: 300x300px)
+            </p>
+          </div>
         </CardContent>
       </Card>
 
