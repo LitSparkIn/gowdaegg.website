@@ -247,11 +247,11 @@ const ExpensePage = () => {
     doc.setFontSize(16); doc.setTextColor(34, 84, 61);
     doc.text("Gowda Egg Distributors - Expenses", 14, 15);
     doc.setFontSize(10); doc.setTextColor(100);
-    doc.text(`Date: ${fromStr} to ${toStr} | Total: ₹${totalAmount.toLocaleString()}`, 14, 22);
+    doc.text(`Date: ${fromStr} to ${toStr} | Total: Rs.${totalAmount.toLocaleString()}`, 14, 22);
     autoTable(doc, {
       startY: 28,
       head: [["#", "Date", "Amount", "Description", "Category"]],
-      body: filteredExpenses.map((e, i) => [i+1, formatDate(e.expense_date), `₹${e.amount.toLocaleString()}`, e.description, e.category || "N/A"]),
+      body: filteredExpenses.map((e, i) => [i+1, formatDate(e.expense_date), `Rs.${e.amount.toLocaleString()}`, e.description, e.category || "N/A"]),
       theme: "grid", headStyles: { fillColor: [34, 84, 61] }
     });
     doc.save(`Expenses_${fromStr.replace(/ /g,"-")}_to_${toStr.replace(/ /g,"-")}.pdf`);
