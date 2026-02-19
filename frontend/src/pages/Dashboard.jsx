@@ -289,53 +289,39 @@ const Dashboard = () => {
       {/* Today's Egg Rate */}
       <Card className="border-border/50 bg-white">
         <CardContent className="py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            {/* Today's Egg Rate */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <IndianRupee size={20} className="text-primary" />
-                <span className="font-medium text-primary-950">Today's Egg Rate</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Enter rate per egg"
-                  value={eggRate}
-                  onChange={(e) => setEggRate(e.target.value)}
-                  className="w-32"
-                  data-testid="egg-rate-input"
-                />
-                <Button
-                  onClick={updateEggRate}
-                  disabled={updatingRate}
-                  size="sm"
-                  data-testid="update-egg-rate-btn"
-                >
-                  {updatingRate ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    "Update"
-                  )}
-                </Button>
-              </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <IndianRupee size={20} className="text-primary" />
+              <span className="font-medium text-primary-950">Today's Egg Rate</span>
             </div>
-            
-            {/* Allow Multiple Reports Toggle */}
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className="flex flex-col">
-                <span className="font-medium text-sm text-primary-950">Allow Multiple Reports</span>
-                <span className="text-xs text-muted-foreground">
-                  {allowMultipleReports ? "Salesmen can add sales after report submission" : "Sales blocked after report submission"}
-                </span>
-              </div>
-              <Switch
-                checked={allowMultipleReports}
-                onCheckedChange={toggleMultipleReports}
-                disabled={updatingMultipleReports}
-                data-testid="allow-multiple-reports-toggle"
+            <div className="flex items-center gap-2 flex-1 max-w-xs">
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="Enter rate per egg"
+                value={eggRate}
+                onChange={(e) => setEggRate(e.target.value)}
+                className="w-40"
+                data-testid="egg-rate-input"
               />
+              <Button
+                onClick={updateEggRate}
+                disabled={updatingRate}
+                size="sm"
+                data-testid="update-egg-rate-btn"
+              >
+                {updatingRate ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "Update"
+                )}
+              </Button>
             </div>
+            {eggRate && (
+              <span className="text-sm text-muted-foreground">
+                Current: ₹{parseFloat(eggRate || 0).toFixed(2)} per egg
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
