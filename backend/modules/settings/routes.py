@@ -90,6 +90,7 @@ async def update_settings(
             "msg91_auth_key": None,
             "msg91_template_id": None,
             "todays_egg_rate": 0.0,
+            "allow_multiple_reports": False,
             "updated_at": get_ist_now().isoformat()
         }
         await db.settings.insert_one(settings)
@@ -114,6 +115,8 @@ async def update_settings(
         update_data["msg91_template_id"] = request.msg91_template_id
     if request.todays_egg_rate is not None:
         update_data["todays_egg_rate"] = request.todays_egg_rate
+    if request.allow_multiple_reports is not None:
+        update_data["allow_multiple_reports"] = request.allow_multiple_reports
     
     if update_data:
         update_data["updated_at"] = get_ist_now().isoformat()
