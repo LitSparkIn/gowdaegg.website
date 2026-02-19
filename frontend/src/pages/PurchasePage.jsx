@@ -408,7 +408,7 @@ const PurchasePage = () => {
           </Button>
           {!isReadOnly && (
             <Button
-              onClick={handleOpenDialog}
+              onClick={() => handleOpenDialog()}
               data-testid="add-purchase-btn"
               className="rounded-full bg-primary hover:bg-primary-600"
             >
