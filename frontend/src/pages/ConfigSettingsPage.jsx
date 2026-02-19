@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Settings, MessageCircle, MessageSquare, Save, Eye, EyeOff } from "lucide-react";
+import { Loader2, Settings, MessageCircle, MessageSquare, Save, Eye, EyeOff, FileText } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -24,6 +24,7 @@ const ConfigSettingsPage = () => {
     msg91_template_id: "",
     whatsapp_api_token_set: false,
     msg91_auth_key_set: false,
+    allow_multiple_reports: false,
   });
   
   const [showWhatsAppToken, setShowWhatsAppToken] = useState(false);
@@ -49,6 +50,7 @@ const ConfigSettingsPage = () => {
         msg91_template_id: data.msg91_template_id || "",
         whatsapp_api_token_set: data.whatsapp_api_token_set || false,
         msg91_auth_key_set: data.msg91_auth_key_set || false,
+        allow_multiple_reports: data.allow_multiple_reports || false,
       });
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -69,7 +71,15 @@ const ConfigSettingsPage = () => {
       
       // Save to backend
       await api.put(`/settings`, { [field]: value });
-      toast.success(`${field === 'whatsapp_enabled' ? 'WhatsApp' : 'SMS'} ${value ? 'enabled' : 'disabled'}`);
+      
+      // Show appropriate message
+      if (field === 'whatsapp_enabled') {
+        toast.success(`WhatsApp ${value ? 'enabled' : 'disabled'}`);
+      } else if (field === 'sms_enabled') {
+        toast.success(`SMS ${value ? 'enabled' : 'disabled'}`);
+      } else if (field === 'allow_multiple_reports') {
+        toast.success(`Multiple reports ${value ? 'enabled' : 'disabled'}`);
+      }
     } catch (error) {
       console.error("Error updating setting:", error);
       toast.error("Failed to update setting");
