@@ -193,7 +193,7 @@ const TransactionReportPage = () => {
   }, [sales, searchQuery]);
 
   const clearFilters = () => {
-    setFromDate(subDays(new Date(), 30));
+    setFromDate(new Date());
     setToDate(new Date());
     setSelectedSalesman("");
     setSelectedType("");
