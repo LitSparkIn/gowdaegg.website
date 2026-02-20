@@ -291,7 +291,8 @@ async def get_dashboard_data(
                 "shops": shops_count,
                 "salesmen": salesmen_count,
                 "active_salesmen": active_salesmen,
-                "suppliers": suppliers_count
+                "suppliers": suppliers_count,
+                "total_dues": round(total_dues, 2)
             },
             "payment_breakdown": payment_breakdown,
             "transaction_breakdown": transaction_breakdown,
