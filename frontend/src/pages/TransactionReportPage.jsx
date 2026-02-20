@@ -73,8 +73,8 @@ const TransactionReportPage = () => {
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   
-  // Filters - default to last 30 days
-  const [fromDate, setFromDate] = useState(subDays(new Date(), 30));
+  // Filters - default to today only
+  const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
   const [selectedSalesman, setSelectedSalesman] = useState("");
   const [selectedType, setSelectedType] = useState("");
