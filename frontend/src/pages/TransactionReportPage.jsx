@@ -952,7 +952,7 @@ const TransactionReportPage = () => {
                           href={`${BACKEND_URL}${sale.image_url}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center gap-1 text-sm"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                         >
                           <ImageIcon size={14} />
                           View Image
@@ -961,18 +961,18 @@ const TransactionReportPage = () => {
                         <span className="text-muted-foreground text-xs">No Image</span>
                       )}
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => sendWhatsApp(sale.id)}
                         disabled={sendingWhatsApp[sale.id]}
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50 h-7 px-2"
+                        className="bg-green-600 hover:bg-green-700 text-white h-7 px-3 text-xs font-medium"
                         data-testid={`whatsapp-btn-${index}`}
                       >
                         {sendingWhatsApp[sale.id] ? (
-                          <Loader2 size={14} className="animate-spin" />
+                          <Loader2 size={14} className="animate-spin mr-1" />
                         ) : (
-                          <MessageCircle size={14} />
+                          <MessageCircle size={14} className="mr-1" />
                         )}
+                        WhatsApp
                       </Button>
                       {!isReadOnly && (
                         <Button
