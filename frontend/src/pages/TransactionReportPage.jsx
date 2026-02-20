@@ -1008,6 +1008,54 @@ const TransactionReportPage = () => {
                       <p className="text-base font-semibold text-orange-600">{sale.return_tray}</p>
                     </div>
                   </div>
+
+                  {/* Divider */}
+                  <div className="my-3 border-t border-dashed border-gray-300/70"></div>
+
+                  {/* Row 3: Action Buttons - Right Aligned */}
+                  <div className="flex items-center justify-end gap-2">
+                    {sale.image_url ? (
+                      <a 
+                        href={`${BACKEND_URL}${sale.image_url}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      >
+                        <ImageIcon size={14} />
+                        View Image
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-gray-200 text-gray-500">
+                        <ImageIcon size={14} />
+                        No Image
+                      </span>
+                    )}
+                    <Button
+                      size="sm"
+                      onClick={() => sendWhatsApp(sale.id)}
+                      disabled={sendingWhatsApp[sale.id]}
+                      className="bg-green-600 hover:bg-green-700 text-white h-7 px-3 text-xs font-medium"
+                      data-testid={`whatsapp-btn-${index}`}
+                    >
+                      {sendingWhatsApp[sale.id] ? (
+                        <Loader2 size={14} className="animate-spin mr-1" />
+                      ) : (
+                        <MessageCircle size={14} className="mr-1" />
+                      )}
+                      WhatsApp
+                    </Button>
+                    {!isReadOnly && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditClick(sale)}
+                        className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-3 text-xs font-medium"
+                        data-testid={`edit-btn-${index}`}
+                      >
+                        <Pencil size={14} className="mr-1" />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
               
