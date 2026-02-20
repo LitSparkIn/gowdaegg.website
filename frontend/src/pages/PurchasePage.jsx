@@ -219,12 +219,14 @@ const PurchasePage = () => {
       toast.error("Please select a supplier");
       return false;
     }
-    if (!formData.crates || parseInt(formData.crates) <= 0) {
-      toast.error("Please enter valid number of crates");
+    // Allow 0 crates for payment-only transactions
+    if (formData.crates === "" || parseInt(formData.crates) < 0) {
+      toast.error("Please enter valid number of crates (0 or more)");
       return false;
     }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error("Please enter valid price per egg");
+    // Allow 0 price for payment-only transactions
+    if (formData.price === "" || parseFloat(formData.price) < 0) {
+      toast.error("Please enter valid price per egg (0 or more)");
       return false;
     }
     if (formData.amount_paid === "" || parseFloat(formData.amount_paid) < 0) {
@@ -245,9 +247,9 @@ const PurchasePage = () => {
     setSubmitting(true);
     try {
       const payload = {
-        crates: parseInt(formData.crates),
-        price: parseFloat(formData.price),
-        amount_paid: parseFloat(formData.amount_paid),
+        crates: parseInt(formData.crates) || 0,
+        price: parseFloat(formData.price) || 0,
+        amount_paid: parseFloat(formData.amount_paid) || 0,
         payment_mode: formData.payment_mode,
       };
 
