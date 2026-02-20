@@ -448,15 +448,9 @@ class SaleService:
             shop_phone = shop.get("phone", "") if shop else ""
             credit_threshold = shop.get("credit_threshold", 0.0) if shop else 0.0
             
+            # Get route from shop (not salesman)
             route_name = ""
-            if salesman and salesman.get("route_id"):
-                # Look for route including inactive ones (for historical data integrity)
-                route = await self.db.routes.find_one({"id": salesman["route_id"]}, {"_id": 0})
-                if route:
-                    route_name = route.get("route_name", "")
-            
-            # If salesman not found but we have a shop, try to get route from shop
-            if not route_name and shop and shop.get("route_id"):
+            if shop and shop.get("route_id"):
                 route = await self.db.routes.find_one({"id": shop["route_id"]}, {"_id": 0})
                 if route:
                     route_name = route.get("route_name", "")
