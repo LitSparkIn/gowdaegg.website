@@ -93,6 +93,17 @@ async def get_dashboard_data(
     suppliers_count = await db.suppliers.count_documents({})
     active_salesmen = await db.salesmen.count_documents({"is_active": True})
     
+    # ===== TOTAL DUES ACROSS ALL SHOPS =====
+    total_dues_pipeline = [
+        {"$match": {"is_active": True}},
+        {"$group": {
+            "_id": None,
+            "total_dues": {"$sum": "$previous_dues"}
+        }}
+    ]
+    total_dues_result = await db.shops.aggregate(total_dues_pipeline).to_list(1)
+    total_dues = total_dues_result[0].get("total_dues", 0) if total_dues_result else 0
+    
     # ===== PAYMENT TYPE BREAKDOWN (Today) =====
     payment_breakdown_pipeline = [
         {"$match": {"sale_date": today}},
