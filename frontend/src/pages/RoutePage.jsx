@@ -356,6 +356,24 @@ const RoutePage = () => {
                     </TableCell>
                   </TableRow>
                 ))}
+                {/* Total Row */}
+                <TableRow className="bg-muted/50 font-semibold border-t-2">
+                  <TableCell></TableCell>
+                  <TableCell className="text-primary-950">TOTAL</TableCell>
+                  <TableCell className="text-right">
+                    <span className={cn(
+                      "font-bold text-lg",
+                      filteredRoutes.reduce((sum, route) => sum + getRouteDues(route.id), 0) > 0 
+                        ? "text-red-600" 
+                        : "text-green-600"
+                    )}>
+                      ₹{filteredRoutes.reduce((sum, route) => sum + getRouteDues(route.id), 0).toLocaleString()}
+                    </span>
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           )}
