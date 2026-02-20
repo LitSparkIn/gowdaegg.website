@@ -6,15 +6,15 @@ from typing import Optional
 class PurchaseCreateRequest(BaseModel):
     """Schema for creating a new purchase"""
     supplier_id: str = Field(..., description="ID of the supplier")
-    crates: int = Field(..., ge=1, description="Number of crates")
-    price: float = Field(..., gt=0, description="Price per egg")
+    crates: int = Field(..., ge=0, description="Number of crates (0 for payment-only)")
+    price: float = Field(..., ge=0, description="Price per egg (0 for payment-only)")
     amount_paid: float = Field(..., ge=0, description="Amount paid")
     payment_mode: str = Field(..., description="Payment mode: Cash, Cheque, Online, Bill")
 
 class PurchaseUpdateRequest(BaseModel):
     """Schema for updating a purchase"""
-    crates: int = Field(..., ge=1, description="Number of crates")
-    price: float = Field(..., gt=0, description="Price per egg")
+    crates: int = Field(..., ge=0, description="Number of crates (0 for payment-only)")
+    price: float = Field(..., ge=0, description="Price per egg (0 for payment-only)")
     amount_paid: float = Field(..., ge=0, description="Amount paid")
     payment_mode: str = Field(..., description="Payment mode: Cash, Cheque, Online, Bill")
 
