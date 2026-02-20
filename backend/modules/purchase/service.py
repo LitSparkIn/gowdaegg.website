@@ -86,18 +86,32 @@ class PurchaseService:
             to_date=to_date,
             supplier_id=supplier_id
         )
-        totals = await self.repository.get_totals(
-            from_date=from_date,
-            to_date=to_date,
-            supplier_id=supplier_id
-        )
+        
+        # Calculate totals from purchase data
+        total_amount = sum(p.get("total", 0) for p in purchases)  # Sum of purchase amounts only
+        total_paid = sum(p.get("amount_paid", 0) for p in purchases)
+        
+        # For total pending, get the current pending balance from suppliers
+        # If filtering by supplier, get that supplier's current dues
+        # Otherwise, sum up all suppliers' current dues
+        if supplier_id:
+            supplier = await self.db.suppliers.find_one({"id": supplier_id}, {"_id": 0})
+            total_pending = supplier.get("previous_dues", 0) if supplier else 0
+        else:
+            # Get sum of all suppliers' current dues
+            pipeline = [
+                {"$match": {"is_active": True}},
+                {"$group": {"_id": None, "total_pending": {"$sum": "$previous_dues"}}}
+            ]
+            result = await self.db.suppliers.aggregate(pipeline).to_list(1)
+            total_pending = result[0].get("total_pending", 0) if result else 0
         
         return {
             "purchases": [PurchaseResponse(**p).model_dump() for p in purchases],
             "total_records": count,
-            "total_amount": totals.get("total_amount", 0),
-            "total_paid": totals.get("total_paid", 0),
-            "total_pending": totals.get("total_pending", 0)
+            "total_amount": round(total_amount, 2),
+            "total_paid": round(total_paid, 2),
+            "total_pending": round(total_pending, 2)
         }
     
     async def get_purchase_by_id(self, purchase_id: str) -> PurchaseResponse:
