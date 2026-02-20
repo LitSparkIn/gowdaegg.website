@@ -568,12 +568,14 @@ class SaleService:
         # Get updated sale with details
         updated_sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
         
-        # Get salesman and route details
+        # Get salesman details
         salesman = await self.db.salesmen.find_one({"id": updated_sale["salesman_id"]}, {"_id": 0})
         salesman_name = salesman.get("name", "Unknown") if salesman else "Unknown"
+        
+        # Get route from shop (not salesman)
         route_name = ""
-        if salesman:
-            route = await self.db.routes.find_one({"id": salesman.get("route_id")}, {"_id": 0})
+        if shop and shop.get("route_id"):
+            route = await self.db.routes.find_one({"id": shop["route_id"]}, {"_id": 0})
             if route:
                 route_name = route.get("route_name", "")
         
