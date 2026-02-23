@@ -63,8 +63,9 @@ class SalesmanService:
         return None
     
     async def _build_response(self, salesman_data: dict) -> SalesmanResponse:
-        """Build SalesmanResponse with embedded route info"""
+        """Build SalesmanResponse with embedded route info and tray balance"""
         route_info = await self._get_route_info(salesman_data["route_id"])
+        tray_balance = await calculate_salesman_tray_balance(self.db, salesman_data["id"])
         return SalesmanResponse(
             id=salesman_data["id"],
             route_id=salesman_data["route_id"],
@@ -72,6 +73,7 @@ class SalesmanService:
             name=salesman_data["name"],
             phone=salesman_data["phone"],
             email=salesman_data["email"],
+            tray_balance=tray_balance,
             created_at=salesman_data["created_at"],
             updated_at=salesman_data["updated_at"]
         )
