@@ -115,7 +115,8 @@ class SaleService:
             image_url=image_url,
             sale_date=sale_date,
             sale_time=sale_time,
-            created_at=now.isoformat()
+            created_at=now.isoformat(),
+            report_submitted=False  # Flag to track if this sale is part of a submitted report
         )
         
         # Save the sale
