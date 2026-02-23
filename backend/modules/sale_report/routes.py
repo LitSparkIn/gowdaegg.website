@@ -7,7 +7,7 @@ from core.response import success_response
 from core.uploads import save_upload_file
 from auth.security import get_current_user
 from modules.sale_report.service import SaleReportService
-from modules.sale_report.schemas import SaleReportSubmitRequest, AdminSaleReportSubmitRequest, SaleReportUpdateRequest
+from modules.sale_report.schemas import SaleReportSubmitRequest, AdminSaleReportSubmitRequest, SaleReportUpdateRequest, SaleReportFullUpdateRequest
 
 router = APIRouter(prefix="/salesman/sale-report", tags=["Sale Report"])
 
