@@ -166,7 +166,7 @@ async def clear_todays_data(
     collections_to_clear = [
         {"name": "expenses", "date_field": "expense_date", "label": "Expenses"},
         {"name": "transportation_expenses", "date_field": "expense_date", "label": "Transportation Expenses"},
-        {"name": "salary_expenses", "date_field": "payment_date", "label": "Salary Expenses"},
+        {"name": "salary_expenses", "date_field": "expense_date", "label": "Salary Expenses"},
         {"name": "initial_loads", "date_field": "load_date", "label": "Initial Loading Report"},
         {"name": "sales", "date_field": "sale_date", "label": "Transaction Report"},
         {"name": "sale_reports", "date_field": "report_date", "label": "Daily Submitted Reports"},
