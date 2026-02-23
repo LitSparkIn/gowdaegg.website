@@ -125,10 +125,9 @@ async def get_home_data(
     todays_egg_rate = settings.get("todays_egg_rate", 0.0) if settings else 0.0
     
     if allow_multiple_reports:
-        # For multiple reports mode, check if there are any non-submitted records
-        # If no non-submitted records exist, they can start fresh
-        has_non_submitted = total_crates_loaded > 0 or total_crates_sold > 0
-        is_report_submitted = False  # In multiple reports mode, always allow new submissions
+        # For multiple reports mode, always allow new submissions
+        # The data shown is only non-submitted records, so it resets after each submission
+        is_report_submitted = False
     else:
         # For single report mode, check if any report exists for today
         sale_report = await db.sale_reports.find_one(
