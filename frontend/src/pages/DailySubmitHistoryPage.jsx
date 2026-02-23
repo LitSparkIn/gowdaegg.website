@@ -10,6 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { 
   Loader2, 
   CalendarDays, 
@@ -22,7 +28,10 @@ import {
   Search,
   FileSpreadsheet,
   FileText,
-  Printer
+  Printer,
+  CalendarIcon,
+  Filter,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
@@ -39,6 +48,10 @@ const DailySubmitHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSummary, setSelectedSummary] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  
+  // Date filter state
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -48,7 +61,21 @@ const DailySubmitHistoryPage = () => {
   const fetchSummaries = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/daily-summary/submitted`);
+      let url = `/daily-summary/submitted`;
+      const params = new URLSearchParams();
+      
+      if (fromDate) {
+        params.append("from_date", format(fromDate, "yyyy-MM-dd"));
+      }
+      if (toDate) {
+        params.append("to_date", format(toDate, "yyyy-MM-dd"));
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await api.get(url);
       setSummaries(response.data.data.summaries || []);
     } catch (error) {
       console.error("Error fetching summaries:", error);
@@ -60,7 +87,12 @@ const DailySubmitHistoryPage = () => {
 
   useEffect(() => {
     fetchSummaries();
-  }, []);
+  }, [fromDate, toDate]);
+  
+  const clearFilters = () => {
+    setFromDate(null);
+    setToDate(null);
+  };
 
   // Filter summaries based on search query
   const filteredSummaries = useMemo(() => {
@@ -343,6 +375,90 @@ const DailySubmitHistoryPage = () => {
           </Button>
         </div>
       </div>
+
+      {/* Filters */}
+      <Card className="border-border/50">
+        <CardContent className="pt-6">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter size={18} className="text-muted-foreground" />
+              <span className="text-sm font-medium">Filters:</span>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-3">
+              {/* From Date */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[160px] justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                    data-testid="from-date-btn"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "dd MMM yyyy") : "From Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={setFromDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* To Date */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[160px] justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                    data-testid="to-date-btn"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "dd MMM yyyy") : "To Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={setToDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Clear Filters */}
+              {(fromDate || toDate) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-muted-foreground hover:text-foreground"
+                  data-testid="clear-filters-btn"
+                >
+                  <X size={16} className="mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+
+            {/* Total count */}
+            <div className="lg:ml-auto flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
+              <span className="text-sm text-muted-foreground">Total Records:</span>
+              <span className="text-lg font-semibold text-blue-600">{summaries.length}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Search */}
       <div className="relative max-w-md">

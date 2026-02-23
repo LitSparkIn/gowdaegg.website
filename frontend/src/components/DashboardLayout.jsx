@@ -27,6 +27,8 @@ import {
   X,
   ChevronRight,
   History,
+  Car,
+  Banknote,
 } from "lucide-react";
 
 // Menu items with role restrictions
@@ -40,6 +42,8 @@ const allMenuItems = [
   { name: "Supplier", path: "/admin/supplier", icon: Truck },
   { name: "Purchase", path: "/admin/purchase", icon: ShoppingCart },
   { name: "Expense", path: "/admin/expense", icon: Receipt },
+  { name: "Transportation Expense", path: "/admin/transportation-expense", icon: Car, superadminOnly: true },
+  { name: "Salary Expense", path: "/admin/salary-expense", icon: Banknote, superadminOnly: true },
   { type: "divider", label: "Reports" },
   { name: "Initial Loading Report", path: "/admin/initial-loading-report", icon: FileText },
   { name: "Transaction Report", path: "/admin/transaction-report", icon: CreditCard },

@@ -395,7 +395,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${user?.role !== "admin" ? "lg:grid-cols-6" : "lg:grid-cols-4"}`}>
         <Button
           variant="outline"
           className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
@@ -414,15 +414,18 @@ const Dashboard = () => {
           <CreditCard size={22} className="text-primary" />
           <span className="font-medium text-xs sm:text-sm">Transactions</span>
         </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
-          onClick={() => navigate("/admin/daily-summary")}
-          data-testid="quick-link-daily-summary"
-        >
-          <CalendarDays size={22} className="text-primary" />
-          <span className="font-medium text-xs sm:text-sm">Daily Summary</span>
-        </Button>
+        {/* Hide Daily Summary for admin role */}
+        {user?.role !== "admin" && (
+          <Button
+            variant="outline"
+            className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+            onClick={() => navigate("/admin/daily-summary")}
+            data-testid="quick-link-daily-summary"
+          >
+            <CalendarDays size={22} className="text-primary" />
+            <span className="font-medium text-xs sm:text-sm">Daily Summary</span>
+          </Button>
+        )}
         <Button
           variant="outline"
           className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
@@ -441,15 +444,18 @@ const Dashboard = () => {
           <ShoppingCart size={22} className="text-primary" />
           <span className="font-medium text-xs sm:text-sm">Purchase</span>
         </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
-          onClick={() => navigate("/admin/expense")}
-          data-testid="quick-link-expense"
-        >
-          <Receipt size={22} className="text-primary" />
-          <span className="font-medium text-xs sm:text-sm">Expenses</span>
-        </Button>
+        {/* Hide Expense for admin role */}
+        {user?.role !== "admin" && (
+          <Button
+            variant="outline"
+            className="h-auto py-3 flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary"
+            onClick={() => navigate("/admin/expense")}
+            data-testid="quick-link-expense"
+          >
+            <Receipt size={22} className="text-primary" />
+            <span className="font-medium text-xs sm:text-sm">Expenses</span>
+          </Button>
+        )}
       </div>
 
       {/* Today's Key Metrics */}
