@@ -17,6 +17,30 @@ from modules.route.repository import RouteRepository
 from core.exceptions import NotFoundException, BadRequestException, ConflictException
 from core.timezone import get_ist_now
 
+
+async def calculate_salesman_tray_balance(db: AsyncIOMotorDatabase, salesman_id: str) -> int:
+    """
+    Calculate salesman's tray balance from all-time sale reports.
+    Formula: Total Crates Sold - Total Empty Trays Returned
+    Positive balance = salesman owes trays
+    Negative balance = salesman has returned more (credit)
+    """
+    pipeline = [
+        {"$match": {"salesman_id": salesman_id}},
+        {"$group": {
+            "_id": None,
+            "total_sold": {"$sum": "$crates_sold"},
+            "total_returned": {"$sum": "$return_tray"}
+        }}
+    ]
+    result = await db.sale_reports.aggregate(pipeline).to_list(1)
+    if result:
+        total_sold = result[0].get("total_sold", 0)
+        total_returned = result[0].get("total_returned", 0)
+        return total_sold - total_returned
+    return 0
+
+
 class SalesmanService:
     """
     Service layer for Salesman business logic.
