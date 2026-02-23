@@ -147,13 +147,17 @@ async def get_home_data(
         "is_report_submitted": is_report_submitted
     }
     
+    # Calculate salesman's tray balance (all-time: crates_sold - return_tray)
+    salesman_tray_balance = await calculate_salesman_tray_balance(db, salesman_id)
+    
     return success_response(
         data={
             "profile": profile,
             "routes": route_list,
             "report": report,
             "todays_egg_rate": todays_egg_rate,
-            "allow_multiple_reports": allow_multiple_reports
+            "allow_multiple_reports": allow_multiple_reports,
+            "salesman_tray_balance": salesman_tray_balance
         },
         message="Data generated"
     )
