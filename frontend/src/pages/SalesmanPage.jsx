@@ -291,6 +291,7 @@ const SalesmanPage = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Route</TableHead>
+                    <TableHead className="text-right">Tray Balance</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
