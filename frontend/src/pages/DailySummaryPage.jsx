@@ -271,6 +271,7 @@ const DailySummaryPage = () => {
       body: [
         ["Salesman Expenses", formatCurrency(summary.expenses.salesman_expenses)],
         ["Other Expenses", formatCurrency(summary.expenses.other_expenses)],
+        ["Transportation Expenses", formatCurrency(summary.expenses.transportation_expenses || 0)],
         ["Damage Loss", formatCurrency(summary.expenses.damage_loss || 0)],
         ["Total Expenses", formatCurrency(summary.expenses.total_expenses)],
         ["---", "---"],
