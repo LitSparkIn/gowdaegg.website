@@ -30,6 +30,9 @@ class SaleModel(BaseModel):
     sale_date: str  # Date of sale (YYYY-MM-DD)
     sale_time: str  # Time of sale (HH:MM:SS)
     created_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
+    # Report submission tracking
+    report_submitted: bool = False  # True if this sale is part of a submitted report
+    sale_report_id: Optional[str] = None  # ID of the report this sale was included in
     
     class Config:
         populate_by_name = True
