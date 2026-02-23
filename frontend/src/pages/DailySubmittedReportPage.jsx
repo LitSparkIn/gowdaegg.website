@@ -573,7 +573,7 @@ const DailySubmittedReportPage = () => {
                           >
                             <Pencil size={16} />
                           </Button>
-                          {isSuperAdmin && (
+                          {isSuperadmin && (
                             <Button
                               variant="ghost"
                               size="icon"
