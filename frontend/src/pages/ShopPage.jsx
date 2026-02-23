@@ -48,6 +48,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { isReadOnly } = useUserRole();
   const [shops, setShops] = useState([]);
   const [inactiveShops, setInactiveShops] = useState([]);
