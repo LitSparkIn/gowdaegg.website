@@ -202,6 +202,68 @@ async def update_sale_report(
         message="Sale report updated successfully"
     )
 
+
+def verify_superadmin(current_user: dict = Depends(get_current_user)) -> dict:
+    """Verify that the current user is a superadmin"""
+    if current_user.get("role") != "superadmin":
+        raise HTTPException(status_code=403, detail="Access denied. Superadmin only.")
+    return current_user
+
+
+@admin_router.put("/{report_id}/full")
+async def full_update_sale_report(
+    report_id: str,
+    request: SaleReportFullUpdateRequest,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_superadmin)
+):
+    """
+    Superadmin can fully update all fields of a sale report.
+    Recalculates remaining_crates and remaining_cash based on new values.
+    """
+    from core.timezone import get_ist_now
+    
+    # Get existing report
+    report = await db.sale_reports.find_one({"id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Sale report not found")
+    
+    # Calculate derived values
+    remaining_crates = request.initial_crates - request.crates_sold - request.crates_damaged
+    remaining_cash = request.cash_collected - request.expense
+    
+    # Update the report with all fields
+    update_data = {
+        "initial_crates": request.initial_crates,
+        "crates_sold": request.crates_sold,
+        "crates_damaged": request.crates_damaged,
+        "remaining_crates": remaining_crates,
+        "cash_collected": request.cash_collected,
+        "expense": request.expense,
+        "remaining_cash": remaining_cash,
+        "net_cash": remaining_cash,
+        "cheque": request.cheque,
+        "online": request.online,
+        "return_tray": request.return_tray,
+        "empty_crates_returned": request.return_tray,
+        "comments": request.comments,
+        "updated_at": get_ist_now().isoformat(),
+        "updated_by_superadmin": True
+    }
+    
+    await db.sale_reports.update_one(
+        {"id": report_id},
+        {"$set": update_data}
+    )
+    
+    # Get updated report
+    updated_report = await db.sale_reports.find_one({"id": report_id}, {"_id": 0})
+    
+    return success_response(
+        data=updated_report,
+        message="Sale report fully updated by superadmin"
+    )
+
 @admin_router.post("/submit-for-salesman/{salesman_id}")
 async def admin_submit_sale_report(
     salesman_id: str,
