@@ -17,18 +17,31 @@ class InitialLoadRepository:
         await self.collection.insert_one(load_dict)
         return initial_load
     
-    async def get_by_salesman_today(self, salesman_id: str, today_date: str) -> list[dict]:
+    async def get_by_salesman_today(self, salesman_id: str, today_date: str, only_non_submitted: bool = False) -> list[dict]:
         """Get all initial loads for a salesman for today only"""
-        cursor = self.collection.find(
-            {"salesman_id": salesman_id, "load_date": today_date}, 
-            {"_id": 0}
-        ).sort("created_at", -1)
+        query = {"salesman_id": salesman_id, "load_date": today_date}
+        
+        if only_non_submitted:
+            query["$or"] = [
+                {"report_submitted": False},
+                {"report_submitted": {"$exists": False}}
+            ]
+        
+        cursor = self.collection.find(query, {"_id": 0}).sort("created_at", -1)
         return await cursor.to_list(1000)
     
-    async def get_total_crates_today(self, salesman_id: str, today_date: str) -> int:
+    async def get_total_crates_today(self, salesman_id: str, today_date: str, only_non_submitted: bool = False) -> int:
         """Get total crates loaded today for a salesman"""
+        match_query = {"salesman_id": salesman_id, "load_date": today_date}
+        
+        if only_non_submitted:
+            match_query["$or"] = [
+                {"report_submitted": False},
+                {"report_submitted": {"$exists": False}}
+            ]
+        
         pipeline = [
-            {"$match": {"salesman_id": salesman_id, "load_date": today_date}},
+            {"$match": match_query},
             {"$group": {"_id": None, "total": {"$sum": "$initial_crates"}}}
         ]
         result = await self.collection.aggregate(pipeline).to_list(1)
