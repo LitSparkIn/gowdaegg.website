@@ -1037,6 +1037,49 @@ const Dashboard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Clear Today's Data Confirmation Dialog */}
+      <AlertDialog open={showClearTodayDialog} onOpenChange={setShowClearTodayDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle size={20} />
+              Clear Today's Data
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
+              This will permanently delete <strong>TODAY'S</strong> data only from the following:
+              <ul className="mt-3 space-y-1 text-sm">
+                <li>• Expenses</li>
+                <li>• Transportation Expenses</li>
+                <li>• Salary Expenses</li>
+                <li>• Initial Loading Report</li>
+                <li>• Transaction Report (Sales)</li>
+                <li>• Daily Submitted Reports</li>
+                <li>• Salary Setup</li>
+              </ul>
+              <p className="mt-3 font-medium text-red-600">This action cannot be undone!</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={clearingToday}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearTodaysData}
+              disabled={clearingToday}
+              className="bg-red-600 hover:bg-red-700"
+              data-testid="confirm-clear-today-btn"
+            >
+              {clearingToday ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Clearing...
+                </>
+              ) : (
+                "Clear Today's Data"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
