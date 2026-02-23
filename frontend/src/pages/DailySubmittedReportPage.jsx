@@ -820,6 +820,178 @@ const DailySubmittedReportPage = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Full Edit Dialog (Superadmin only) */}
+      <Dialog open={isFullEditDialogOpen} onOpenChange={setIsFullEditDialogOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit3 size={20} className="text-orange-500" />
+              Full Edit - All Fields
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFullEditSubmit}>
+            <div className="space-y-4 py-4">
+              {editingReport && (
+                <div className="text-sm space-y-1 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <p className="font-medium text-orange-800">⚠️ Superadmin Full Edit Mode</p>
+                  <p className="text-orange-700"><strong>Salesman:</strong> {editingReport.salesman_name}</p>
+                  <p className="text-orange-700"><strong>Date:</strong> {formatDate(editingReport.report_date)}</p>
+                  <p className="text-xs text-orange-600 mt-2">You can edit all fields. Changes will be marked as edited by superadmin.</p>
+                </div>
+              )}
+              
+              {/* Crates Section */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3 text-sm">Crates Information</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="full-initial">Initial Crates</Label>
+                    <Input
+                      id="full-initial"
+                      type="number"
+                      min="0"
+                      value={fullEditForm.initial_crates}
+                      onChange={(e) => handleFullEditFormChange("initial_crates", e.target.value)}
+                      data-testid="full-edit-initial-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full-sold">Crates Sold</Label>
+                    <Input
+                      id="full-sold"
+                      type="number"
+                      min="0"
+                      value={fullEditForm.crates_sold}
+                      onChange={(e) => handleFullEditFormChange("crates_sold", e.target.value)}
+                      data-testid="full-edit-sold-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full-damaged">Damaged Crates</Label>
+                    <Input
+                      id="full-damaged"
+                      type="number"
+                      min="0"
+                      value={fullEditForm.crates_damaged}
+                      onChange={(e) => handleFullEditFormChange("crates_damaged", e.target.value)}
+                      data-testid="full-edit-damaged-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Section */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3 text-sm">Payment Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="full-cash">Cash Collected (₹)</Label>
+                    <Input
+                      id="full-cash"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={fullEditForm.cash_collected}
+                      onChange={(e) => handleFullEditFormChange("cash_collected", e.target.value)}
+                      data-testid="full-edit-cash-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full-expense">Expense (₹)</Label>
+                    <Input
+                      id="full-expense"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={fullEditForm.expense}
+                      onChange={(e) => handleFullEditFormChange("expense", e.target.value)}
+                      data-testid="full-edit-expense-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full-cheque">Cheque (₹)</Label>
+                    <Input
+                      id="full-cheque"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={fullEditForm.cheque}
+                      onChange={(e) => handleFullEditFormChange("cheque", e.target.value)}
+                      data-testid="full-edit-cheque-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full-online">Online (₹)</Label>
+                    <Input
+                      id="full-online"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={fullEditForm.online}
+                      onChange={(e) => handleFullEditFormChange("online", e.target.value)}
+                      data-testid="full-edit-online-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Other Section */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium mb-3 text-sm">Other Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="full-return-tray">Return Trays</Label>
+                    <Input
+                      id="full-return-tray"
+                      type="number"
+                      min="0"
+                      value={fullEditForm.return_tray}
+                      onChange={(e) => handleFullEditFormChange("return_tray", e.target.value)}
+                      data-testid="full-edit-return-tray-input"
+                    />
+                  </div>
+                  <div></div>
+                </div>
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="full-comments">Comments</Label>
+                  <Textarea
+                    id="full-comments"
+                    placeholder="Add comments..."
+                    value={fullEditForm.comments}
+                    onChange={(e) => handleFullEditFormChange("comments", e.target.value)}
+                    data-testid="full-edit-comments-input"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Preview calculated values */}
+              <div className="p-4 bg-green-50 rounded-lg text-sm space-y-2 border border-green-200">
+                <p className="font-medium text-green-800">Calculated Values (Auto-updated):</p>
+                <div className="grid grid-cols-2 gap-4 text-green-700">
+                  <div className="flex justify-between">
+                    <span>Remaining Crates:</span>
+                    <span className="font-semibold">{getFullEditPreview().remaining_crates}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Net Cash:</span>
+                    <span className="font-semibold">₹{getFullEditPreview().net_cash.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsFullEditDialogOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting} className="bg-orange-500 hover:bg-orange-600">
+                {submitting ? <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</> : "Save All Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
