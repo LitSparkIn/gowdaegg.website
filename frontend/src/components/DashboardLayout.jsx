@@ -29,6 +29,7 @@ import {
   History,
   Car,
   Banknote,
+  UserCheck,
 } from "lucide-react";
 
 // Menu items with role restrictions
