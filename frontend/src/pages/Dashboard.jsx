@@ -237,6 +237,33 @@ const Dashboard = () => {
     }
   };
 
+  const handleClearTodaysData = async () => {
+    try {
+      setClearingToday(true);
+      const response = await api.post("/admin/clear-todays-data");
+      const result = response.data.data;
+      
+      // Show detailed result
+      const clearedItems = result.cleared.filter(item => item.deleted_count > 0);
+      if (clearedItems.length > 0) {
+        const details = clearedItems.map(item => `${item.collection}: ${item.deleted_count}`).join(", ");
+        toast.success(`Cleared ${result.total_deleted} records for ${result.date}`, {
+          description: details
+        });
+      } else {
+        toast.info(`No records found for today (${result.date})`);
+      }
+      
+      setShowClearTodayDialog(false);
+      fetchDashboardData(true);
+    } catch (error) {
+      console.error("Error clearing today's data:", error);
+      toast.error(error.response?.data?.detail || "Failed to clear today's data");
+    } finally {
+      setClearingToday(false);
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
