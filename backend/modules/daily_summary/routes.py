@@ -344,6 +344,7 @@ async def get_daily_summary(
                 "salesman_expenses": round(salesman_expenses, 2),
                 "other_expenses": round(other_expenses, 2),
                 "transportation_expenses": round(transportation_expenses, 2),
+                "salary_expenses": round(salary_expenses, 2),
                 "damage_loss": round(damage_loss, 2),
                 "total_expenses": round(total_expenses, 2),
                 "total_sale": round(sale_value, 2),
