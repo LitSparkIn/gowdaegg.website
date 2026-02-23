@@ -335,6 +335,21 @@ const Dashboard = () => {
               )}
               Export Data
             </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowClearTodayDialog(true)}
+              disabled={clearingToday}
+              className="bg-red-500/20 hover:bg-red-500/30 text-white border-0"
+              data-testid="clear-today-btn"
+            >
+              {clearingToday ? (
+                <Loader2 size={16} className="mr-2 animate-spin" />
+              ) : (
+                <Trash2 size={16} className="mr-2" />
+              )}
+              Clear Today's Data
+            </Button>
             {/* Clear Data button hidden - functionality preserved in backend
             <Button
               variant="secondary"
