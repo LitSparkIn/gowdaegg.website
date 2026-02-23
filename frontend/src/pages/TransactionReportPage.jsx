@@ -73,6 +73,10 @@ const TransactionReportPage = () => {
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   
+  // Cascade preview state
+  const [cascadePreview, setCascadePreview] = useState(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  
   // Filters - default to today only
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
