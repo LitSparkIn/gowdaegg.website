@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X, RotateCcw } from "lucide-react";
+import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X, RotateCcw, Eye } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
