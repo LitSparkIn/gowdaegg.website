@@ -221,3 +221,8 @@ February 2026 - Admin User Management & Role-Based Access Control
 - ✅ **Admin Quick Links Update**: Hidden Daily Summary and Expense quick links on Dashboard for admin role  
 - ✅ **New Menu Items**: Added Transportation Expense and Salary Expense placeholder menu items for superadmin (Coming Soon pages)
 - ✅ **Backend API Update**: `/api/daily-summary/submitted` now supports optional `from_date` and `to_date` query parameters
+- ✅ **Transaction Edit Cascade Feature**: When editing a transaction that isn't the last one for a shop:
+  - Added "Preview Impact on Future Transactions" button in edit dialog
+  - Shows all subsequent transactions that will be affected with before/after values
+  - Automatically cascades updates to all affected transactions' `shop_previous_dues`, `total_amount`, `pending_amount`, and tray balances
+  - New API endpoints: `GET /api/sales/{sale_id}/cascade-preview` and updated `PUT /api/sales/{sale_id}` with cascade logic
