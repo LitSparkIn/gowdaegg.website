@@ -30,6 +30,19 @@ class SaleReportUpdateRequest(BaseModel):
     empty_crates_returned: int = Field(..., ge=0, description="Empty Crates Returned")
     comments: str = Field(default="", description="Comments")
 
+
+class SaleReportFullUpdateRequest(BaseModel):
+    """Schema for superadmin to fully update a sale report"""
+    initial_crates: int = Field(..., ge=0, description="Total Initial Load")
+    crates_sold: int = Field(..., ge=0, description="Total Sold")
+    crates_damaged: int = Field(..., ge=0, description="Damaged Crates")
+    cash_collected: float = Field(..., ge=0, description="Cash Collected")
+    expense: float = Field(..., ge=0, description="Expense")
+    cheque: float = Field(default=0, ge=0, description="Cheque Amount")
+    online: float = Field(default=0, ge=0, description="Online Amount")
+    return_tray: int = Field(default=0, ge=0, description="Return Trays")
+    comments: str = Field(default="", description="Comments")
+
 # ============ Response Schemas ============
 
 class SaleReportResponse(BaseModel):
