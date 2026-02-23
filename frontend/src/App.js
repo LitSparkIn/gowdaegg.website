@@ -59,6 +59,8 @@ function App() {
             <Route path="supplier" element={<SupplierPage />} />
             <Route path="purchase" element={<PurchasePage />} />
             <Route path="expense" element={<ExpensePage />} />
+            <Route path="transportation-expense" element={<ComingSoon title="Transportation Expense" />} />
+            <Route path="salary-expense" element={<ComingSoon title="Salary Expense" />} />
             <Route path="initial-loading-report" element={<InitialLoadingReportPage />} />
             <Route path="route-previous-dues-report" element={<ComingSoon title="Route Previous Dues Report" />} />
             <Route path="transaction-report" element={<TransactionReportPage />} />
