@@ -232,3 +232,11 @@ February 2026 - Admin User Management & Role-Based Access Control
   - Auto-calculates remaining_crates and net_cash
   - New API endpoint: `PUT /api/sale-reports/{report_id}/full`
 - ✅ **Allow Multiple Reports Setting in Home API**: `/api/salesman/home` now returns `allow_multiple_reports` setting from Config
+- ✅ **Transportation Expenses Feature (Full Implementation)**:
+  - New page at `/admin/transportation-expense` with full CRUD functionality
+  - Fields: Salesman, Amount Given to Driver, Diesel, Driver Bata, Toll/Overload, Loading Charges, Other Expenses
+  - Auto-calculated: Total Expense, Balance Given Back
+  - Saves with today's date automatically
+  - Integrated into Daily Summary - shows as "Transportation Expenses" in Expenses section
+  - Included in profit/loss calculation
+  - New API endpoints: `GET, POST, PUT, DELETE /api/transportation-expenses`
