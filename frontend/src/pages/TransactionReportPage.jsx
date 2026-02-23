@@ -543,11 +543,37 @@ const TransactionReportPage = () => {
       image: null
     });
     setEditImagePreview(sale.image_url || null);
+    setCascadePreview(null);
     setIsEditDialogOpen(true);
   };
 
   const handleEditFormChange = (field, value) => {
     setEditForm(prev => ({ ...prev, [field]: value }));
+    // Clear cascade preview when form changes
+    setCascadePreview(null);
+  };
+
+  // Fetch cascade preview
+  const fetchCascadePreview = async () => {
+    if (!editingSale) return;
+    
+    setLoadingPreview(true);
+    try {
+      const params = new URLSearchParams({
+        crates: editForm.crates || "0",
+        price: editForm.price || "0",
+        collected_amount: editForm.collected_amount || "0",
+        return_tray: editForm.return_tray || "0"
+      });
+      
+      const response = await api.get(`/sales/${editingSale.id}/cascade-preview?${params.toString()}`);
+      setCascadePreview(response.data.data);
+    } catch (error) {
+      console.error("Error fetching cascade preview:", error);
+      toast.error("Failed to load cascade preview");
+    } finally {
+      setLoadingPreview(false);
+    }
   };
 
   const handleEditImageChange = (e) => {
