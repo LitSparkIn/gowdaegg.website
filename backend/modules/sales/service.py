@@ -39,18 +39,32 @@ class SaleService:
         return report is not None
     
     async def _get_salesman_remaining_crates(self, salesman_id: str, today_date: str) -> int:
-        """Get the remaining crates for a salesman for today"""
-        # Get total crates loaded today
+        """Get the remaining crates for a salesman for today (only non-submitted records)"""
+        # Get total crates loaded today (only non-submitted)
         load_pipeline = [
-            {"$match": {"salesman_id": salesman_id, "load_date": today_date}},
+            {"$match": {
+                "salesman_id": salesman_id, 
+                "load_date": today_date,
+                "$or": [
+                    {"report_submitted": False},
+                    {"report_submitted": {"$exists": False}}
+                ]
+            }},
             {"$group": {"_id": None, "total": {"$sum": "$initial_crates"}}}
         ]
         load_result = await self.db.initial_loads.aggregate(load_pipeline).to_list(1)
         total_loaded = load_result[0]["total"] if load_result else 0
         
-        # Get total crates sold today
+        # Get total crates sold today (only non-submitted)
         sale_pipeline = [
-            {"$match": {"salesman_id": salesman_id, "sale_date": today_date}},
+            {"$match": {
+                "salesman_id": salesman_id, 
+                "sale_date": today_date,
+                "$or": [
+                    {"report_submitted": False},
+                    {"report_submitted": {"$exists": False}}
+                ]
+            }},
             {"$group": {"_id": None, "total": {"$sum": "$crates"}}}
         ]
         sale_result = await self.db.sales.aggregate(sale_pipeline).to_list(1)
