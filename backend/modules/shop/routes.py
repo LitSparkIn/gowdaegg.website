@@ -77,3 +77,69 @@ async def activate_shop(
     """Activate an inactive shop"""
     await service.activate_shop(shop_id)
     return MessageResponse(message="Shop activated successfully")
+
+
+@router.get("/{shop_id}/transactions")
+async def get_shop_transactions(
+    shop_id: str,
+    from_date: str = Query(None, description="Filter from date (YYYY-MM-DD)"),
+    to_date: str = Query(None, description="Filter to date (YYYY-MM-DD)"),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all transactions for a specific shop"""
+    from core.response import success_response
+    
+    # Check shop exists
+    shop = await db.shops.find_one({"id": shop_id}, {"_id": 0})
+    if not shop:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Shop not found")
+    
+    # Get route info
+    route = await db.routes.find_one({"id": shop.get("route_id")}, {"_id": 0, "route_name": 1})
+    shop["route_name"] = route.get("route_name", "N/A") if route else "N/A"
+    
+    # Build query for transactions
+    query = {"shop_id": shop_id}
+    if from_date:
+        query["sale_date"] = {"$gte": from_date}
+    if to_date:
+        if "sale_date" in query:
+            query["sale_date"]["$lte"] = to_date
+        else:
+            query["sale_date"] = {"$lte": to_date}
+    
+    # Get transactions sorted by date desc
+    transactions_cursor = db.sales.find(query, {"_id": 0}).sort([("sale_date", -1), ("sale_time", -1)])
+    transactions = await transactions_cursor.to_list(10000)
+    
+    # Get salesman names for each transaction
+    salesman_ids = list(set(t.get("salesman_id") for t in transactions if t.get("salesman_id")))
+    salesmen = {}
+    if salesman_ids:
+        salesmen_cursor = db.salesmen.find({"id": {"$in": salesman_ids}}, {"_id": 0, "id": 1, "name": 1})
+        async for s in salesmen_cursor:
+            salesmen[s["id"]] = s["name"]
+    
+    # Add salesman name to each transaction
+    for t in transactions:
+        t["salesman_name"] = salesmen.get(t.get("salesman_id"), "Unknown")
+    
+    # Calculate totals
+    totals = {
+        "total_transactions": len(transactions),
+        "total_crates": sum(t.get("crates", 0) for t in transactions),
+        "total_order_amount": sum(t.get("order_amount", 0) for t in transactions),
+        "total_collected": sum(t.get("collected_amount", 0) for t in transactions),
+        "total_pending": sum(t.get("pending_amount", 0) for t in transactions)
+    }
+    
+    return success_response(
+        data={
+            "shop": shop,
+            "transactions": transactions,
+            "totals": totals
+        },
+        message="Shop transactions fetched successfully"
+    )
