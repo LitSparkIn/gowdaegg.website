@@ -249,6 +249,7 @@ async def update_sale(
     Update a sale transaction.
     Only crates, price, collected_amount, payment_type, return_tray and image can be updated.
     Order amount, total, and pending are auto-calculated.
+    This also cascades updates to all subsequent transactions for the same shop.
     """
     try:
         # Save image if provided
@@ -267,12 +268,44 @@ async def update_sale(
             return_tray=return_tray
         )
         
-        result = await service.update_sale(sale_id, request, image_url)
+        result = await service.update_sale_with_cascade(sale_id, request, image_url)
         
         return success_response(
-            data=result.model_dump(),
-            message="Sale updated successfully"
+            data=result,
+            message="Sale updated successfully with cascading updates"
         )
     except Exception as e:
         logger.error(f"Error updating sale: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error updating sale: {str(e)}")
+
+
+@admin_router.get("/{sale_id}/cascade-preview")
+async def get_cascade_preview(
+    sale_id: str,
+    crates: int = Query(...),
+    price: float = Query(...),
+    collected_amount: float = Query(...),
+    return_tray: int = Query(0),
+    service: SaleService = Depends(get_service),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Get a preview of how editing this transaction would affect subsequent transactions for the same shop.
+    Returns the list of transactions that would be affected and their new values.
+    """
+    try:
+        preview = await service.get_cascade_preview(
+            sale_id=sale_id,
+            new_crates=crates,
+            new_price=price,
+            new_collected=collected_amount,
+            new_return_tray=return_tray
+        )
+        
+        return success_response(
+            data=preview,
+            message="Cascade preview generated"
+        )
+    except Exception as e:
+        logger.error(f"Error generating cascade preview: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error generating preview: {str(e)}")
