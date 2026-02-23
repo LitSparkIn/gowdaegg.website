@@ -355,6 +355,7 @@ const DailySummaryPage = () => {
             <table>
               <tr><td>Salesman Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.salesman_expenses)}</td></tr>
               <tr><td>Other Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.other_expenses)}</td></tr>
+              <tr><td>Transportation Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.transportation_expenses || 0)}</td></tr>
               <tr><td>Damage Loss</td><td class="text-right loss">${formatCurrency(summary.expenses.damage_loss || 0)}</td></tr>
               <tr class="highlight"><td>Total Expenses</td><td class="text-right loss">${formatCurrency(summary.expenses.total_expenses)}</td></tr>
               <tr class="separator"><td colspan="2"></td></tr>
