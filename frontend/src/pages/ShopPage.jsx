@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
