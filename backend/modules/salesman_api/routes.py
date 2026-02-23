@@ -28,6 +28,7 @@ async def get_home_data(
     Get home screen data for salesman app.
     Returns salesman profile, all routes and today's report summary for the logged-in salesman.
     All dates follow IST (Indian Standard Time).
+    Only includes data from non-submitted records (report_submitted = false or null).
     """
     today_date = get_ist_date()
     salesman_id = current_user.get("sub")
@@ -66,17 +67,33 @@ async def get_home_data(
             "updated_at": r.get("created_at")
         })
     
-    # Get today's total crates loaded for THIS salesman only
+    # Get today's total crates loaded for THIS salesman only (only non-submitted)
+    # Handle both report_submitted=false and missing field (null) for backward compatibility
     initial_loads_pipeline = [
-        {"$match": {"salesman_id": salesman_id, "load_date": today_date}},
+        {"$match": {
+            "salesman_id": salesman_id, 
+            "load_date": today_date,
+            "$or": [
+                {"report_submitted": False},
+                {"report_submitted": {"$exists": False}}
+            ]
+        }},
         {"$group": {"_id": None, "total": {"$sum": "$initial_crates"}}}
     ]
     initial_load_result = await db.initial_loads.aggregate(initial_loads_pipeline).to_list(1)
     total_crates_loaded = initial_load_result[0]["total"] if initial_load_result else 0
     
-    # Get today's sales totals for THIS salesman only
+    # Get today's sales totals for THIS salesman only (only non-submitted)
+    # Handle both report_submitted=false and missing field (null) for backward compatibility
     sales_pipeline = [
-        {"$match": {"salesman_id": salesman_id, "sale_date": today_date}},
+        {"$match": {
+            "salesman_id": salesman_id, 
+            "sale_date": today_date,
+            "$or": [
+                {"report_submitted": False},
+                {"report_submitted": {"$exists": False}}
+            ]
+        }},
         {"$group": {
             "_id": None,
             "total_crates_sold": {"$sum": "$crates"},
@@ -100,12 +117,25 @@ async def get_home_data(
     
     remaining_crates = total_crates_loaded - total_crates_sold
     
-    # Check if today's report is already submitted
-    sale_report = await db.sale_reports.find_one(
-        {"salesman_id": salesman_id, "report_date": today_date},
-        {"_id": 0, "id": 1}
-    )
-    is_report_submitted = sale_report is not None
+    # Check if there are any non-submitted records for today
+    # If allow_multiple_reports is true and there are no non-submitted records, 
+    # is_report_submitted is false (ready for new report)
+    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0, "todays_egg_rate": 1, "allow_multiple_reports": 1})
+    allow_multiple_reports = settings.get("allow_multiple_reports", False) if settings else False
+    todays_egg_rate = settings.get("todays_egg_rate", 0.0) if settings else 0.0
+    
+    if allow_multiple_reports:
+        # For multiple reports mode, check if there are any non-submitted records
+        # If no non-submitted records exist, they can start fresh
+        has_non_submitted = total_crates_loaded > 0 or total_crates_sold > 0
+        is_report_submitted = False  # In multiple reports mode, always allow new submissions
+    else:
+        # For single report mode, check if any report exists for today
+        sale_report = await db.sale_reports.find_one(
+            {"salesman_id": salesman_id, "report_date": today_date},
+            {"_id": 0, "id": 1}
+        )
+        is_report_submitted = sale_report is not None
     
     report = {
         "totalcratesloaded": total_crates_loaded,
@@ -116,11 +146,6 @@ async def get_home_data(
         "totalactransfer": total_actransfer,
         "is_report_submitted": is_report_submitted
     }
-    
-    # Get today's egg rate from settings
-    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0, "todays_egg_rate": 1, "allow_multiple_reports": 1})
-    todays_egg_rate = settings.get("todays_egg_rate", 0.0) if settings else 0.0
-    allow_multiple_reports = settings.get("allow_multiple_reports", False) if settings else False
     
     return success_response(
         data={
