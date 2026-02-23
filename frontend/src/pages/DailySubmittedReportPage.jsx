@@ -569,15 +569,29 @@ const DailySubmittedReportPage = () => {
                             onClick={() => handleEditClick(report)}
                             data-testid={`edit-report-${index}`}
                             className="hover:bg-blue-100 hover:text-blue-600"
+                            title="Quick Edit"
                           >
                             <Pencil size={16} />
                           </Button>
+                          {isSuperAdmin && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleFullEditClick(report)}
+                              data-testid={`full-edit-report-${index}`}
+                              className="hover:bg-orange-100 hover:text-orange-600"
+                              title="Full Edit (All Fields)"
+                            >
+                              <Edit3 size={16} />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleViewDetails(report)}
                             data-testid={`view-report-${index}`}
                             className="hover:bg-primary/10 hover:text-primary"
+                            title="View Details"
                           >
                             <Eye size={16} />
                           </Button>
