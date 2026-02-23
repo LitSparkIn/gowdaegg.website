@@ -77,6 +77,10 @@ const Dashboard = () => {
   const [clearing, setClearing] = useState(false);
   const [collectionCounts, setCollectionCounts] = useState({});
   
+  // Clear Today's Data state
+  const [showClearTodayDialog, setShowClearTodayDialog] = useState(false);
+  const [clearingToday, setClearingToday] = useState(false);
+  
   // Egg Rate state
   const [eggRate, setEggRate] = useState("");
   const [updatingRate, setUpdatingRate] = useState(false);
