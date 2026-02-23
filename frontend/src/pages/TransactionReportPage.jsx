@@ -183,14 +183,20 @@ const TransactionReportPage = () => {
 
   // Filter sales based on search query (client-side, within current page)
   const filteredSales = useMemo(() => {
-    if (!searchQuery.trim()) return sales;
+    if (!searchQuery || !searchQuery.trim()) return sales;
     const query = searchQuery.toLowerCase().trim();
-    return sales.filter(sale => 
-      sale.shop_name?.toLowerCase().includes(query) ||
-      sale.salesman_name?.toLowerCase().includes(query) ||
-      sale.route_name?.toLowerCase().includes(query) ||
-      sale.shop_phone?.includes(query)
-    );
+    return sales.filter(sale => {
+      const shopName = (sale.shop_name || "").toLowerCase();
+      const salesmanName = (sale.salesman_name || "").toLowerCase();
+      const routeName = (sale.route_name || "").toLowerCase();
+      const shopPhone = (sale.shop_phone || "");
+      return (
+        shopName.includes(query) ||
+        salesmanName.includes(query) ||
+        routeName.includes(query) ||
+        shopPhone.includes(query)
+      );
+    });
   }, [sales, searchQuery]);
 
   const clearFilters = () => {
