@@ -214,3 +214,10 @@ February 2026 - Admin User Management & Role-Based Access Control
   - `limit` (default: 50, max: 200) - Records per page
   - Returns additional fields: `page`, `limit`, `total_pages`
 
+
+
+### December 2025 (Latest Session)
+- ✅ **Date Filter for Daily Summary History**: Added From/To date picker filter to Daily Summary History page
+- ✅ **Admin Quick Links Update**: Hidden Daily Summary and Expense quick links on Dashboard for admin role  
+- ✅ **New Menu Items**: Added Transportation Expense and Salary Expense placeholder menu items for superadmin (Coming Soon pages)
+- ✅ **Backend API Update**: `/api/daily-summary/submitted` now supports optional `from_date` and `to_date` query parameters
