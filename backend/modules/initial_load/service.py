@@ -47,7 +47,8 @@ class InitialLoadService:
             salesman_id=salesman_id,
             initial_crates=request.initial_crates,
             load_date=load_date,
-            created_at=now.isoformat()
+            created_at=now.isoformat(),
+            report_submitted=False  # Flag to track if this load is part of a submitted report
         )
         
         await self.repository.create(initial_load)
