@@ -47,6 +47,7 @@ class SalesmanService:
     """
     
     def __init__(self, db: AsyncIOMotorDatabase):
+        self.db = db
         self.repository = SalesmanRepository(db)
         self.route_repository = RouteRepository(db)
     
