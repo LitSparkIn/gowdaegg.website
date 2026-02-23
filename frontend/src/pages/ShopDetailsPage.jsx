@@ -57,7 +57,7 @@ const ShopDetailsPage = () => {
       if (toDate) params.append("to_date", format(toDate, "yyyy-MM-dd"));
 
       const response = await api.get(`/shops/${shopId}/transactions?${params.toString()}`);
-      const data = response.data;
+      const data = response.data.data || {};
       setShop(data.shop);
       setTransactions(data.transactions || []);
       setTotals(data.totals || {});
