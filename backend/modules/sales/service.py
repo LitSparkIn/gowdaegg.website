@@ -312,16 +312,35 @@ class SaleService:
         """
         Get sale report for a salesman for a specific date.
         Returns: Total Initial Load, Total Sold, Remaining Crates, Return Trays,
-                 Total Cash, Cheque, Online, Bill, and whether report is submitted
+                 Total Cash, Cheque, Online, Bill, and whether report is submitted.
+        For today's date with allow_multiple_reports, only non-submitted records are included.
         """
         target_date = report_date or self._get_today_date()
+        today_date = self._get_today_date()
+        
+        # Check if multiple reports are allowed
+        settings = await self.db.settings.find_one({"id": "global_settings"}, {"_id": 0, "allow_multiple_reports": 1})
+        allow_multiple_reports = settings.get("allow_multiple_reports", False) if settings else False
         
         # Check if sale report already submitted for the target date
         is_report_submitted = await self._check_sale_report_submitted(salesman_id, target_date)
         
+        # For today with allow_multiple_reports, only count non-submitted records
+        # For historical dates, count all records
+        filter_non_submitted = allow_multiple_reports and target_date == today_date
+        
+        # Build the match query
+        load_match = {"salesman_id": salesman_id, "load_date": target_date}
+        sales_match = {"salesman_id": salesman_id, "sale_date": target_date}
+        
+        if filter_non_submitted:
+            non_submitted_filter = {"$or": [{"report_submitted": False}, {"report_submitted": {"$exists": False}}]}
+            load_match.update(non_submitted_filter)
+            sales_match.update(non_submitted_filter)
+        
         # Get total initial load for the date
         load_pipeline = [
-            {"$match": {"salesman_id": salesman_id, "load_date": target_date}},
+            {"$match": load_match},
             {"$group": {"_id": None, "total": {"$sum": "$initial_crates"}}}
         ]
         load_result = await self.db.initial_loads.aggregate(load_pipeline).to_list(1)
@@ -329,7 +348,7 @@ class SaleService:
         
         # Get sales data for the date with payment breakdown
         sales_pipeline = [
-            {"$match": {"salesman_id": salesman_id, "sale_date": target_date}},
+            {"$match": sales_match},
             {"$group": {
                 "_id": None,
                 "total_sold": {"$sum": "$crates"},
@@ -358,6 +377,10 @@ class SaleService:
             total_bill = 0
         
         remaining_crates = total_initial_load - total_sold
+        
+        # For allow_multiple_reports mode, is_report_submitted should be false if there are non-submitted records
+        if allow_multiple_reports and target_date == today_date:
+            is_report_submitted = False  # Always allow new submissions in multiple reports mode
         
         return {
             "date": target_date,
