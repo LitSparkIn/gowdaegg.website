@@ -96,6 +96,7 @@ api_router.include_router(admin_data_router)
 api_router.include_router(admin_users_router)
 api_router.include_router(transportation_expense_router)
 api_router.include_router(salary_setup_router)
+api_router.include_router(salary_expense_router)
 
 # Include the main api router
 app.include_router(api_router)
