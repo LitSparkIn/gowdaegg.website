@@ -58,8 +58,8 @@ class InitialLoadService:
         """Get all initial loads for a salesman for today with total"""
         today_date = self._get_today_date()
         
-        loads = await self.repository.get_by_salesman_today(salesman_id, today_date)
-        total_crates = await self.repository.get_total_crates_today(salesman_id, today_date)
+        loads = await self.repository.get_by_salesman_today(salesman_id, today_date, only_non_submitted=True)
+        total_crates = await self.repository.get_total_crates_today(salesman_id, today_date, only_non_submitted=True)
         
         return {
             "total": {
