@@ -118,15 +118,17 @@ async def get_home_data(
     }
     
     # Get today's egg rate from settings
-    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0, "todays_egg_rate": 1})
+    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0, "todays_egg_rate": 1, "allow_multiple_reports": 1})
     todays_egg_rate = settings.get("todays_egg_rate", 0.0) if settings else 0.0
+    allow_multiple_reports = settings.get("allow_multiple_reports", False) if settings else False
     
     return success_response(
         data={
             "profile": profile,
             "routes": route_list,
             "report": report,
-            "todays_egg_rate": todays_egg_rate
+            "todays_egg_rate": todays_egg_rate,
+            "allow_multiple_reports": allow_multiple_reports
         },
         message="Data generated"
     )
