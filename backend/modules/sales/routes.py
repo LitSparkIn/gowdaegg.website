@@ -144,7 +144,7 @@ async def get_all_sales_admin(
     route_id: Optional[str] = Query(None, description="Filter by route ID"),
     has_image: Optional[str] = Query(None, description="Filter by image (with/without)"),
     page: int = Query(1, ge=1, description="Page number (starting from 1)"),
-    limit: int = Query(50, ge=1, le=200, description="Number of records per page"),
+    limit: int = Query(500, ge=1, le=1000, description="Number of records per page"),
     service: SaleService = Depends(get_service),
     current_user: dict = Depends(verify_admin)
 ):
