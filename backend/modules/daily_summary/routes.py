@@ -525,15 +525,29 @@ async def submit_daily_summary(
 async def get_submitted_summaries(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
+    from_date: Optional[str] = Query(None, description="Start date filter (YYYY-MM-DD)"),
+    to_date: Optional[str] = Query(None, description="End date filter (YYYY-MM-DD)"),
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: dict = Depends(verify_admin)
 ):
     """
     Get all submitted daily summaries (history).
+    Supports optional date range filtering.
     """
-    cursor = db.daily_summaries.find({}, {"_id": 0}).sort("date", -1).skip(skip).limit(limit)
+    # Build query with date filters
+    query = {}
+    if from_date or to_date:
+        date_filter = {}
+        if from_date:
+            date_filter["$gte"] = from_date
+        if to_date:
+            date_filter["$lte"] = to_date
+        if date_filter:
+            query["date"] = date_filter
+    
+    cursor = db.daily_summaries.find(query, {"_id": 0}).sort("date", -1).skip(skip).limit(limit)
     summaries = await cursor.to_list(limit)
-    total = await db.daily_summaries.count_documents({})
+    total = await db.daily_summaries.count_documents(query)
     
     return success_response(
         data={
