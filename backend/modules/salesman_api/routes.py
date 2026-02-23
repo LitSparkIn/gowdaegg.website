@@ -10,6 +10,7 @@ from modules.salesman_api.schemas import (
     RouteResponse,
     ShopResponse
 )
+from modules.salesman.service import calculate_salesman_tray_balance
 
 router = APIRouter(prefix="/salesman", tags=["Salesman API"])
 
