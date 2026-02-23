@@ -264,10 +264,11 @@ class SaleService:
             logger.error(f"Error sending notifications: {str(e)}")
     
     async def get_salesman_sales_today(self, salesman_id: str) -> dict:
-        """Get all sales for a salesman for today"""
+        """Get all sales for a salesman for today (only non-submitted)"""
         today_date = self._get_today_date()
         
-        sales = await self.repository.get_by_salesman_today(salesman_id, today_date)
+        # Only get non-submitted sales
+        sales = await self.repository.get_by_salesman_today(salesman_id, today_date, only_non_submitted=True)
         
         # Calculate totals
         total_crates = sum(s["crates"] for s in sales)
