@@ -876,6 +876,108 @@ const TransactionReportPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Pagination Controls - Top */}
+          {totals.total_records > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 mb-4 border-b">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Show</span>
+                <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(parseInt(val))}>
+                  <SelectTrigger className="w-20 h-8" data-testid="page-size-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="500">500</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span>per page</span>
+                <span className="ml-2">|</span>
+                <span className="ml-2">
+                  Showing {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totals.total_records)} of {totals.total_records}
+                </span>
+              </div>
+              
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1 || loading}
+                    className="h-8 w-8 p-0"
+                    data-testid="first-page-btn"
+                  >
+                    <ChevronsLeft size={16} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1 || loading}
+                    className="h-8 w-8 p-0"
+                    data-testid="prev-page-btn"
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  
+                  <div className="flex items-center gap-1 mx-2">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          disabled={loading}
+                          className={cn(
+                            "h-8 w-8 p-0",
+                            currentPage === pageNum && "bg-primary text-white"
+                          )}
+                          data-testid={`page-${pageNum}-btn`}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages || loading}
+                    className="h-8 w-8 p-0"
+                    data-testid="next-page-btn"
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages || loading}
+                    className="h-8 w-8 p-0"
+                    data-testid="last-page-btn"
+                  >
+                    <ChevronsRight size={16} />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={32} className="animate-spin text-primary" />
