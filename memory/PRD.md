@@ -247,3 +247,12 @@ February 2026 - Admin User Management & Role-Based Access Control
   - Activity history dialog showing all salary credits/debits
   - Summary cards showing total monthly salary, total balance, and count
   - New API endpoints: `GET, POST, PUT, DELETE /api/salary-setup`, `POST /api/salary-setup/{id}/update-balance`, `GET /api/salary-setup/{id}/activities`
+- ✅ **Salary Expense Feature (Full Implementation)**:
+  - New page at `/admin/salary-expense` with full CRUD functionality
+  - Fields: Select Salesman (from salary setup), Amount, Payment Mode (Cash, Cheque, Online)
+  - Automatically deducts from salesman's salary balance
+  - Filter by date range and salesman
+  - Creates activity record for tracking
+  - Integrated into Daily Summary - shows as "Salary Expenses" below Transportation Expenses
+  - Included in profit/loss calculation
+  - New API endpoints: `GET, POST, PUT, DELETE /api/salary-expenses`
