@@ -226,3 +226,9 @@ February 2026 - Admin User Management & Role-Based Access Control
   - Shows all subsequent transactions that will be affected with before/after values
   - Automatically cascades updates to all affected transactions' `shop_previous_dues`, `total_amount`, `pending_amount`, and tray balances
   - New API endpoints: `GET /api/sales/{sale_id}/cascade-preview` and updated `PUT /api/sales/{sale_id}` with cascade logic
+- ✅ **Full Edit for Daily Submitted Reports (Superadmin)**:
+  - Added new "Full Edit" button (orange edit icon) visible only to superadmin
+  - Allows editing ALL fields: initial_crates, crates_sold, crates_damaged, cash_collected, expense, cheque, online, return_tray, comments
+  - Auto-calculates remaining_crates and net_cash
+  - New API endpoint: `PUT /api/sale-reports/{report_id}/full`
+- ✅ **Allow Multiple Reports Setting in Home API**: `/api/salesman/home` now returns `allow_multiple_reports` setting from Config
