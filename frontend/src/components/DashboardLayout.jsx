@@ -53,6 +53,7 @@ const allMenuItems = [
   { name: "Daily Summary", path: "/admin/daily-summary", icon: CalendarDays, superadminOnly: true },
   { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History, superadminOnly: true },
   { type: "divider", label: "Settings" },
+  { name: "Salary Setup", path: "/admin/salary-setup", icon: Banknote, superadminOnly: true },
   { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
   { name: "Current Active Balance", path: "/admin/current-active-balance", icon: Wallet, superadminOnly: true },
   { name: "Config Setting", path: "/admin/config-setting", icon: Settings, superadminOnly: true },
