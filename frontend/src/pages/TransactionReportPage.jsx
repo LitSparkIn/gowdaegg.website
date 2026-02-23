@@ -1203,8 +1203,8 @@ const TransactionReportPage = () => {
       </Card>
 
       {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) setCascadePreview(null); }}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Transaction</DialogTitle>
           </DialogHeader>
@@ -1314,13 +1314,143 @@ const TransactionReportPage = () => {
                   <span>Pending: {formatCurrency(getPreviewValues().pending)}</span>
                 </div>
               </div>
+
+              {/* Cascade Preview Button */}
+              <div className="border-t pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={fetchCascadePreview}
+                  disabled={loadingPreview}
+                  className="w-full"
+                  data-testid="preview-impact-btn"
+                >
+                  {loadingPreview ? (
+                    <><Loader2 size={16} className="mr-2 animate-spin" />Loading Preview...</>
+                  ) : (
+                    "Preview Impact on Future Transactions"
+                  )}
+                </Button>
+              </div>
+
+              {/* Cascade Preview Results */}
+              {cascadePreview && (
+                <div className="border rounded-lg p-4 bg-orange-50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-orange-800">
+                      Impact Preview for {cascadePreview.shop_name}
+                    </h4>
+                    <span className={cn(
+                      "px-2 py-1 rounded text-xs font-medium",
+                      cascadePreview.affected_count > 0 ? "bg-orange-200 text-orange-800" : "bg-green-200 text-green-800"
+                    )}>
+                      {cascadePreview.affected_count > 0 
+                        ? `${cascadePreview.affected_count} transactions will be updated`
+                        : "No subsequent transactions affected"
+                      }
+                    </span>
+                  </div>
+
+                  {/* Summary of changes */}
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className={cn(
+                      "p-2 rounded",
+                      cascadePreview.summary.pending_change !== 0 ? "bg-red-100" : "bg-gray-100"
+                    )}>
+                      <p className="text-xs text-muted-foreground">Pending Amount Change</p>
+                      <p className={cn(
+                        "font-semibold",
+                        cascadePreview.summary.pending_change > 0 ? "text-red-600" : 
+                        cascadePreview.summary.pending_change < 0 ? "text-green-600" : "text-gray-600"
+                      )}>
+                        {cascadePreview.summary.pending_change > 0 ? "+" : ""}{formatCurrency(cascadePreview.summary.pending_change)}
+                      </p>
+                    </div>
+                    <div className={cn(
+                      "p-2 rounded",
+                      cascadePreview.summary.tray_change !== 0 ? "bg-blue-100" : "bg-gray-100"
+                    )}>
+                      <p className="text-xs text-muted-foreground">Tray Balance Change</p>
+                      <p className={cn(
+                        "font-semibold",
+                        cascadePreview.summary.tray_change > 0 ? "text-blue-600" : 
+                        cascadePreview.summary.tray_change < 0 ? "text-orange-600" : "text-gray-600"
+                      )}>
+                        {cascadePreview.summary.tray_change > 0 ? "+" : ""}{cascadePreview.summary.tray_change}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Edited Transaction Preview */}
+                  {cascadePreview.edited_transaction && (
+                    <div className="border-t border-orange-200 pt-3">
+                      <p className="text-xs font-medium text-orange-700 mb-2">This Transaction (Being Edited):</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-white p-2 rounded">
+                          <p className="text-muted-foreground mb-1">Before</p>
+                          <p>Pending: {formatCurrency(cascadePreview.edited_transaction.original.pending_amount)}</p>
+                          <p>Tray: {cascadePreview.edited_transaction.original.current_tray_balance}</p>
+                        </div>
+                        <div className="bg-green-100 p-2 rounded">
+                          <p className="text-green-700 mb-1 font-medium">After</p>
+                          <p>Pending: {formatCurrency(cascadePreview.edited_transaction.new.pending_amount)}</p>
+                          <p>Tray: {cascadePreview.edited_transaction.new.current_tray_balance}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Affected Transactions */}
+                  {cascadePreview.affected_transactions && cascadePreview.affected_transactions.length > 0 && (
+                    <div className="border-t border-orange-200 pt-3">
+                      <p className="text-xs font-medium text-orange-700 mb-2">
+                        Subsequent Transactions That Will Be Updated:
+                      </p>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {cascadePreview.affected_transactions.map((txn, idx) => (
+                          <div key={txn.id} className="bg-white p-2 rounded text-xs border border-orange-200">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-medium">#{idx + 1} - {formatDate(txn.sale_date)}</span>
+                              <span className="text-muted-foreground">{txn.sale_time?.substring(0, 5)}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <span className="text-muted-foreground">Prev Dues: </span>
+                                <span className="line-through text-red-500">{formatCurrency(txn.original.shop_previous_dues)}</span>
+                                <span className="text-green-600 ml-1">{formatCurrency(txn.new.shop_previous_dues)}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Pending: </span>
+                                <span className="line-through text-red-500">{formatCurrency(txn.original.pending_amount)}</span>
+                                <span className="text-green-600 ml-1">{formatCurrency(txn.new.pending_amount)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {cascadePreview.affected_count === 0 && (
+                    <p className="text-sm text-green-700 text-center py-2">
+                      This is the last transaction for this shop. No other transactions will be affected.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={submitting}>
                 Cancel
               </Button>
               <Button type="submit" disabled={submitting} className="bg-primary hover:bg-primary-600">
-                {submitting ? <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</> : "Update Transaction"}
+                {submitting ? (
+                  <><Loader2 size={16} className="mr-2 animate-spin" />Saving...</>
+                ) : cascadePreview && cascadePreview.affected_count > 0 ? (
+                  `Update & Cascade (${cascadePreview.affected_count + 1} txns)`
+                ) : (
+                  "Update Transaction"
+                )}
               </Button>
             </DialogFooter>
           </form>
