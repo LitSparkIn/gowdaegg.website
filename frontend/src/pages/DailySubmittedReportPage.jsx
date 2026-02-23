@@ -506,6 +506,25 @@ const DailySubmittedReportPage = () => {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {/* Total Row */}
+                  <TableRow className="bg-primary/10 font-semibold border-t-2 border-primary/30">
+                    <TableCell className="py-4"></TableCell>
+                    <TableCell className="py-4 font-bold text-primary-950">TOTAL</TableCell>
+                    <TableCell className="py-4"></TableCell>
+                    <TableCell className="text-right py-4 font-bold">{filteredReports.reduce((sum, r) => sum + (r.initial_crates || 0), 0)}</TableCell>
+                    <TableCell className="text-right py-4 font-bold text-green-600">{filteredReports.reduce((sum, r) => sum + (r.crates_sold || 0), 0)}</TableCell>
+                    <TableCell className="text-right py-4 font-bold text-red-600">{filteredReports.reduce((sum, r) => sum + (r.crates_damaged || 0), 0)}</TableCell>
+                    <TableCell className="text-right py-4 font-bold">{filteredReports.reduce((sum, r) => sum + (r.remaining_crates || 0), 0)}</TableCell>
+                    <TableCell className="text-right py-4 font-bold">{formatCurrency(filteredReports.reduce((sum, r) => sum + (r.cash_collected || 0), 0))}</TableCell>
+                    <TableCell className="text-right py-4 font-bold text-red-600">{formatCurrency(filteredReports.reduce((sum, r) => sum + (r.expense || 0), 0))}</TableCell>
+                    <TableCell className="text-right py-4 font-bold text-green-600">{formatCurrency(filteredReports.reduce((sum, r) => sum + (r.remaining_cash || 0), 0))}</TableCell>
+                    <TableCell className="text-right py-4 font-bold">{formatCurrency(filteredReports.reduce((sum, r) => sum + (r.cheque || 0), 0))}</TableCell>
+                    <TableCell className="text-right py-4 font-bold">{formatCurrency(filteredReports.reduce((sum, r) => sum + (r.online || 0), 0))}</TableCell>
+                    <TableCell className="text-right py-4 font-bold">{filteredReports.reduce((sum, r) => sum + (r.return_tray || 0), 0)}</TableCell>
+                    <TableCell className="py-4"></TableCell>
+                    <TableCell className="py-4"></TableCell>
+                    <TableCell className="py-4"></TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </div>
