@@ -320,6 +320,7 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Export and Clear buttons hidden
             <Button
               variant="secondary"
               size="sm"
@@ -350,6 +351,7 @@ const Dashboard = () => {
               )}
               Clear Today's Data
             </Button>
+            */}
             {/* Clear Data button hidden - functionality preserved in backend
             <Button
               variant="secondary"
