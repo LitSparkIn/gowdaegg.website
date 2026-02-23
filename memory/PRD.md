@@ -240,3 +240,10 @@ February 2026 - Admin User Management & Role-Based Access Control
   - Integrated into Daily Summary - shows as "Transportation Expenses" in Expenses section
   - Included in profit/loss calculation
   - New API endpoints: `GET, POST, PUT, DELETE /api/transportation-expenses`
+- ✅ **Salary Setup Feature (Full Implementation)**:
+  - New page at `/admin/salary-setup` under Settings menu (before Change Password)
+  - Fields: Select Salesman, Joining Date, Monthly Salary, Current Salary Balance
+  - "Update Balance" button to credit monthly salary (prefilled with monthly salary, editable)
+  - Activity history dialog showing all salary credits/debits
+  - Summary cards showing total monthly salary, total balance, and count
+  - New API endpoints: `GET, POST, PUT, DELETE /api/salary-setup`, `POST /api/salary-setup/{id}/update-balance`, `GET /api/salary-setup/{id}/activities`
