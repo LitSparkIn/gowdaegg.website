@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BASE_URL = "https://egg-perf-boost.preview.emergentagent.com/api"
+BASE_URL = "https://distribution-hub-8.preview.emergentagent.com/api"
 
 def print_test_header(title):
     """Print a formatted test section header"""
