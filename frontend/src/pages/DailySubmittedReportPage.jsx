@@ -48,6 +48,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const DailySubmittedReportPage = () => {
+  const { role, isSuperAdmin } = useUserRole();
   const [reports, setReports] = useState([]);
   const [salesmen, setSalesmen] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +66,20 @@ const DailySubmittedReportPage = () => {
     comments: ""
   });
   const [submitting, setSubmitting] = useState(false);
+  
+  // Full Edit dialog state (superadmin only)
+  const [isFullEditDialogOpen, setIsFullEditDialogOpen] = useState(false);
+  const [fullEditForm, setFullEditForm] = useState({
+    initial_crates: "",
+    crates_sold: "",
+    crates_damaged: "",
+    cash_collected: "",
+    expense: "",
+    cheque: "",
+    online: "",
+    return_tray: "",
+    comments: ""
+  });
   
   // Filters - default to today
   const [fromDate, setFromDate] = useState(new Date());
