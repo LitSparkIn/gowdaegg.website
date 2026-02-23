@@ -176,10 +176,18 @@ async def get_daily_summary(
     other_expense_result = await db.expenses.aggregate(other_expense_pipeline).to_list(1)
     other_expenses = round(other_expense_result[0]["total"], 2) if other_expense_result else 0
     
+    # Transportation expenses (from transportation_expenses table)
+    transportation_expense_pipeline = [
+        {"$match": {"expense_date": target_date}},
+        {"$group": {"_id": None, "total": {"$sum": "$total_expense"}}}
+    ]
+    transportation_expense_result = await db.transportation_expenses.aggregate(transportation_expense_pipeline).to_list(1)
+    transportation_expenses = round(transportation_expense_result[0]["total"], 2) if transportation_expense_result else 0
+    
     # Damaged eggs loss (damage crates * 30 eggs * average rate)
     damage_loss = round(damage_today * 30 * average_rate, 2)
     
-    total_expenses = round(salesman_expenses + other_expenses + damage_loss, 2)
+    total_expenses = round(salesman_expenses + other_expenses + transportation_expenses + damage_loss, 2)
     
     # Net Purchase = Cost of goods sold (crates sold * 30 * buy rate)
     net_purchase = round(total_sale_crates * 30 * buy_rate, 2)
