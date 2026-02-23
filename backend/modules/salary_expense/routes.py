@@ -240,7 +240,7 @@ async def update_salary_expense(
                 "amount": abs(amount_diff),
                 "balance_before": current_balance,
                 "balance_after": new_balance,
-                "remarks": f"Salary expense adjustment",
+                "remarks": "Salary expense adjustment",
                 "activity_date": get_ist_date(),
                 "created_at": now.isoformat()
             }
