@@ -232,6 +232,69 @@ const DailySubmittedReportPage = () => {
     }
   };
 
+  // Full Edit functions (superadmin only)
+  const handleFullEditClick = (report) => {
+    setEditingReport(report);
+    setFullEditForm({
+      initial_crates: report.initial_crates?.toString() || "0",
+      crates_sold: report.crates_sold?.toString() || "0",
+      crates_damaged: report.crates_damaged?.toString() || "0",
+      cash_collected: report.cash_collected?.toString() || "0",
+      expense: report.expense?.toString() || "0",
+      cheque: report.cheque?.toString() || "0",
+      online: report.online?.toString() || "0",
+      return_tray: report.return_tray?.toString() || "0",
+      comments: report.comments || ""
+    });
+    setIsFullEditDialogOpen(true);
+  };
+
+  const handleFullEditFormChange = (field, value) => {
+    setFullEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getFullEditPreview = () => {
+    const initial = parseInt(fullEditForm.initial_crates) || 0;
+    const sold = parseInt(fullEditForm.crates_sold) || 0;
+    const damaged = parseInt(fullEditForm.crates_damaged) || 0;
+    const cash = parseFloat(fullEditForm.cash_collected) || 0;
+    const expense = parseFloat(fullEditForm.expense) || 0;
+    
+    return {
+      remaining_crates: initial - sold - damaged,
+      net_cash: cash - expense
+    };
+  };
+
+  const handleFullEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    setSubmitting(true);
+    try {
+      await api.put(`/sale-reports/${editingReport.id}/full`, {
+        initial_crates: parseInt(fullEditForm.initial_crates) || 0,
+        crates_sold: parseInt(fullEditForm.crates_sold) || 0,
+        crates_damaged: parseInt(fullEditForm.crates_damaged) || 0,
+        cash_collected: parseFloat(fullEditForm.cash_collected) || 0,
+        expense: parseFloat(fullEditForm.expense) || 0,
+        cheque: parseFloat(fullEditForm.cheque) || 0,
+        online: parseFloat(fullEditForm.online) || 0,
+        return_tray: parseInt(fullEditForm.return_tray) || 0,
+        comments: fullEditForm.comments || ""
+      });
+      
+      toast.success("Report fully updated successfully");
+      setIsFullEditDialogOpen(false);
+      setEditingReport(null);
+      fetchReports();
+    } catch (error) {
+      console.error("Error updating report:", error);
+      toast.error(error.response?.data?.detail || "Failed to update report");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Export functions
   const exportToExcel = () => {
     if (filteredReports.length === 0) { toast.error("No data to export"); return; }
