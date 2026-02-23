@@ -497,7 +497,7 @@ class SaleService:
         }
 
     async def update_sale(self, sale_id: str, request: SaleUpdateRequest, image_url: Optional[str] = None) -> SaleWithDetailsResponse:
-        """Update a sale transaction"""
+        """Update a sale transaction (legacy method without cascade)"""
         # Get existing sale
         sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
         if not sale:
@@ -606,3 +606,305 @@ class SaleService:
             created_at=updated_sale["created_at"],
             credit_threshold=shop.get("credit_threshold", 0)
         )
+
+    async def get_cascade_preview(
+        self, 
+        sale_id: str, 
+        new_crates: int, 
+        new_price: float, 
+        new_collected: float, 
+        new_return_tray: int
+    ) -> dict:
+        """
+        Get a preview of how editing this transaction would affect subsequent transactions.
+        Returns the edited transaction and all subsequent transactions with their new calculated values.
+        """
+        # Get the sale being edited
+        sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
+        if not sale:
+            raise NotFoundException(f"Sale with id '{sale_id}' not found")
+        
+        shop_id = sale["shop_id"]
+        sale_date = sale["sale_date"]
+        sale_time = sale.get("sale_time", "00:00:00")
+        
+        # Get all transactions for this shop that happened AFTER this transaction
+        # (same date but later time, OR later dates)
+        subsequent_sales = await self.db.sales.find(
+            {
+                "shop_id": shop_id,
+                "$or": [
+                    {"sale_date": {"$gt": sale_date}},
+                    {
+                        "sale_date": sale_date,
+                        "sale_time": {"$gt": sale_time}
+                    }
+                ]
+            },
+            {"_id": 0}
+        ).sort([("sale_date", 1), ("sale_time", 1)]).to_list(100)
+        
+        # Calculate the NEW values for the edited transaction
+        original_order_amount = sale.get("order_amount", 0)
+        original_pending = sale.get("pending_amount", 0)
+        original_tray_balance = sale.get("current_tray_balance", 0)
+        
+        shop_previous_dues = sale.get("shop_previous_dues", 0)
+        previous_tray_balance = sale.get("previous_tray_balance", 0)
+        
+        new_order_amount = new_crates * 30 * new_price
+        new_total_amount = new_order_amount + shop_previous_dues
+        new_pending_amount = new_total_amount - new_collected
+        new_current_tray = previous_tray_balance + new_crates - new_return_tray
+        
+        # Calculate the DIFFERENCE that will cascade
+        pending_diff = new_pending_amount - original_pending
+        tray_diff = new_current_tray - original_tray_balance
+        
+        # Build preview for edited transaction
+        edited_preview = {
+            "id": sale_id,
+            "sale_date": sale_date,
+            "sale_time": sale_time,
+            "shop_name": sale.get("shop_name", ""),
+            "is_edited": True,
+            "original": {
+                "crates": sale.get("crates", 0),
+                "price": sale.get("price", 0),
+                "order_amount": original_order_amount,
+                "shop_previous_dues": shop_previous_dues,
+                "total_amount": sale.get("total_amount", 0),
+                "collected_amount": sale.get("collected_amount", 0),
+                "pending_amount": original_pending,
+                "previous_tray_balance": previous_tray_balance,
+                "current_tray_balance": original_tray_balance,
+                "return_tray": sale.get("return_tray", 0)
+            },
+            "new": {
+                "crates": new_crates,
+                "price": new_price,
+                "order_amount": new_order_amount,
+                "shop_previous_dues": shop_previous_dues,
+                "total_amount": new_total_amount,
+                "collected_amount": new_collected,
+                "pending_amount": new_pending_amount,
+                "previous_tray_balance": previous_tray_balance,
+                "current_tray_balance": new_current_tray,
+                "return_tray": new_return_tray
+            }
+        }
+        
+        # Build previews for subsequent transactions
+        cascaded_previews = []
+        running_pending_diff = pending_diff
+        running_tray_diff = tray_diff
+        
+        for subsequent in subsequent_sales:
+            sub_shop_previous_dues = subsequent.get("shop_previous_dues", 0)
+            sub_order_amount = subsequent.get("order_amount", 0)
+            sub_collected = subsequent.get("collected_amount", 0)
+            sub_pending = subsequent.get("pending_amount", 0)
+            sub_prev_tray = subsequent.get("previous_tray_balance", 0)
+            sub_curr_tray = subsequent.get("current_tray_balance", 0)
+            
+            # New values with cascade applied
+            new_sub_previous_dues = sub_shop_previous_dues + running_pending_diff
+            new_sub_total = sub_order_amount + new_sub_previous_dues
+            new_sub_pending = new_sub_total - sub_collected
+            new_sub_prev_tray = sub_prev_tray + running_tray_diff
+            new_sub_curr_tray = sub_curr_tray + running_tray_diff
+            
+            cascaded_previews.append({
+                "id": subsequent["id"],
+                "sale_date": subsequent["sale_date"],
+                "sale_time": subsequent.get("sale_time", "00:00:00"),
+                "shop_name": subsequent.get("shop_name", ""),
+                "is_edited": False,
+                "original": {
+                    "shop_previous_dues": sub_shop_previous_dues,
+                    "total_amount": subsequent.get("total_amount", 0),
+                    "pending_amount": sub_pending,
+                    "previous_tray_balance": sub_prev_tray,
+                    "current_tray_balance": sub_curr_tray
+                },
+                "new": {
+                    "shop_previous_dues": new_sub_previous_dues,
+                    "total_amount": new_sub_total,
+                    "pending_amount": new_sub_pending,
+                    "previous_tray_balance": new_sub_prev_tray,
+                    "current_tray_balance": new_sub_curr_tray
+                }
+            })
+            
+            # Update running diff for the next transaction
+            # The pending diff compounds: new pending - old pending for this transaction
+            running_pending_diff = new_sub_pending - sub_pending
+            # Tray diff stays the same through the chain
+        
+        # Get shop info
+        shop = await self.db.shops.find_one({"id": shop_id}, {"_id": 0})
+        
+        return {
+            "edited_transaction": edited_preview,
+            "affected_transactions": cascaded_previews,
+            "affected_count": len(cascaded_previews),
+            "shop_name": shop.get("name", "") if shop else "",
+            "shop_id": shop_id,
+            "summary": {
+                "pending_change": pending_diff,
+                "tray_change": tray_diff
+            }
+        }
+
+    async def update_sale_with_cascade(
+        self, 
+        sale_id: str, 
+        request: SaleUpdateRequest, 
+        image_url: Optional[str] = None
+    ) -> dict:
+        """
+        Update a sale transaction and cascade the changes to all subsequent transactions for the same shop.
+        """
+        # Get the sale being edited
+        sale = await self.db.sales.find_one({"id": sale_id}, {"_id": 0})
+        if not sale:
+            raise NotFoundException(f"Sale with id '{sale_id}' not found")
+        
+        shop_id = sale["shop_id"]
+        sale_date = sale["sale_date"]
+        sale_time = sale.get("sale_time", "00:00:00")
+        
+        # Get shop details
+        shop = await self.db.shops.find_one({"id": shop_id}, {"_id": 0})
+        if not shop:
+            raise BadRequestException("Shop not found")
+        
+        # Calculate original values
+        original_pending = sale.get("pending_amount", 0)
+        original_tray_balance = sale.get("current_tray_balance", 0)
+        
+        # Calculate new values for the edited transaction
+        shop_previous_dues = sale.get("shop_previous_dues", 0)
+        previous_tray_balance = sale.get("previous_tray_balance", 0)
+        
+        new_order_amount = request.crates * 30 * request.price
+        new_total_amount = new_order_amount + shop_previous_dues
+        new_pending_amount = new_total_amount - request.collected_amount
+        new_current_tray = previous_tray_balance + request.crates - request.return_tray
+        
+        # Calculate the differences
+        pending_diff = new_pending_amount - original_pending
+        tray_diff = new_current_tray - original_tray_balance
+        
+        transaction_type = "Sale" if request.crates > 0 else "Collection"
+        now = get_ist_now()
+        
+        # Update the edited transaction
+        update_data = {
+            "crates": request.crates,
+            "price": request.price,
+            "order_amount": new_order_amount,
+            "total_amount": new_total_amount,
+            "collected_amount": request.collected_amount,
+            "pending_amount": new_pending_amount,
+            "payment_type": request.payment_type,
+            "return_tray": request.return_tray,
+            "current_tray_balance": new_current_tray,
+            "current_dues": new_pending_amount,
+            "transaction_type": transaction_type,
+            "updated_at": now.isoformat()
+        }
+        
+        if image_url is not None:
+            update_data["image_url"] = image_url
+        
+        await self.db.sales.update_one({"id": sale_id}, {"$set": update_data})
+        
+        # Get all subsequent transactions for this shop
+        subsequent_sales = await self.db.sales.find(
+            {
+                "shop_id": shop_id,
+                "$or": [
+                    {"sale_date": {"$gt": sale_date}},
+                    {
+                        "sale_date": sale_date,
+                        "sale_time": {"$gt": sale_time}
+                    }
+                ]
+            },
+            {"_id": 0}
+        ).sort([("sale_date", 1), ("sale_time", 1)]).to_list(1000)
+        
+        # Cascade update all subsequent transactions
+        updated_count = 0
+        running_pending_diff = pending_diff
+        
+        for subsequent in subsequent_sales:
+            sub_id = subsequent["id"]
+            sub_shop_previous_dues = subsequent.get("shop_previous_dues", 0)
+            sub_order_amount = subsequent.get("order_amount", 0)
+            sub_collected = subsequent.get("collected_amount", 0)
+            sub_pending = subsequent.get("pending_amount", 0)
+            sub_prev_tray = subsequent.get("previous_tray_balance", 0)
+            sub_curr_tray = subsequent.get("current_tray_balance", 0)
+            
+            # Calculate new values with cascade
+            new_sub_previous_dues = sub_shop_previous_dues + running_pending_diff
+            new_sub_total = sub_order_amount + new_sub_previous_dues
+            new_sub_pending = new_sub_total - sub_collected
+            new_sub_prev_tray = sub_prev_tray + tray_diff
+            new_sub_curr_tray = sub_curr_tray + tray_diff
+            
+            # Update the subsequent transaction
+            await self.db.sales.update_one(
+                {"id": sub_id},
+                {"$set": {
+                    "shop_previous_dues": new_sub_previous_dues,
+                    "total_amount": new_sub_total,
+                    "pending_amount": new_sub_pending,
+                    "current_dues": new_sub_pending,
+                    "previous_tray_balance": new_sub_prev_tray,
+                    "current_tray_balance": new_sub_curr_tray,
+                    "updated_at": now.isoformat()
+                }}
+            )
+            
+            updated_count += 1
+            
+            # Update running diff for the next transaction
+            running_pending_diff = new_sub_pending - sub_pending
+        
+        # Update shop's final dues and tray balance (from the last transaction or edited one)
+        if subsequent_sales:
+            # Get the last subsequent sale's new values
+            last_sub = subsequent_sales[-1]
+            final_pending = last_sub.get("shop_previous_dues", 0) + running_pending_diff
+            # Actually, we need the pending_amount of the last transaction
+            last_sub_updated = await self.db.sales.find_one({"id": last_sub["id"]}, {"_id": 0})
+            final_pending = last_sub_updated.get("pending_amount", 0)
+            final_tray = last_sub_updated.get("current_tray_balance", 0)
+        else:
+            # No subsequent transactions, use the edited transaction's values
+            final_pending = new_pending_amount
+            final_tray = new_current_tray
+        
+        await self.db.shops.update_one(
+            {"id": shop_id},
+            {"$set": {
+                "previous_dues": final_pending,
+                "tray_balance": final_tray,
+                "updated_at": now.isoformat()
+            }}
+        )
+        
+        # Return summary
+        return {
+            "edited_sale_id": sale_id,
+            "cascaded_transactions": updated_count,
+            "shop_id": shop_id,
+            "shop_name": shop.get("name", ""),
+            "final_shop_dues": final_pending,
+            "final_shop_tray": final_tray,
+            "pending_change": pending_diff,
+            "tray_change": tray_diff
+        }
