@@ -665,6 +665,11 @@ const DailySummaryPage = () => {
                   value={formatCurrency(summary.expenses.other_expenses)}
                   valueClass="text-red-600"
                 />
+                <SummaryRow 
+                  label="Transportation Expenses" 
+                  value={formatCurrency(summary.expenses.transportation_expenses || 0)}
+                  valueClass="text-red-600"
+                />
                 <SummaryRowWithCalc 
                   label="Damage Loss" 
                   value={formatCurrency(summary.expenses.damage_loss || 0)}
