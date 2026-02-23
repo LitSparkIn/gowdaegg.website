@@ -87,6 +87,7 @@ class SalesmanResponse(BaseModel):
     phone: str
     email: str
     is_active: Optional[bool] = True
+    tray_balance: int = 0  # Crates sold - Empty trays returned (positive = owes trays)
     created_at: str
     updated_at: str
 
