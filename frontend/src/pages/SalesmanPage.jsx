@@ -318,6 +318,17 @@ const SalesmanPage = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          salesman.tray_balance > 0 
+                            ? 'bg-red-100 text-red-700' 
+                            : salesman.tray_balance < 0 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {salesman.tray_balance > 0 ? `+${salesman.tray_balance}` : salesman.tray_balance}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
                         {!isReadOnly && (
                           <div className="flex items-center justify-end gap-2">
                             <Button
