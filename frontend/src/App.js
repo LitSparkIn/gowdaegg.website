@@ -63,7 +63,7 @@ function App() {
             <Route path="purchase" element={<PurchasePage />} />
             <Route path="expense" element={<ExpensePage />} />
             <Route path="transportation-expense" element={<TransportationExpensePage />} />
-            <Route path="salary-expense" element={<ComingSoon title="Salary Expense" />} />
+            <Route path="salary-expense" element={<SalaryExpensePage />} />
             <Route path="salary-setup" element={<SalarySetupPage />} />
             <Route path="initial-loading-report" element={<InitialLoadingReportPage />} />
             <Route path="route-previous-dues-report" element={<ComingSoon title="Route Previous Dues Report" />} />
