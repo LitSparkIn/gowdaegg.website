@@ -256,3 +256,10 @@ February 2026 - Admin User Management & Role-Based Access Control
   - Integrated into Daily Summary - shows as "Salary Expenses" below Transportation Expenses
   - Included in profit/loss calculation
   - New API endpoints: `GET, POST, PUT, DELETE /api/salary-expenses`
+- ✅ **Allow Multiple Reports - Report Submission Reset Fix**:
+  - Added `report_submitted` flag to `sales` and `initial_loads` collections
+  - When `allow_multiple_reports = true`, salesman can submit multiple reports per day
+  - After submitting a report, all related sales and initial_loads are marked as `report_submitted = true`
+  - Get home API only shows non-submitted records (data resets to 0 after each submission)
+  - Salesman can start fresh cycle: Initial Load → Transactions → Submit Report → Start Fresh
+  - Backward compatible: handles existing records without the flag (treats as non-submitted)
