@@ -48,7 +48,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const DailySubmittedReportPage = () => {
-  const { role, isSuperAdmin } = useUserRole();
+  const { role, isSuperadmin } = useUserRole();
   const [reports, setReports] = useState([]);
   const [salesmen, setSalesmen] = useState([]);
   const [loading, setLoading] = useState(true);
