@@ -87,12 +87,17 @@ class SaleRepository:
         """Get a sale by ID"""
         return await self.collection.find_one({"id": sale_id}, {"_id": 0})
     
-    async def get_by_salesman_today(self, salesman_id: str, today_date: str) -> list[dict]:
+    async def get_by_salesman_today(self, salesman_id: str, today_date: str, only_non_submitted: bool = False) -> list[dict]:
         """Get all sales for a salesman for today"""
-        cursor = self.collection.find(
-            {"salesman_id": salesman_id, "sale_date": today_date},
-            {"_id": 0}
-        ).sort("created_at", -1)
+        query = {"salesman_id": salesman_id, "sale_date": today_date}
+        
+        if only_non_submitted:
+            query["$or"] = [
+                {"report_submitted": False},
+                {"report_submitted": {"$exists": False}}
+            ]
+        
+        cursor = self.collection.find(query, {"_id": 0}).sort("created_at", -1)
         return await cursor.to_list(1000)
     
     async def get_all(
