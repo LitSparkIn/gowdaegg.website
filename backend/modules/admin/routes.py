@@ -136,3 +136,74 @@ async def get_collection_counts(
             counts[key] = 0
     
     return success_response(data=counts)
+
+
+@router.post("/clear-todays-data")
+async def clear_todays_data(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Clear only today's data from specific collections.
+    Collections affected:
+    - expenses (expense_date)
+    - transportation_expenses (expense_date)
+    - salary_expenses (payment_date)
+    - initial_loads (load_date)
+    - sales (sale_date)
+    - sale_reports (report_date)
+    - salaries (created_at date portion)
+    Only accessible by superadmin users.
+    """
+    if current_user.get("role") != "superadmin":
+        raise HTTPException(status_code=403, detail="Only superadmins can clear today's data")
+    
+    today_date = get_ist_date()  # Returns YYYY-MM-DD string
+    
+    cleared = []
+    errors = []
+    
+    # Define collections and their date fields
+    collections_to_clear = [
+        {"name": "expenses", "date_field": "expense_date", "label": "Expenses"},
+        {"name": "transportation_expenses", "date_field": "expense_date", "label": "Transportation Expenses"},
+        {"name": "salary_expenses", "date_field": "payment_date", "label": "Salary Expenses"},
+        {"name": "initial_loads", "date_field": "load_date", "label": "Initial Loading Report"},
+        {"name": "sales", "date_field": "sale_date", "label": "Transaction Report"},
+        {"name": "sale_reports", "date_field": "report_date", "label": "Daily Submitted Reports"},
+        {"name": "salaries", "date_field": "created_at", "label": "Salary Setup", "is_datetime": True},
+    ]
+    
+    for collection_info in collections_to_clear:
+        collection_name = collection_info["name"]
+        date_field = collection_info["date_field"]
+        label = collection_info["label"]
+        is_datetime = collection_info.get("is_datetime", False)
+        
+        try:
+            if is_datetime:
+                # For datetime fields, match the date portion (starts with today's date)
+                query = {date_field: {"$regex": f"^{today_date}"}}
+            else:
+                # For date string fields, exact match
+                query = {date_field: today_date}
+            
+            result = await database.db[collection_name].delete_many(query)
+            
+            cleared.append({
+                "collection": label,
+                "deleted_count": result.deleted_count
+            })
+        except Exception as e:
+            errors.append(f"Error clearing {label}: {str(e)}")
+    
+    total_deleted = sum(item["deleted_count"] for item in cleared)
+    
+    return success_response(
+        data={
+            "date": today_date,
+            "cleared": cleared,
+            "total_deleted": total_deleted,
+            "errors": errors
+        },
+        message=f"Successfully cleared {total_deleted} records for {today_date}" if not errors else "Data cleared with some errors"
+    )
