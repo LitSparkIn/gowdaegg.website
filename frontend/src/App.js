@@ -12,6 +12,7 @@ import SalesmanPage from "@/pages/SalesmanPage";
 import SupplierPage from "@/pages/SupplierPage";
 import ExpensePage from "@/pages/ExpensePage";
 import TransportationExpensePage from "@/pages/TransportationExpensePage";
+import SalarySetupPage from "@/pages/SalarySetupPage";
 import PurchasePage from "@/pages/PurchasePage";
 import InitialLoadingReportPage from "@/pages/InitialLoadingReportPage";
 import TransactionReportPage from "@/pages/TransactionReportPage";
