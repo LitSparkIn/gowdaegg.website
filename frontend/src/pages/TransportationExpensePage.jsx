@@ -188,6 +188,7 @@ const TransportationExpensePage = () => {
         toll_over_load: expense.toll_over_load?.toString() || "",
         loading_charges: expense.loading_charges?.toString() || "",
         other_expenses: expense.other_expenses?.toString() || "",
+        comments: expense.comments || "",
       });
     } else {
       setEditingExpense(null);
@@ -199,6 +200,7 @@ const TransportationExpensePage = () => {
         toll_over_load: "",
         loading_charges: "",
         other_expenses: "",
+        comments: "",
       });
     }
     setIsDialogOpen(true);
@@ -215,6 +217,7 @@ const TransportationExpensePage = () => {
       toll_over_load: "",
       loading_charges: "",
       other_expenses: "",
+      comments: "",
     });
   };
 
