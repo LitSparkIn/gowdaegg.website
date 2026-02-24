@@ -309,3 +309,121 @@ async def get_cascade_preview(
     except Exception as e:
         logger.error(f"Error generating cascade preview: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error generating preview: {str(e)}")
+
+
+def verify_superadmin(current_user: dict = Depends(get_current_user)) -> dict:
+    """Verify that the current user is a superadmin"""
+    if current_user.get("role") != "superadmin":
+        raise HTTPException(status_code=403, detail="Access denied. Superadmin only.")
+    return current_user
+
+
+@admin_router.post("/shop/{shop_id}/recalculate-dues")
+async def recalculate_shop_dues(
+    shop_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_superadmin)
+):
+    """
+    Recalculate all transaction dues for a shop from the beginning.
+    This fixes any inconsistencies caused by network issues or concurrent transactions.
+    Only accessible by superadmin.
+    """
+    try:
+        # Get the shop
+        shop = await db.shops.find_one({"id": shop_id}, {"_id": 0})
+        if not shop:
+            raise HTTPException(status_code=404, detail="Shop not found")
+        
+        # Get all transactions for this shop, sorted by date and time ascending
+        transactions = await db.sales.find(
+            {"shop_id": shop_id},
+            {"_id": 0}
+        ).sort([("sale_date", 1), ("sale_time", 1), ("created_at", 1)]).to_list(100000)
+        
+        if not transactions:
+            return success_response(
+                data={"shop_id": shop_id, "updated_count": 0},
+                message="No transactions found for this shop"
+            )
+        
+        # Get the shop's initial previous_dues (before any transactions)
+        # We'll use the first transaction's shop_previous_dues as the starting point
+        # OR we need to calculate backwards from current state
+        
+        # Strategy: Recalculate from the first transaction
+        # The first transaction's shop_previous_dues should be the "original" dues
+        initial_dues = transactions[0].get("shop_previous_dues", 0)
+        initial_tray_balance = transactions[0].get("previous_tray_balance", 0)
+        
+        running_dues = initial_dues
+        running_tray = initial_tray_balance
+        updated_count = 0
+        
+        for txn in transactions:
+            txn_id = txn["id"]
+            crates = txn.get("crates", 0)
+            price = txn.get("price", 0)
+            collected = txn.get("collected_amount", 0)
+            return_tray = txn.get("return_tray", 0)
+            
+            # Calculate order amount
+            order_amount = crates * price * 30  # 30 eggs per crate
+            
+            # Calculate total and pending
+            total_amount = running_dues + order_amount
+            pending_amount = total_amount - collected
+            
+            # Calculate tray balance
+            new_tray = running_tray + crates - return_tray
+            
+            # Determine transaction type
+            transaction_type = "Collection" if crates == 0 else "Sale"
+            
+            # Update the transaction
+            update_result = await db.sales.update_one(
+                {"id": txn_id},
+                {"$set": {
+                    "shop_previous_dues": running_dues,
+                    "order_amount": order_amount,
+                    "total_amount": total_amount,
+                    "pending_amount": pending_amount,
+                    "current_dues": pending_amount,
+                    "previous_tray_balance": running_tray,
+                    "current_tray_balance": new_tray,
+                    "transaction_type": transaction_type
+                }}
+            )
+            
+            if update_result.modified_count > 0:
+                updated_count += 1
+            
+            # Update running values for next transaction
+            running_dues = pending_amount
+            running_tray = new_tray
+        
+        # Update the shop's current dues and tray balance
+        await db.shops.update_one(
+            {"id": shop_id},
+            {"$set": {
+                "previous_dues": running_dues,
+                "tray_balance": running_tray
+            }}
+        )
+        
+        return success_response(
+            data={
+                "shop_id": shop_id,
+                "shop_name": shop.get("name"),
+                "total_transactions": len(transactions),
+                "updated_count": updated_count,
+                "final_dues": running_dues,
+                "final_tray_balance": running_tray
+            },
+            message=f"Successfully recalculated {updated_count} transactions for {shop.get('name')}"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error recalculating shop dues: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error recalculating dues: {str(e)}")
