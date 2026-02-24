@@ -40,6 +40,7 @@ class TransportationExpenseResponse(BaseModel):
     toll_over_load: float
     loading_charges: float
     other_expenses: float
+    comments: Optional[str] = ""
     total_expense: float
     balance_given_back: float
     expense_date: str
