@@ -248,6 +248,7 @@ const TransportationExpensePage = () => {
         toll_over_load: parseFloat(formData.toll_over_load) || 0,
         loading_charges: parseFloat(formData.loading_charges) || 0,
         other_expenses: parseFloat(formData.other_expenses) || 0,
+        comments: formData.comments || "",
       };
       
       if (editingExpense) {
