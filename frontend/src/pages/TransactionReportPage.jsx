@@ -680,7 +680,7 @@ const TransactionReportPage = () => {
       const result = response.data.data;
       
       toast.success(`Recalculated ${result.updated_count} transactions`, {
-        description: `Final dues: ₹${result.final_dues?.toLocaleString() || 0}, Tray balance: ${result.final_tray_balance || 0}`
+        description: `Starting dues: ₹${result.initial_dues?.toLocaleString() || 0} → Final: ₹${result.final_dues?.toLocaleString() || 0}`
       });
       
       setShowRecalculateDialog(false);
