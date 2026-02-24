@@ -92,6 +92,24 @@ const TransactionReportPage = () => {
   const [recalculatingSale, setRecalculatingSale] = useState(null);
   const [recalculating, setRecalculating] = useState(false);
   
+  // Full Edit state
+  const [isFullEditDialogOpen, setIsFullEditDialogOpen] = useState(false);
+  const [fullEditSale, setFullEditSale] = useState(null);
+  const [fullEditForm, setFullEditForm] = useState({
+    crates: "",
+    price: "",
+    order_amount: "",
+    shop_previous_dues: "",
+    total_amount: "",
+    collected_amount: "",
+    pending_amount: "",
+    payment_type: "",
+    return_tray: "",
+    previous_tray_balance: "",
+    current_tray_balance: ""
+  });
+  const [fullEditSubmitting, setFullEditSubmitting] = useState(false);
+  
   // Filters - default to today only
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
