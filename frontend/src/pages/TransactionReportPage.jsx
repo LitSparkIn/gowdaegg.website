@@ -1315,16 +1315,28 @@ const TransactionReportPage = () => {
                       </Button>
                     )}
                     {isSuperadmin && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleRecalculateClick(sale)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white h-7 px-3 text-xs font-medium"
-                        data-testid={`recalculate-btn-${index}`}
-                        title="Recalculate all dues for this shop"
-                      >
-                        <Calculator size={14} className="mr-1" />
-                        Recalculate
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => handleRecalculateClick(sale)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white h-7 px-3 text-xs font-medium"
+                          data-testid={`recalculate-btn-${index}`}
+                          title="Recalculate today's dues for this shop"
+                        >
+                          <Calculator size={14} className="mr-1" />
+                          Recalculate
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleFullEditClick(sale)}
+                          className="bg-red-600 hover:bg-red-700 text-white h-7 px-3 text-xs font-medium"
+                          data-testid={`full-edit-btn-${index}`}
+                          title="Edit all fields (Superadmin)"
+                        >
+                          <Pencil size={14} className="mr-1" />
+                          Full Edit
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
