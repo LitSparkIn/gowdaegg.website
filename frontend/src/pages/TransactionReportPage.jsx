@@ -647,6 +647,35 @@ const TransactionReportPage = () => {
     }
   };
 
+  // Recalculate shop dues
+  const handleRecalculateClick = (sale) => {
+    setRecalculatingSale(sale);
+    setShowRecalculateDialog(true);
+  };
+
+  const handleRecalculateDues = async () => {
+    if (!recalculatingSale) return;
+    
+    setRecalculating(true);
+    try {
+      const response = await api.post(`/sales/shop/${recalculatingSale.shop_id}/recalculate-dues`);
+      const result = response.data.data;
+      
+      toast.success(`Recalculated ${result.updated_count} transactions`, {
+        description: `Final dues: ₹${result.final_dues?.toLocaleString() || 0}, Tray balance: ${result.final_tray_balance || 0}`
+      });
+      
+      setShowRecalculateDialog(false);
+      setRecalculatingSale(null);
+      fetchSales();
+    } catch (error) {
+      console.error("Error recalculating dues:", error);
+      toast.error(error.response?.data?.detail || "Failed to recalculate dues");
+    } finally {
+      setRecalculating(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
