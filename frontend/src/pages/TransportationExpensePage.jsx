@@ -75,6 +75,7 @@ const TransportationExpensePage = () => {
     toll_over_load: "",
     loading_charges: "",
     other_expenses: "",
+    comments: "",
   });
 
   // Auto-calculate totals
