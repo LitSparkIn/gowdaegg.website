@@ -192,8 +192,8 @@ const SalarySetupPage = () => {
       return;
     }
     
-    if (!formData.monthly_salary || parseFloat(formData.monthly_salary) < 0) {
-      toast.error("Please enter a valid monthly salary");
+    if (!formData.monthly_salary && formData.monthly_salary !== "0" && formData.monthly_salary !== 0) {
+      toast.error("Please enter a monthly salary");
       return;
     }
     
