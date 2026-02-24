@@ -437,3 +437,72 @@ async def recalculate_shop_dues(
     except Exception as e:
         logger.error(f"Error recalculating shop dues: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error recalculating dues: {str(e)}")
+
+
+@admin_router.put("/{sale_id}/full-edit")
+async def full_edit_sale(
+    sale_id: str,
+    crates: int = Form(...),
+    price: float = Form(...),
+    order_amount: float = Form(...),
+    shop_previous_dues: float = Form(...),
+    total_amount: float = Form(...),
+    collected_amount: float = Form(...),
+    pending_amount: float = Form(...),
+    payment_type: str = Form(...),
+    return_tray: int = Form(0),
+    previous_tray_balance: int = Form(0),
+    current_tray_balance: int = Form(0),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_superadmin)
+):
+    """
+    Full edit of a sale transaction - allows editing ALL fields.
+    Only accessible by superadmin. Does NOT cascade to other transactions.
+    Use this for manual corrections.
+    """
+    try:
+        # Get the sale
+        sale = await db.sales.find_one({"id": sale_id}, {"_id": 0})
+        if not sale:
+            raise HTTPException(status_code=404, detail="Sale not found")
+        
+        # Determine transaction type
+        transaction_type = "Collection" if crates == 0 else "Sale"
+        
+        # Update the sale with all provided values
+        update_data = {
+            "crates": crates,
+            "price": price,
+            "order_amount": order_amount,
+            "shop_previous_dues": shop_previous_dues,
+            "total_amount": total_amount,
+            "collected_amount": collected_amount,
+            "pending_amount": pending_amount,
+            "current_dues": pending_amount,
+            "payment_type": payment_type,
+            "return_tray": return_tray,
+            "previous_tray_balance": previous_tray_balance,
+            "current_tray_balance": current_tray_balance,
+            "transaction_type": transaction_type,
+            "updated_by_superadmin": True,
+            "updated_at": get_ist_now().isoformat()
+        }
+        
+        await db.sales.update_one(
+            {"id": sale_id},
+            {"$set": update_data}
+        )
+        
+        # Get updated sale
+        updated_sale = await db.sales.find_one({"id": sale_id}, {"_id": 0})
+        
+        return success_response(
+            data=updated_sale,
+            message="Transaction fully updated by superadmin"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in full edit sale: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error updating sale: {str(e)}")
