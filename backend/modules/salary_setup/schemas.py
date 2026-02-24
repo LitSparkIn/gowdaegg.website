@@ -8,14 +8,14 @@ class SalarySetupCreateRequest(BaseModel):
     """Schema for creating a new salary setup"""
     salesman_id: str = Field(..., description="Salesman ID")
     joining_date: str = Field(..., description="Joining date (YYYY-MM-DD)")
-    monthly_salary: float = Field(..., ge=0, description="Monthly salary amount")
-    current_balance: float = Field(default=0, ge=0, description="Current salary balance")
+    monthly_salary: float = Field(..., description="Monthly salary amount (can be negative for advance)")
+    current_balance: float = Field(default=0, description="Current salary balance (can be negative for advance)")
 
 
 class SalarySetupUpdateRequest(BaseModel):
     """Schema for updating a salary setup"""
     joining_date: Optional[str] = Field(None, description="Joining date (YYYY-MM-DD)")
-    monthly_salary: Optional[float] = Field(None, ge=0, description="Monthly salary amount")
+    monthly_salary: Optional[float] = Field(None, description="Monthly salary amount (can be negative for advance)")
 
 
 class SalaryBalanceUpdateRequest(BaseModel):
