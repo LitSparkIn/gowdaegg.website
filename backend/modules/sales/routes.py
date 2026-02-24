@@ -202,7 +202,7 @@ async def send_whatsapp_for_sale(
         try:
             dt = datetime.strptime(f"{sale_date} {sale_time}", "%Y-%m-%d %H:%M:%S")
             transaction_datetime = dt.strftime("%d-%m-%Y %I:%M %p")
-        except:
+        except ValueError:
             transaction_datetime = f"{sale_date} {sale_time}"
     else:
         transaction_datetime = datetime.now().strftime("%d-%m-%Y %I:%M %p")
