@@ -694,6 +694,64 @@ const TransactionReportPage = () => {
     }
   };
 
+  // Full Edit handlers
+  const handleFullEditClick = (sale) => {
+    setFullEditSale(sale);
+    setFullEditForm({
+      crates: sale.crates?.toString() || "0",
+      price: sale.price?.toString() || "0",
+      order_amount: sale.order_amount?.toString() || "0",
+      shop_previous_dues: sale.shop_previous_dues?.toString() || "0",
+      total_amount: sale.total_amount?.toString() || "0",
+      collected_amount: sale.collected_amount?.toString() || "0",
+      pending_amount: sale.pending_amount?.toString() || "0",
+      payment_type: sale.payment_type || "Cash",
+      return_tray: sale.return_tray?.toString() || "0",
+      previous_tray_balance: sale.previous_tray_balance?.toString() || "0",
+      current_tray_balance: sale.current_tray_balance?.toString() || "0"
+    });
+    setIsFullEditDialogOpen(true);
+  };
+
+  const handleFullEditFormChange = (field, value) => {
+    setFullEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFullEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!fullEditSale) return;
+    
+    setFullEditSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("crates", fullEditForm.crates);
+      formData.append("price", fullEditForm.price);
+      formData.append("order_amount", fullEditForm.order_amount);
+      formData.append("shop_previous_dues", fullEditForm.shop_previous_dues);
+      formData.append("total_amount", fullEditForm.total_amount);
+      formData.append("collected_amount", fullEditForm.collected_amount);
+      formData.append("pending_amount", fullEditForm.pending_amount);
+      formData.append("payment_type", fullEditForm.payment_type);
+      formData.append("return_tray", fullEditForm.return_tray);
+      formData.append("previous_tray_balance", fullEditForm.previous_tray_balance);
+      formData.append("current_tray_balance", fullEditForm.current_tray_balance);
+      
+      await api.put(`/sales/${fullEditSale.id}/full-edit`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      toast.success("Transaction fully updated");
+      setIsFullEditDialogOpen(false);
+      setFullEditSale(null);
+      fetchSales();
+    } catch (error) {
+      console.error("Error in full edit:", error);
+      toast.error(error.response?.data?.detail || "Failed to update transaction");
+    } finally {
+      setFullEditSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
