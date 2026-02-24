@@ -325,42 +325,51 @@ async def recalculate_shop_dues(
     current_user: dict = Depends(verify_superadmin)
 ):
     """
-    Recalculate all transaction dues for a shop from the beginning.
-    This fixes any inconsistencies caused by network issues or concurrent transactions.
+    Recalculate today's transaction dues for a shop.
+    Only recalculates from today's first transaction to fix inconsistencies
+    caused by network issues or concurrent transactions.
     Only accessible by superadmin.
     """
+    from core.timezone import get_ist_date
+    
     try:
         # Get the shop
         shop = await db.shops.find_one({"id": shop_id}, {"_id": 0})
         if not shop:
             raise HTTPException(status_code=404, detail="Shop not found")
         
-        # Get all transactions for this shop, sorted by date and time ascending
-        transactions = await db.sales.find(
-            {"shop_id": shop_id},
-            {"_id": 0}
-        ).sort([("sale_date", 1), ("sale_time", 1), ("created_at", 1)]).to_list(100000)
+        today_date = get_ist_date()
         
-        if not transactions:
+        # Get today's transactions for this shop, sorted by time ascending
+        todays_transactions = await db.sales.find(
+            {"shop_id": shop_id, "sale_date": today_date},
+            {"_id": 0}
+        ).sort([("sale_time", 1), ("created_at", 1)]).to_list(10000)
+        
+        if not todays_transactions:
             return success_response(
-                data={"shop_id": shop_id, "updated_count": 0},
-                message="No transactions found for this shop"
+                data={"shop_id": shop_id, "updated_count": 0, "date": today_date},
+                message="No transactions found for today"
             )
         
-        # Get the shop's initial previous_dues (before any transactions)
-        # We'll use the first transaction's shop_previous_dues as the starting point
-        # OR we need to calculate backwards from current state
+        # Get the last transaction BEFORE today to get the starting point
+        last_previous_txn = await db.sales.find_one(
+            {"shop_id": shop_id, "sale_date": {"$lt": today_date}},
+            {"_id": 0, "pending_amount": 1, "current_tray_balance": 1}
+        )
         
-        # Strategy: Recalculate from the first transaction
-        # The first transaction's shop_previous_dues should be the "original" dues
-        initial_dues = transactions[0].get("shop_previous_dues", 0)
-        initial_tray_balance = transactions[0].get("previous_tray_balance", 0)
+        if last_previous_txn:
+            # Start from yesterday's ending values
+            running_dues = last_previous_txn.get("pending_amount", 0)
+            running_tray = last_previous_txn.get("current_tray_balance", 0)
+        else:
+            # No previous transactions, use today's first transaction's previous values
+            running_dues = todays_transactions[0].get("shop_previous_dues", 0)
+            running_tray = todays_transactions[0].get("previous_tray_balance", 0)
         
-        running_dues = initial_dues
-        running_tray = initial_tray_balance
         updated_count = 0
         
-        for txn in transactions:
+        for txn in todays_transactions:
             txn_id = txn["id"]
             crates = txn.get("crates", 0)
             price = txn.get("price", 0)
@@ -415,12 +424,13 @@ async def recalculate_shop_dues(
             data={
                 "shop_id": shop_id,
                 "shop_name": shop.get("name"),
-                "total_transactions": len(transactions),
+                "date": today_date,
+                "total_transactions": len(todays_transactions),
                 "updated_count": updated_count,
                 "final_dues": running_dues,
                 "final_tray_balance": running_tray
             },
-            message=f"Successfully recalculated {updated_count} transactions for {shop.get('name')}"
+            message=f"Successfully recalculated {updated_count} transactions for today"
         )
     except HTTPException:
         raise
