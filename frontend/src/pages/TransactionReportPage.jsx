@@ -87,6 +87,11 @@ const TransactionReportPage = () => {
   const [cascadePreview, setCascadePreview] = useState(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   
+  // Recalculate dues state
+  const [showRecalculateDialog, setShowRecalculateDialog] = useState(false);
+  const [recalculatingSale, setRecalculatingSale] = useState(null);
+  const [recalculating, setRecalculating] = useState(false);
+  
   // Filters - default to today only
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
