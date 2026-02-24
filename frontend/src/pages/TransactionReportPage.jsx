@@ -1264,17 +1264,17 @@ const TransactionReportPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Calculator size={20} className="text-purple-600" />
-              Recalculate Shop Dues
+              Recalculate Today's Dues
             </AlertDialogTitle>
             <AlertDialogDescription className="text-left space-y-2">
-              <p>This will recalculate <strong>all transactions</strong> for:</p>
+              <p>This will recalculate <strong>today's transactions</strong> for:</p>
               <p className="font-semibold text-foreground">{recalculatingSale?.shop_name}</p>
               <p className="text-sm">
-                All previous dues, pending amounts, and tray balances will be recalculated 
-                from the first transaction to fix any inconsistencies.
+                All previous dues, pending amounts, and tray balances for today will be 
+                recalculated to fix any inconsistencies caused by network issues.
               </p>
               <p className="text-sm text-amber-600 font-medium">
-                This action will update the shop's current dues and tray balance.
+                This will also update the shop's current dues and tray balance.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1291,7 +1291,7 @@ const TransactionReportPage = () => {
                   Recalculating...
                 </>
               ) : (
-                "Recalculate Dues"
+                "Recalculate Today's Dues"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
