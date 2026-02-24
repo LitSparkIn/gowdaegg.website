@@ -1238,6 +1238,18 @@ const TransactionReportPage = () => {
                         Edit
                       </Button>
                     )}
+                    {isSuperadmin && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleRecalculateClick(sale)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white h-7 px-3 text-xs font-medium"
+                        data-testid={`recalculate-btn-${index}`}
+                        title="Recalculate all dues for this shop"
+                      >
+                        <Calculator size={14} className="mr-1" />
+                        Recalculate
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1245,6 +1257,46 @@ const TransactionReportPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Recalculate Confirmation Dialog */}
+      <AlertDialog open={showRecalculateDialog} onOpenChange={setShowRecalculateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Calculator size={20} className="text-purple-600" />
+              Recalculate Shop Dues
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left space-y-2">
+              <p>This will recalculate <strong>all transactions</strong> for:</p>
+              <p className="font-semibold text-foreground">{recalculatingSale?.shop_name}</p>
+              <p className="text-sm">
+                All previous dues, pending amounts, and tray balances will be recalculated 
+                from the first transaction to fix any inconsistencies.
+              </p>
+              <p className="text-sm text-amber-600 font-medium">
+                This action will update the shop's current dues and tray balance.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={recalculating}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRecalculateDues}
+              disabled={recalculating}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {recalculating ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Recalculating...
+                </>
+              ) : (
+                "Recalculate Dues"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) setCascadePreview(null); }}>
