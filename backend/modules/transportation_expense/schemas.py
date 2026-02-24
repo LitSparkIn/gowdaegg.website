@@ -12,6 +12,7 @@ class TransportationExpenseCreateRequest(BaseModel):
     toll_over_load: float = Field(default=0, ge=0, description="Toll and overload charges")
     loading_charges: float = Field(default=0, ge=0, description="Loading charges")
     other_expenses: float = Field(default=0, ge=0, description="Other expenses")
+    comments: Optional[str] = Field(default="", description="Comments or notes")
 
 
 class TransportationExpenseUpdateRequest(BaseModel):
@@ -23,6 +24,7 @@ class TransportationExpenseUpdateRequest(BaseModel):
     toll_over_load: Optional[float] = Field(None, ge=0, description="Toll and overload charges")
     loading_charges: Optional[float] = Field(None, ge=0, description="Loading charges")
     other_expenses: Optional[float] = Field(None, ge=0, description="Other expenses")
+    comments: Optional[str] = Field(None, description="Comments or notes")
 
 
 # ============ Response Schemas ============
