@@ -708,6 +708,18 @@ const TransportationExpensePage = () => {
                     data-testid="other-expenses-input"
                   />
                 </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="comments" className="text-xs">Comments</Label>
+                  <Input
+                    id="comments"
+                    type="text"
+                    value={formData.comments}
+                    onChange={(e) => handleInputChange("comments", e.target.value)}
+                    placeholder="Add any notes or comments"
+                    data-testid="comments-input"
+                  />
+                </div>
               </div>
 
               {/* Auto-calculated Summary */}
