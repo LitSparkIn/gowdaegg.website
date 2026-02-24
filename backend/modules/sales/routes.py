@@ -353,21 +353,26 @@ async def recalculate_shop_dues(
                 message="No transactions found for today"
             )
         
-        # Get the last transaction BEFORE today to get the starting point
-        last_previous_txn = await db.sales.find_one(
+        # Get the LAST transaction BEFORE today to get the starting point
+        # Must sort by date desc, time desc to get the most recent one
+        last_previous_txn = await db.sales.find(
             {"shop_id": shop_id, "sale_date": {"$lt": today_date}},
-            {"_id": 0, "pending_amount": 1, "current_tray_balance": 1}
-        )
+            {"_id": 0, "pending_amount": 1, "current_tray_balance": 1, "sale_date": 1, "sale_time": 1}
+        ).sort([("sale_date", -1), ("sale_time", -1), ("created_at", -1)]).limit(1).to_list(1)
         
-        if last_previous_txn:
+        if last_previous_txn and len(last_previous_txn) > 0:
             # Start from yesterday's ending values
-            running_dues = last_previous_txn.get("pending_amount", 0)
-            running_tray = last_previous_txn.get("current_tray_balance", 0)
+            running_dues = last_previous_txn[0].get("pending_amount", 0)
+            running_tray = last_previous_txn[0].get("current_tray_balance", 0)
+            starting_from = f"{last_previous_txn[0].get('sale_date')} {last_previous_txn[0].get('sale_time', '')}"
         else:
             # No previous transactions, use today's first transaction's previous values
             running_dues = todays_transactions[0].get("shop_previous_dues", 0)
             running_tray = todays_transactions[0].get("previous_tray_balance", 0)
+            starting_from = "first transaction (no previous history)"
         
+        initial_dues = running_dues
+        initial_tray = running_tray
         updated_count = 0
         
         for txn in todays_transactions:
