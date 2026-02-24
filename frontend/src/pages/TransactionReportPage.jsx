@@ -31,6 +31,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -38,7 +48,7 @@ const API = `${BACKEND_URL}/api`;
 import { useUserRole } from "@/hooks/useUserRole";
 
 const TransactionReportPage = () => {
-  const { isReadOnly } = useUserRole();
+  const { isReadOnly, isSuperadmin } = useUserRole();
   const [sales, setSales] = useState([]);
   const [sendingWhatsApp, setSendingWhatsApp] = useState({});
   const [salesmen, setSalesmen] = useState([]);
