@@ -1386,6 +1386,182 @@ const TransactionReportPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Full Edit Dialog (Superadmin) */}
+      <Dialog open={isFullEditDialogOpen} onOpenChange={setIsFullEditDialogOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Pencil size={20} />
+              Full Edit Transaction (Superadmin)
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFullEditSubmit}>
+            <div className="space-y-4 py-4">
+              {fullEditSale && (
+                <div className="text-sm text-muted-foreground space-y-1 p-3 bg-red-50 rounded-lg border border-red-200">
+                  <p><strong>Shop:</strong> {fullEditSale.shop_name}</p>
+                  <p><strong>Salesman:</strong> {fullEditSale.salesman_name}</p>
+                  <p><strong>Date:</strong> {formatDate(fullEditSale.sale_date)} {fullEditSale.sale_time}</p>
+                  <p className="text-red-600 text-xs mt-2">⚠️ This will NOT cascade to other transactions. Use with caution.</p>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full-crates">Crates</Label>
+                  <Input
+                    id="full-crates"
+                    type="number"
+                    value={fullEditForm.crates}
+                    onChange={(e) => handleFullEditFormChange("crates", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-price">Price</Label>
+                  <Input
+                    id="full-price"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.price}
+                    onChange={(e) => handleFullEditFormChange("price", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full-order-amount">Order Amount</Label>
+                  <Input
+                    id="full-order-amount"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.order_amount}
+                    onChange={(e) => handleFullEditFormChange("order_amount", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-prev-dues">Prev Dues</Label>
+                  <Input
+                    id="full-prev-dues"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.shop_previous_dues}
+                    onChange={(e) => handleFullEditFormChange("shop_previous_dues", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full-total">Total Amount</Label>
+                  <Input
+                    id="full-total"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.total_amount}
+                    onChange={(e) => handleFullEditFormChange("total_amount", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-collected">Collected</Label>
+                  <Input
+                    id="full-collected"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.collected_amount}
+                    onChange={(e) => handleFullEditFormChange("collected_amount", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full-pending">Pending Amount</Label>
+                  <Input
+                    id="full-pending"
+                    type="number"
+                    step="0.01"
+                    value={fullEditForm.pending_amount}
+                    onChange={(e) => handleFullEditFormChange("pending_amount", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-payment">Payment Type</Label>
+                  <Select
+                    value={fullEditForm.payment_type}
+                    onValueChange={(value) => handleFullEditFormChange("payment_type", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="Cheque">Cheque</SelectItem>
+                      <SelectItem value="Online">Online</SelectItem>
+                      <SelectItem value="Bill">Bill</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full-return-tray">Return Tray</Label>
+                  <Input
+                    id="full-return-tray"
+                    type="number"
+                    value={fullEditForm.return_tray}
+                    onChange={(e) => handleFullEditFormChange("return_tray", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-prev-tray">Prev Tray Bal</Label>
+                  <Input
+                    id="full-prev-tray"
+                    type="number"
+                    value={fullEditForm.previous_tray_balance}
+                    onChange={(e) => handleFullEditFormChange("previous_tray_balance", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-curr-tray">Curr Tray Bal</Label>
+                  <Input
+                    id="full-curr-tray"
+                    type="number"
+                    value={fullEditForm.current_tray_balance}
+                    onChange={(e) => handleFullEditFormChange("current_tray_balance", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsFullEditDialogOpen(false)}
+                disabled={fullEditSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={fullEditSubmitting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {fullEditSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save All Changes"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) setCascadePreview(null); }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
