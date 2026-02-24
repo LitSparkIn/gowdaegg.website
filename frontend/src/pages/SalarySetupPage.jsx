@@ -533,13 +533,13 @@ const SalarySetupPage = () => {
                 <Input
                   id="monthly_salary"
                   type="number"
-                  min="0"
                   step="0.01"
                   value={formData.monthly_salary}
                   onChange={(e) => handleInputChange("monthly_salary", e.target.value)}
-                  placeholder="Enter monthly salary"
+                  placeholder="Enter monthly salary (negative for advance)"
                   data-testid="monthly-salary-input"
                 />
+                <p className="text-xs text-muted-foreground">Use negative value if additional advance is paid</p>
               </div>
 
               {/* Initial Balance (only for new) */}
@@ -549,14 +549,13 @@ const SalarySetupPage = () => {
                   <Input
                     id="current_balance"
                     type="number"
-                    min="0"
                     step="0.01"
                     value={formData.current_balance}
                     onChange={(e) => handleInputChange("current_balance", e.target.value)}
-                    placeholder="0"
+                    placeholder="0 (negative for advance given)"
                     data-testid="current-balance-input"
                   />
-                  <p className="text-xs text-muted-foreground">Initial balance if any pending salary</p>
+                  <p className="text-xs text-muted-foreground">Initial balance (negative if advance already paid)</p>
                 </div>
               )}
             </div>
