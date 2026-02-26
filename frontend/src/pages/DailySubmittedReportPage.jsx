@@ -165,18 +165,23 @@ const DailySubmittedReportPage = () => {
   };
 
   const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    // Add 5:30 hours for IST
-    date.setHours(date.getHours() + 5);
-    date.setMinutes(date.getMinutes() + 30);
-    return date.toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    });
+    if (!dateString) return "-";
+    try {
+      // Parse the date string and convert to IST
+      const date = new Date(dateString);
+      // Use Intl.DateTimeFormat with IST timezone
+      return new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      }).format(date);
+    } catch {
+      return dateString;
+    }
   };
 
   const formatCurrency = (amount) => {
