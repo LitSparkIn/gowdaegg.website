@@ -39,47 +39,61 @@ async def get_daily_summary(
     
     # ============ CRATE INFORMATION ============
     
-    # Get carryover from previous days (all purchases - all sales before today)
-    # Total purchased before today
-    prev_purchase_pipeline = [
-        {"$match": {"purchase_date": {"$lt": target_date}}},
-        {"$group": {
-            "_id": None,
-            "total_crates": {"$sum": "$crates"},
-            "total_value": {"$sum": "$total"}
-        }}
-    ]
-    prev_purchase_result = await db.purchases.aggregate(prev_purchase_pipeline).to_list(1)
-    prev_total_purchased = prev_purchase_result[0]["total_crates"] if prev_purchase_result else 0
-    prev_total_purchase_value = prev_purchase_result[0]["total_value"] if prev_purchase_result else 0
+    # First, check if yesterday's summary was submitted - use that for carryover values
+    yesterday_summary = await db.daily_summaries.find_one(
+        {"date": previous_date},
+        {"_id": 0, "expenses.carryover_tomorrow": 1, "expenses.carryover_rate_tomorrow": 1, "crate_information.average_rate": 1}
+    )
     
-    # Total sold before today
-    prev_sales_pipeline = [
-        {"$match": {"sale_date": {"$lt": target_date}}},
-        {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}}}
-    ]
-    prev_sales_result = await db.sales.aggregate(prev_sales_pipeline).to_list(1)
-    prev_total_sold = prev_sales_result[0]["total_crates"] if prev_sales_result else 0
-    
-    # Total damaged before today (from sale_reports)
-    prev_damage_pipeline = [
-        {"$match": {"report_date": {"$lt": target_date}}},
-        {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
-    ]
-    prev_damage_result = await db.sale_reports.aggregate(prev_damage_pipeline).to_list(1)
-    prev_total_damaged = prev_damage_result[0]["total_damaged"] if prev_damage_result else 0
-    
-    carryover_crates = prev_total_purchased - prev_total_sold - prev_total_damaged
-    carryover_crates = max(0, carryover_crates)  # Ensure non-negative
-    
-    # Carryover price (average price from previous purchases)
-    if prev_total_purchased > 0:
-        carryover_price = prev_total_purchase_value / (prev_total_purchased * 30) if prev_total_purchased > 0 else 0
+    if yesterday_summary:
+        # Use the locked/submitted values from yesterday
+        carryover_crates = yesterday_summary.get("expenses", {}).get("carryover_tomorrow", 0)
+        # Use carryover_rate_tomorrow if available, otherwise fall back to average_rate
+        carryover_price = yesterday_summary.get("expenses", {}).get("carryover_rate_tomorrow") or \
+                          yesterday_summary.get("crate_information", {}).get("average_rate", 0)
+        carryover_price = round(carryover_price, 2)
     else:
-        carryover_price = 0
-    
-    # Round carryover_price to 2 decimals
-    carryover_price = round(carryover_price, 2)
+        # No submitted summary for yesterday - calculate from raw data
+        # Get carryover from previous days (all purchases - all sales before today)
+        # Total purchased before today
+        prev_purchase_pipeline = [
+            {"$match": {"purchase_date": {"$lt": target_date}}},
+            {"$group": {
+                "_id": None,
+                "total_crates": {"$sum": "$crates"},
+                "total_value": {"$sum": "$total"}
+            }}
+        ]
+        prev_purchase_result = await db.purchases.aggregate(prev_purchase_pipeline).to_list(1)
+        prev_total_purchased = prev_purchase_result[0]["total_crates"] if prev_purchase_result else 0
+        prev_total_purchase_value = prev_purchase_result[0]["total_value"] if prev_purchase_result else 0
+        
+        # Total sold before today
+        prev_sales_pipeline = [
+            {"$match": {"sale_date": {"$lt": target_date}}},
+            {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}}}
+        ]
+        prev_sales_result = await db.sales.aggregate(prev_sales_pipeline).to_list(1)
+        prev_total_sold = prev_sales_result[0]["total_crates"] if prev_sales_result else 0
+        
+        # Total damaged before today (from sale_reports)
+        prev_damage_pipeline = [
+            {"$match": {"report_date": {"$lt": target_date}}},
+            {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
+        ]
+        prev_damage_result = await db.sale_reports.aggregate(prev_damage_pipeline).to_list(1)
+        prev_total_damaged = prev_damage_result[0]["total_damaged"] if prev_damage_result else 0
+        
+        carryover_crates = prev_total_purchased - prev_total_sold - prev_total_damaged
+        carryover_crates = max(0, carryover_crates)  # Ensure non-negative
+        
+        # Carryover price (average price from previous purchases)
+        if prev_total_purchased > 0:
+            carryover_price = prev_total_purchase_value / (prev_total_purchased * 30)
+        else:
+            carryover_price = 0
+        
+        carryover_price = round(carryover_price, 2)
     
     # Today's purchases
     today_purchase_pipeline = [
@@ -393,31 +407,45 @@ async def submit_daily_summary(
     target_date_obj = datetime.strptime(target_date, "%Y-%m-%d")
     previous_date = (target_date_obj - timedelta(days=1)).strftime("%Y-%m-%d")
     
-    # Get carryover
-    prev_purchase_pipeline = [
-        {"$match": {"purchase_date": {"$lt": target_date}}},
-        {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$total"}}}
-    ]
-    prev_purchase_result = await db.purchases.aggregate(prev_purchase_pipeline).to_list(1)
-    prev_total_purchased = prev_purchase_result[0]["total_crates"] if prev_purchase_result else 0
-    prev_total_purchase_value = prev_purchase_result[0]["total_value"] if prev_purchase_result else 0
+    # First, check if yesterday's summary was submitted - use that for carryover values
+    yesterday_summary = await db.daily_summaries.find_one(
+        {"date": previous_date},
+        {"_id": 0, "expenses.carryover_tomorrow": 1, "expenses.carryover_rate_tomorrow": 1, "crate_information.average_rate": 1}
+    )
     
-    prev_sales_pipeline = [
-        {"$match": {"sale_date": {"$lt": target_date}}},
-        {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}}}
-    ]
-    prev_sales_result = await db.sales.aggregate(prev_sales_pipeline).to_list(1)
-    prev_total_sold = prev_sales_result[0]["total_crates"] if prev_sales_result else 0
+    if yesterday_summary:
+        # Use the locked/submitted values from yesterday
+        carryover_crates = yesterday_summary.get("expenses", {}).get("carryover_tomorrow", 0)
+        carryover_price = yesterday_summary.get("expenses", {}).get("carryover_rate_tomorrow") or \
+                          yesterday_summary.get("crate_information", {}).get("average_rate", 0)
+        carryover_price = round(carryover_price, 2)
+    else:
+        # No submitted summary for yesterday - calculate from raw data
+        prev_purchase_pipeline = [
+            {"$match": {"purchase_date": {"$lt": target_date}}},
+            {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$total"}}}
+        ]
+        prev_purchase_result = await db.purchases.aggregate(prev_purchase_pipeline).to_list(1)
+        prev_total_purchased = prev_purchase_result[0]["total_crates"] if prev_purchase_result else 0
+        prev_total_purchase_value = prev_purchase_result[0]["total_value"] if prev_purchase_result else 0
+        
+        prev_sales_pipeline = [
+            {"$match": {"sale_date": {"$lt": target_date}}},
+            {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}}}
+        ]
+        prev_sales_result = await db.sales.aggregate(prev_sales_pipeline).to_list(1)
+        prev_total_sold = prev_sales_result[0]["total_crates"] if prev_sales_result else 0
+        
+        prev_damage_pipeline = [
+            {"$match": {"report_date": {"$lt": target_date}}},
+            {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
+        ]
+        prev_damage_result = await db.sale_reports.aggregate(prev_damage_pipeline).to_list(1)
+        prev_total_damaged = prev_damage_result[0]["total_damaged"] if prev_damage_result else 0
+        
+        carryover_crates = max(0, prev_total_purchased - prev_total_sold - prev_total_damaged)
+        carryover_price = round(prev_total_purchase_value / (prev_total_purchased * 30), 2) if prev_total_purchased > 0 else 0
     
-    prev_damage_pipeline = [
-        {"$match": {"report_date": {"$lt": target_date}}},
-        {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
-    ]
-    prev_damage_result = await db.sale_reports.aggregate(prev_damage_pipeline).to_list(1)
-    prev_total_damaged = prev_damage_result[0]["total_damaged"] if prev_damage_result else 0
-    
-    carryover_crates = max(0, prev_total_purchased - prev_total_sold - prev_total_damaged)
-    carryover_price = round(prev_total_purchase_value / (prev_total_purchased * 30), 2) if prev_total_purchased > 0 else 0
     carryover_value = round(carryover_crates * 30 * carryover_price, 2)
     
     # Today's purchases
