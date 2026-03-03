@@ -350,7 +350,8 @@ async def get_daily_summary(
                 "total_sale": round(sale_value, 2),
                 "net_purchase": round(net_purchase, 2),
                 "net_profit": round(net_profit, 2),
-                "carryover_tomorrow": carryover_tomorrow
+                "carryover_tomorrow": carryover_tomorrow,
+                "carryover_rate_tomorrow": round(average_rate, 2)
             },
             "salesman_status": {
                 "salesmen": salesman_status,
@@ -524,7 +525,8 @@ async def submit_daily_summary(
             "total_sale": total_sale_value,
             "net_purchase": net_purchase,
             "net_profit": net_profit,
-            "carryover_tomorrow": carryover_tomorrow
+            "carryover_tomorrow": carryover_tomorrow,
+            "carryover_rate_tomorrow": round(average_rate, 2)
         },
         "submitted_by": current_user.get("sub"),
         "submitted_at": get_ist_now().isoformat(),

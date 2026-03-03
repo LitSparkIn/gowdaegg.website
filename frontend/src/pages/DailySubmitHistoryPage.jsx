@@ -263,6 +263,7 @@ const DailySubmitHistoryPage = () => {
         ["Sale Value", `₹${(summary.profit_loss?.sale_value || 0).toLocaleString()}`],
         ["Net Profit", `₹${(summary.expenses?.net_profit || 0).toLocaleString()}`],
         ["Carryover Tomorrow", `${summary.expenses?.carryover_tomorrow || 0} crates`],
+        ["Carryover Rate for Tomorrow", `₹${summary.expenses?.carryover_rate_tomorrow || summary.crate_information?.average_rate || 0}`],
       ],
       theme: "grid",
       headStyles: { fillColor: [34, 84, 61], fontSize: 9 },
@@ -342,6 +343,7 @@ const DailySubmitHistoryPage = () => {
             <tr><td>Net Purchase (COGS)</td><td class="text-right">₹${(summary.expenses?.net_purchase || 0).toLocaleString()}</td></tr>
             <tr class="highlight"><td>Net Profit</td><td class="text-right ${(summary.expenses?.net_profit || 0) >= 0 ? 'profit' : 'loss'}">₹${(summary.expenses?.net_profit || 0).toLocaleString()}</td></tr>
             <tr><td>Carryover Tomorrow</td><td class="text-right">${summary.expenses?.carryover_tomorrow || 0} crates</td></tr>
+            <tr><td>Carryover Rate for Tomorrow</td><td class="text-right">₹${summary.expenses?.carryover_rate_tomorrow || summary.crate_information?.average_rate || 0}</td></tr>
           </table>
         </div>
         
@@ -659,6 +661,7 @@ const DailySubmitHistoryPage = () => {
                     )} 
                   />
                   <SummaryRow label="Carryover Tomorrow" value={`${formatNumber(selectedSummary.expenses?.carryover_tomorrow)} crates`} valueClass="text-blue-600" />
+                  <SummaryRow label="Carryover Rate for Tomorrow" value={`₹${formatNumber(selectedSummary.expenses?.carryover_rate_tomorrow || selectedSummary.crate_information?.average_rate || 0)}`} valueClass="text-blue-600" />
                 </CardContent>
               </Card>
             </div>

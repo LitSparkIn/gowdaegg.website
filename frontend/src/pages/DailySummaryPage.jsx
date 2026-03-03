@@ -747,6 +747,11 @@ const DailySummaryPage = () => {
                   calculation={`${formatNumber(summary.crate_information.net_crates)} - ${formatNumber(summary.sale_information.total_sales)}`}
                   valueClass="text-blue-600 font-bold"
                 />
+                <SummaryRow 
+                  label="Carryover Rate for Tomorrow" 
+                  value={`₹${formatNumber(summary.expenses.carryover_rate_tomorrow || summary.crate_information.average_rate)}`}
+                  valueClass="text-blue-600"
+                />
               </div>
             </CardContent>
           </Card>
