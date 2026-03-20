@@ -71,6 +71,7 @@ const SalaryExpensePage = () => {
     salesman_id: "",
     amount: "",
     payment_mode: "Cash",
+    comments: "",
   });
 
   const fetchSalarySetups = async () => {
@@ -168,6 +169,7 @@ const SalaryExpensePage = () => {
         salesman_id: expense.salesman_id || "",
         amount: expense.amount?.toString() || "",
         payment_mode: expense.payment_mode || "Cash",
+        comments: expense.comments || "",
       });
     } else {
       setEditingExpense(null);
@@ -175,6 +177,7 @@ const SalaryExpensePage = () => {
         salesman_id: "",
         amount: "",
         payment_mode: "Cash",
+        comments: "",
       });
     }
     setIsDialogOpen(true);
@@ -187,6 +190,7 @@ const SalaryExpensePage = () => {
       salesman_id: "",
       amount: "",
       payment_mode: "Cash",
+      comments: "",
     });
   };
 
@@ -213,12 +217,14 @@ const SalaryExpensePage = () => {
         salesman_id: formData.salesman_id,
         amount: parseFloat(formData.amount),
         payment_mode: formData.payment_mode,
+        comments: formData.comments || "",
       };
       
       if (editingExpense) {
         await api.put(`/salary-expenses/${editingExpense.id}`, {
           amount: parseFloat(formData.amount),
           payment_mode: formData.payment_mode,
+          comments: formData.comments || "",
         });
         toast.success("Salary expense updated successfully");
       } else {
@@ -491,6 +497,7 @@ const SalaryExpensePage = () => {
                     <TableHead className="py-4">Salesman</TableHead>
                     <TableHead className="text-right py-4">Amount</TableHead>
                     <TableHead className="py-4">Payment Mode</TableHead>
+                    <TableHead className="py-4">Comments</TableHead>
                     <TableHead className="text-center py-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -516,6 +523,9 @@ const SalaryExpensePage = () => {
                         )}>
                           {expense.payment_mode}
                         </span>
+                      </TableCell>
+                      <TableCell className="py-4 text-sm text-muted-foreground max-w-[200px] truncate" title={expense.comments}>
+                        {expense.comments || "-"}
                       </TableCell>
                       <TableCell className="text-center py-4">
                         <div className="flex items-center justify-center gap-1">
@@ -549,6 +559,7 @@ const SalaryExpensePage = () => {
                     <TableCell className="text-right py-4 font-bold text-green-600">
                       {formatCurrency(filteredExpenses.reduce((sum, e) => sum + (e.amount || 0), 0))}
                     </TableCell>
+                    <TableCell className="py-4"></TableCell>
                     <TableCell className="py-4"></TableCell>
                     <TableCell className="py-4"></TableCell>
                   </TableRow>
@@ -639,6 +650,19 @@ const SalaryExpensePage = () => {
                     <SelectItem value="Online">Online</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Comments */}
+              <div className="space-y-2">
+                <Label htmlFor="comments">Comments</Label>
+                <Input
+                  id="comments"
+                  type="text"
+                  value={formData.comments}
+                  onChange={(e) => handleInputChange("comments", e.target.value)}
+                  placeholder="Add any notes or comments"
+                  data-testid="comments-input"
+                />
               </div>
 
               {/* Balance preview for new expense */}

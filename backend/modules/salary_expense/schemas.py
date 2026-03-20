@@ -8,12 +8,14 @@ class SalaryExpenseCreateRequest(BaseModel):
     salesman_id: str = Field(..., description="Salesman ID")
     amount: float = Field(..., gt=0, description="Amount paid")
     payment_mode: str = Field(..., description="Payment mode: Cash, Cheque, Online")
+    comments: Optional[str] = Field(default="", description="Comments or notes")
 
 
 class SalaryExpenseUpdateRequest(BaseModel):
     """Schema for updating a salary expense"""
     amount: Optional[float] = Field(None, gt=0, description="Amount paid")
     payment_mode: Optional[str] = Field(None, description="Payment mode: Cash, Cheque, Online")
+    comments: Optional[str] = Field(None, description="Comments or notes")
 
 
 # ============ Response Schemas ============
@@ -25,6 +27,7 @@ class SalaryExpenseResponse(BaseModel):
     salesman_name: str
     amount: float
     payment_mode: str
+    comments: Optional[str] = ""
     expense_date: str
     created_at: str
     updated_at: str
