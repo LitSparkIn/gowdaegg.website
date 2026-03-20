@@ -6,6 +6,7 @@ from typing import Optional
 class TransportationExpenseCreateRequest(BaseModel):
     """Schema for creating a new transportation expense"""
     salesman_id: str = Field(..., description="Salesman ID")
+    vehicle_number: Optional[str] = Field(default="", description="Vehicle number")
     amount_given: float = Field(..., ge=0, description="Amount given to driver")
     diesel: float = Field(default=0, ge=0, description="Diesel expense")
     driver_bata: float = Field(default=0, ge=0, description="Driver bata expense")
@@ -18,6 +19,7 @@ class TransportationExpenseCreateRequest(BaseModel):
 class TransportationExpenseUpdateRequest(BaseModel):
     """Schema for updating an existing transportation expense"""
     salesman_id: Optional[str] = Field(None, description="Salesman ID")
+    vehicle_number: Optional[str] = Field(None, description="Vehicle number")
     amount_given: Optional[float] = Field(None, ge=0, description="Amount given to driver")
     diesel: Optional[float] = Field(None, ge=0, description="Diesel expense")
     driver_bata: Optional[float] = Field(None, ge=0, description="Driver bata expense")
@@ -34,6 +36,7 @@ class TransportationExpenseResponse(BaseModel):
     id: str
     salesman_id: str
     salesman_name: str
+    vehicle_number: Optional[str] = ""
     amount_given: float
     diesel: float
     driver_bata: float

@@ -44,7 +44,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Pencil, Trash2, Car, Loader2, CalendarIcon, Filter, X, Search, FileSpreadsheet, FileText, Printer } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, Loader2, CalendarIcon, Filter, X, Search, FileSpreadsheet, FileText, Printer, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -67,8 +67,13 @@ const TransportationExpensePage = () => {
   const [toDate, setToDate] = useState(new Date());
   const [selectedSalesman, setSelectedSalesman] = useState("");
   
+  // View details modal state
+  const [viewingExpense, setViewingExpense] = useState(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  
   const [formData, setFormData] = useState({
     salesman_id: "",
+    vehicle_number: "",
     amount_given: "",
     diesel: "",
     driver_bata: "",
@@ -182,6 +187,7 @@ const TransportationExpensePage = () => {
       setEditingExpense(expense);
       setFormData({
         salesman_id: expense.salesman_id || "",
+        vehicle_number: expense.vehicle_number || "",
         amount_given: expense.amount_given?.toString() || "",
         diesel: expense.diesel?.toString() || "",
         driver_bata: expense.driver_bata?.toString() || "",
@@ -194,6 +200,7 @@ const TransportationExpensePage = () => {
       setEditingExpense(null);
       setFormData({
         salesman_id: "",
+        vehicle_number: "",
         amount_given: "",
         diesel: "",
         driver_bata: "",
@@ -211,6 +218,7 @@ const TransportationExpensePage = () => {
     setEditingExpense(null);
     setFormData({
       salesman_id: "",
+      vehicle_number: "",
       amount_given: "",
       diesel: "",
       driver_bata: "",
@@ -219,6 +227,11 @@ const TransportationExpensePage = () => {
       other_expenses: "",
       comments: "",
     });
+  };
+
+  const handleViewDetails = (expense) => {
+    setViewingExpense(expense);
+    setIsViewDialogOpen(true);
   };
 
   const handleInputChange = (field, value) => {
@@ -242,6 +255,7 @@ const TransportationExpensePage = () => {
     try {
       const payload = {
         salesman_id: formData.salesman_id,
+        vehicle_number: formData.vehicle_number || "",
         amount_given: parseFloat(formData.amount_given) || 0,
         diesel: parseFloat(formData.diesel) || 0,
         driver_bata: parseFloat(formData.driver_bata) || 0,
@@ -513,12 +527,8 @@ const TransportationExpensePage = () => {
                     <TableHead className="w-12 py-4">#</TableHead>
                     <TableHead className="py-4">Date</TableHead>
                     <TableHead className="py-4">Salesman</TableHead>
+                    <TableHead className="py-4">Vehicle</TableHead>
                     <TableHead className="text-right py-4">Amount Given</TableHead>
-                    <TableHead className="text-right py-4">Diesel</TableHead>
-                    <TableHead className="text-right py-4">Driver Bata</TableHead>
-                    <TableHead className="text-right py-4">Toll/Overload</TableHead>
-                    <TableHead className="text-right py-4">Loading</TableHead>
-                    <TableHead className="text-right py-4">Other</TableHead>
                     <TableHead className="text-right py-4">Total Expense</TableHead>
                     <TableHead className="text-right py-4">Balance Back</TableHead>
                     <TableHead className="text-center py-4">Actions</TableHead>
@@ -534,12 +544,8 @@ const TransportationExpensePage = () => {
                       <TableCell className="font-medium py-4">{index + 1}</TableCell>
                       <TableCell className="py-4">{formatDate(expense.expense_date)}</TableCell>
                       <TableCell className="font-medium py-4">{expense.salesman_name}</TableCell>
+                      <TableCell className="py-4">{expense.vehicle_number || "-"}</TableCell>
                       <TableCell className="text-right py-4">{formatCurrency(expense.amount_given)}</TableCell>
-                      <TableCell className="text-right py-4">{formatCurrency(expense.diesel)}</TableCell>
-                      <TableCell className="text-right py-4">{formatCurrency(expense.driver_bata)}</TableCell>
-                      <TableCell className="text-right py-4">{formatCurrency(expense.toll_over_load)}</TableCell>
-                      <TableCell className="text-right py-4">{formatCurrency(expense.loading_charges)}</TableCell>
-                      <TableCell className="text-right py-4">{formatCurrency(expense.other_expenses)}</TableCell>
                       <TableCell className="text-right py-4 font-semibold text-orange-600">{formatCurrency(expense.total_expense)}</TableCell>
                       <TableCell className={cn(
                         "text-right py-4 font-semibold",
@@ -550,9 +556,20 @@ const TransportationExpensePage = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handleViewDetails(expense)}
+                            data-testid={`view-expense-${index}`}
+                            className="hover:bg-green-100 hover:text-green-600"
+                            title="View Details"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleOpenDialog(expense)}
                             data-testid={`edit-expense-${index}`}
                             className="hover:bg-blue-100 hover:text-blue-600"
+                            title="Edit"
                           >
                             <Pencil size={16} />
                           </Button>
@@ -562,6 +579,7 @@ const TransportationExpensePage = () => {
                             onClick={() => handleDeleteClick(expense)}
                             data-testid={`delete-expense-${index}`}
                             className="hover:bg-red-100 hover:text-red-600"
+                            title="Delete"
                           >
                             <Trash2 size={16} />
                           </Button>
@@ -634,6 +652,19 @@ const TransportationExpensePage = () => {
                   onChange={(e) => handleInputChange("amount_given", e.target.value)}
                   placeholder="Enter amount given"
                   data-testid="amount-given-input"
+                />
+              </div>
+
+              {/* Vehicle Number */}
+              <div className="space-y-2">
+                <Label htmlFor="vehicle_number">Vehicle Number</Label>
+                <Input
+                  id="vehicle_number"
+                  type="text"
+                  value={formData.vehicle_number}
+                  onChange={(e) => handleInputChange("vehicle_number", e.target.value.toUpperCase())}
+                  placeholder="e.g., KA01AB1234"
+                  data-testid="vehicle-number-input"
                 />
               </div>
 
@@ -773,6 +804,106 @@ const TransportationExpensePage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* View Details Modal */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Car size={20} className="text-orange-600" />
+              Transportation Expense Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewingExpense && (
+            <div className="space-y-4">
+              {/* Header Info */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="text-xs text-muted-foreground">Date</p>
+                  <p className="font-semibold">{formatDate(viewingExpense.expense_date)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Salesman</p>
+                  <p className="font-semibold">{viewingExpense.salesman_name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Vehicle Number</p>
+                  <p className="font-semibold">{viewingExpense.vehicle_number || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Amount Given</p>
+                  <p className="font-semibold text-blue-600">{formatCurrency(viewingExpense.amount_given)}</p>
+                </div>
+              </div>
+
+              {/* Expense Breakdown */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-gray-100 px-4 py-2">
+                  <p className="font-medium text-sm">Expense Breakdown</p>
+                </div>
+                <div className="divide-y">
+                  <div className="flex justify-between px-4 py-2">
+                    <span className="text-muted-foreground">Diesel</span>
+                    <span className="font-medium">{formatCurrency(viewingExpense.diesel)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-2">
+                    <span className="text-muted-foreground">Driver Bata</span>
+                    <span className="font-medium">{formatCurrency(viewingExpense.driver_bata)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-2">
+                    <span className="text-muted-foreground">Toll/Overload</span>
+                    <span className="font-medium">{formatCurrency(viewingExpense.toll_over_load)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-2">
+                    <span className="text-muted-foreground">Loading Charges</span>
+                    <span className="font-medium">{formatCurrency(viewingExpense.loading_charges)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-2">
+                    <span className="text-muted-foreground">Other Expenses</span>
+                    <span className="font-medium">{formatCurrency(viewingExpense.other_expenses)}</span>
+                  </div>
+                  <div className="flex justify-between px-4 py-3 bg-orange-50">
+                    <span className="font-semibold">Total Expense</span>
+                    <span className="font-bold text-orange-600">{formatCurrency(viewingExpense.total_expense)}</span>
+                  </div>
+                  <div className={cn(
+                    "flex justify-between px-4 py-3",
+                    viewingExpense.balance_given_back >= 0 ? "bg-green-50" : "bg-red-50"
+                  )}>
+                    <span className="font-semibold">Balance Given Back</span>
+                    <span className={cn(
+                      "font-bold",
+                      viewingExpense.balance_given_back >= 0 ? "text-green-600" : "text-red-600"
+                    )}>
+                      {formatCurrency(viewingExpense.balance_given_back)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Comments */}
+              {viewingExpense.comments && (
+                <div className="border rounded-lg p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Comments</p>
+                  <p className="text-sm">{viewingExpense.comments}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={() => {
+              setIsViewDialogOpen(false);
+              handleOpenDialog(viewingExpense);
+            }}>
+              <Pencil size={14} className="mr-2" />
+              Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
