@@ -20,8 +20,11 @@ class ShopResponse(BaseModel):
     phone: str
     address: str
     previous_dues: float
+    credit_threshold: float = 0.0
     tray_balance: int
     route_id: str
+    profit_margin: float = 0.0
+    allow_rate_edit: bool = False
 
 class ShopListResponse(BaseModel):
     """List of shops"""

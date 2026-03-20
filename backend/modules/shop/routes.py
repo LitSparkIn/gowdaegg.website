@@ -90,7 +90,7 @@ async def get_shop_transactions(
     """Get all transactions for a specific shop"""
     from core.response import success_response
     
-    # Check shop exists
+    # Check shop exists - get all fields
     shop = await db.shops.find_one({"id": shop_id}, {"_id": 0})
     if not shop:
         from fastapi import HTTPException

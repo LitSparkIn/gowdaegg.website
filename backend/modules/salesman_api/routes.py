@@ -195,10 +195,10 @@ async def get_shops_by_route(
     if not route:
         raise HTTPException(status_code=404, detail="Route not found")
     
-    # Get shops for this route
+    # Get shops for this route (include all needed fields)
     shops = await db.shops.find(
         {"route_id": route_id},
-        {"_id": 0, "id": 1, "name": 1, "phone": 1, "address": 1, "previous_dues": 1, "tray_balance": 1, "route_id": 1}
+        {"_id": 0}
     ).to_list(1000)
     
     shop_list = [ShopResponse(**s).model_dump() for s in shops]
@@ -220,7 +220,7 @@ async def get_shop_details(
     """
     shop = await db.shops.find_one(
         {"id": shop_id},
-        {"_id": 0, "id": 1, "name": 1, "phone": 1, "address": 1, "previous_dues": 1, "tray_balance": 1, "route_id": 1}
+        {"_id": 0}
     )
     
     if not shop:
