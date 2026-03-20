@@ -46,6 +46,8 @@ class ShopService:
             route_id=shop_data["route_id"],
             route=route_info,
             tray_balance=shop_data["tray_balance"],
+            profit_margin=shop_data.get("profit_margin", 0.0),
+            allow_rate_edit=shop_data.get("allow_rate_edit", False),
             created_at=shop_data["created_at"],
             updated_at=shop_data["updated_at"]
         )
@@ -68,6 +70,8 @@ class ShopService:
             credit_threshold=request.credit_threshold,
             route_id=request.route_id,
             tray_balance=request.tray_balance,
+            profit_margin=request.profit_margin,
+            allow_rate_edit=request.allow_rate_edit,
             created_at=now,
             updated_at=now
         )
@@ -139,6 +143,10 @@ class ShopService:
             update_data["route_id"] = request.route_id
         if request.tray_balance is not None:
             update_data["tray_balance"] = request.tray_balance
+        if request.profit_margin is not None:
+            update_data["profit_margin"] = request.profit_margin
+        if request.allow_rate_edit is not None:
+            update_data["allow_rate_edit"] = request.allow_rate_edit
         
         # Update in database
         updated_shop = await self.repository.update(shop_id, update_data)
