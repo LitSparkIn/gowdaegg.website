@@ -468,7 +468,7 @@ const ShopPage = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Route</TableHead>
-                    <TableHead className="text-right">Credit Threshold</TableHead>
+                    <TableHead className="text-right">Details</TableHead>
                     <TableHead className="text-right">Previous Dues</TableHead>
                     <TableHead className="text-right">Tray Balance</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -500,8 +500,12 @@ const ShopPage = () => {
                           {shop.route?.route_name || "N/A"}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {formatCurrency(shop.credit_threshold || 0)}
+                      <TableCell className="text-right">
+                        <div className="space-y-0.5">
+                          <p className="text-xs text-muted-foreground">Threshold: <span className="font-medium text-foreground">{formatCurrency(shop.credit_threshold || 0)}</span></p>
+                          <p className="text-xs text-muted-foreground">Margin: <span className="font-medium text-foreground">{shop.profit_margin || 0}%</span></p>
+                          <p className="text-xs text-muted-foreground">Rate Edit: <span className={`font-medium ${shop.allow_rate_edit ? "text-green-600" : "text-red-500"}`}>{shop.allow_rate_edit ? "Allowed" : "Not Allowed"}</span></p>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <span className={
