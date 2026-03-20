@@ -13,6 +13,8 @@ class ShopCreateRequest(BaseModel):
     credit_threshold: float = Field(default=0.0, description="Credit threshold limit")
     route_id: str = Field(..., description="Route ID the shop belongs to")
     tray_balance: int = Field(default=0, description="Tray balance count")
+    profit_margin: float = Field(default=0.0, description="Profit margin (positive or negative)")
+    allow_rate_edit: bool = Field(default=False, description="Allow salesman to edit rate")
     
     @field_validator('phone')
     @classmethod
@@ -32,6 +34,8 @@ class ShopUpdateRequest(BaseModel):
     credit_threshold: Optional[float] = Field(None, description="Credit threshold limit")
     route_id: Optional[str] = Field(None, description="Route ID the shop belongs to")
     tray_balance: Optional[int] = Field(None, description="Tray balance count")
+    profit_margin: Optional[float] = Field(None, description="Profit margin (positive or negative)")
+    allow_rate_edit: Optional[bool] = Field(None, description="Allow salesman to edit rate")
     
     @field_validator('phone')
     @classmethod
@@ -61,6 +65,8 @@ class ShopResponse(BaseModel):
     route_id: str
     route: Optional[RouteInfo] = None
     tray_balance: int
+    profit_margin: float = 0.0
+    allow_rate_edit: bool = False
     is_active: Optional[bool] = True
     created_at: str
     updated_at: str

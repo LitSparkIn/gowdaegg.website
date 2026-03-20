@@ -365,6 +365,24 @@ const ShopDetailsPage = () => {
                 <p className="font-medium">{shop.tray_balance || 0}</p>
               </div>
             </div>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <IndianRupee size={18} className="text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Profit Margin</p>
+                <p className={`font-medium ${(shop.profit_margin || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {(shop.profit_margin || 0) >= 0 ? '+' : ''}{formatCurrency(shop.profit_margin || 0)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <CreditCard size={18} className="text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Allow Rate Edit</p>
+                <p className={`font-medium ${shop.allow_rate_edit ? 'text-green-600' : 'text-gray-500'}`}>
+                  {shop.allow_rate_edit ? 'Yes' : 'No'}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Financial Summary */}

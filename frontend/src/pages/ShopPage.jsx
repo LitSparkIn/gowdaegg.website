@@ -39,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X, RotateCcw, Eye } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -72,6 +73,8 @@ const ShopPage = () => {
     credit_threshold: 0,
     route_id: "",
     tray_balance: 0,
+    profit_margin: 0,
+    allow_rate_edit: false,
   });
 
   const getAuthHeaders = () => {
@@ -162,6 +165,8 @@ const ShopPage = () => {
       credit_threshold: 0,
       route_id: "",
       tray_balance: 0,
+      profit_margin: 0,
+      allow_rate_edit: false,
     });
   };
 
@@ -176,6 +181,8 @@ const ShopPage = () => {
         credit_threshold: shop.credit_threshold || 0,
         route_id: shop.route_id,
         tray_balance: shop.tray_balance,
+        profit_margin: shop.profit_margin || 0,
+        allow_rate_edit: shop.allow_rate_edit || false,
       });
     } else {
       setEditingShop(null);
@@ -225,6 +232,8 @@ const ShopPage = () => {
         phone: formData.phone.replace(/[\s\-]/g, ''),
         previous_dues: parseFloat(formData.previous_dues) || 0,
         tray_balance: parseInt(formData.tray_balance) || 0,
+        profit_margin: parseFloat(formData.profit_margin) || 0,
+        allow_rate_edit: Boolean(formData.allow_rate_edit),
       };
 
       if (editingShop) {
@@ -736,6 +745,35 @@ const ShopPage = () => {
                   value={formData.tray_balance}
                   onChange={(e) => handleInputChange("tray_balance", e.target.value)}
                   data-testid="shop-tray-input"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="profit_margin">Profit Margin (₹)</Label>
+                <Input
+                  id="profit_margin"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00 (can be negative)"
+                  value={formData.profit_margin}
+                  onChange={(e) => handleInputChange("profit_margin", e.target.value)}
+                  data-testid="shop-profit-margin-input"
+                />
+                <p className="text-xs text-muted-foreground">Positive or negative margin per unit</p>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-gray-50">
+                <div>
+                  <Label htmlFor="allow_rate_edit" className="text-sm font-medium cursor-pointer">
+                    Allow Rate Edit
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Allow salesman to edit rate for this shop</p>
+                </div>
+                <Switch
+                  id="allow_rate_edit"
+                  checked={formData.allow_rate_edit}
+                  onCheckedChange={(checked) => handleInputChange("allow_rate_edit", checked)}
+                  data-testid="shop-allow-rate-edit-toggle"
                 />
               </div>
             </div>
