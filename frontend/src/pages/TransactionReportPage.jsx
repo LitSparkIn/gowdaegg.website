@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CreditCard, Loader2, CalendarIcon, Filter, X, ImageIcon, MessageCircle, FileSpreadsheet, FileText, Search, Printer, Pencil, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Calculator } from "lucide-react";
+import { CreditCard, Loader2, CalendarIcon, Filter, X, ImageIcon, MessageCircle, FileSpreadsheet, FileText, Search, Printer, Pencil, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Calculator, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
@@ -92,6 +92,13 @@ const TransactionReportPage = () => {
   const [recalculatingSale, setRecalculatingSale] = useState(null);
   const [recalculating, setRecalculating] = useState(false);
   
+  // Replace Image state
+  const [showReplaceImageDialog, setShowReplaceImageDialog] = useState(false);
+  const [replacingImageSale, setReplacingImageSale] = useState(null);
+  const [newImageFile, setNewImageFile] = useState(null);
+  const [newImagePreview, setNewImagePreview] = useState(null);
+  const [replacingImage, setReplacingImage] = useState(false);
+
   // Full Edit state
   const [isFullEditDialogOpen, setIsFullEditDialogOpen] = useState(false);
   const [fullEditSale, setFullEditSale] = useState(null);
@@ -752,6 +759,48 @@ const TransactionReportPage = () => {
     }
   };
 
+  // Replace Image handlers
+  const handleReplaceImageClick = (sale) => {
+    setReplacingImageSale(sale);
+    setNewImageFile(null);
+    setNewImagePreview(null);
+    setShowReplaceImageDialog(true);
+  };
+
+  const handleNewImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImageFile(file);
+      setNewImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleConfirmReplaceImage = async () => {
+    if (!replacingImageSale || !newImageFile) return;
+
+    setReplacingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", newImageFile);
+
+      await api.put(`/sales/${replacingImageSale.id}/replace-image`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      toast.success("Image replaced successfully");
+      setShowReplaceImageDialog(false);
+      setReplacingImageSale(null);
+      setNewImageFile(null);
+      setNewImagePreview(null);
+      fetchSales();
+    } catch (error) {
+      console.error("Error replacing image:", error);
+      toast.error(error.response?.data?.detail || "Failed to replace image");
+    } finally {
+      setReplacingImage(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="transaction-report-page">
       {/* Header */}
@@ -1031,7 +1080,7 @@ const TransactionReportPage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 mb-4 border-b">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>Show</span>
-                <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(parseInt(val))}>
+                <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(val === "all" ? 99999 : parseInt(val))}>
                   <SelectTrigger className="w-20 h-8" data-testid="page-size-select">
                     <SelectValue />
                   </SelectTrigger>
@@ -1040,6 +1089,7 @@ const TransactionReportPage = () => {
                     <SelectItem value="100">100</SelectItem>
                     <SelectItem value="200">200</SelectItem>
                     <SelectItem value="500">500</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                   </SelectContent>
                 </Select>
                 <span>per page</span>
@@ -1289,6 +1339,19 @@ const TransactionReportPage = () => {
                         No Image
                       </span>
                     )}
+                    {!isReadOnly && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReplaceImageClick(sale)}
+                        className="h-7 px-3 text-xs font-medium border-blue-300 text-blue-600 hover:bg-blue-50"
+                        data-testid={`replace-image-btn-${index}`}
+                        title={sale.image_url ? "Replace Image" : "Add Image"}
+                      >
+                        <ImagePlus size={14} className="mr-1" />
+                        {sale.image_url ? "Replace" : "Add"} Image
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => sendWhatsApp(sale.id)}
@@ -1385,6 +1448,80 @@ const TransactionReportPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Replace Image Dialog */}
+      <Dialog open={showReplaceImageDialog} onOpenChange={(open) => { setShowReplaceImageDialog(open); if (!open) { setNewImageFile(null); setNewImagePreview(null); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ImagePlus size={20} className="text-blue-600" />
+              {replacingImageSale?.image_url ? "Replace" : "Add"} Image
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {replacingImageSale && (
+              <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg">
+                <p><strong>Shop:</strong> {replacingImageSale.shop_name}</p>
+                <p><strong>Date:</strong> {formatDate(replacingImageSale.sale_date)} {formatTimeIST(replacingImageSale.sale_time)}</p>
+              </div>
+            )}
+            {replacingImageSale?.image_url && (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Current Image</Label>
+                <img
+                  src={`${BACKEND_URL}${replacingImageSale.image_url}`}
+                  alt="Current"
+                  className="w-full max-h-40 object-contain rounded border"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="replace-image-input">Select New Image</Label>
+              <Input
+                id="replace-image-input"
+                type="file"
+                accept="image/*"
+                onChange={handleNewImageChange}
+                data-testid="replace-image-input"
+              />
+            </div>
+            {newImagePreview && (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">New Image Preview</Label>
+                <img
+                  src={newImagePreview}
+                  alt="Preview"
+                  className="w-full max-h-40 object-contain rounded border"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowReplaceImageDialog(false)}
+              disabled={replacingImage}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmReplaceImage}
+              disabled={!newImageFile || replacingImage}
+              className="bg-blue-600 hover:bg-blue-700"
+              data-testid="confirm-replace-image-btn"
+            >
+              {replacingImage ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>{replacingImageSale?.image_url ? "Replace" : "Add"} Image</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Full Edit Dialog (Superadmin) */}
       <Dialog open={isFullEditDialogOpen} onOpenChange={setIsFullEditDialogOpen}>

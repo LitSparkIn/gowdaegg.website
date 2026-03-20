@@ -448,6 +448,44 @@ async def recalculate_shop_dues(
         raise HTTPException(status_code=500, detail=f"Error recalculating dues: {str(e)}")
 
 
+@admin_router.put("/{sale_id}/replace-image")
+async def replace_sale_image(
+    sale_id: str,
+    image: UploadFile = File(...),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Replace or add an image for a sale transaction.
+    """
+    try:
+        sale = await db.sales.find_one({"id": sale_id}, {"_id": 0})
+        if not sale:
+            raise HTTPException(status_code=404, detail="Sale not found")
+
+        if not image.filename or not image.filename.strip():
+            raise HTTPException(status_code=400, detail="No image file provided")
+
+        image_url = await save_upload_file(image, "sale")
+
+        await db.sales.update_one(
+            {"id": sale_id},
+            {"$set": {"image_url": image_url, "updated_at": get_ist_now().isoformat()}}
+        )
+
+        return success_response(
+            data={"id": sale_id, "image_url": image_url},
+            message="Image replaced successfully"
+        )
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error replacing image: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error replacing image: {str(e)}")
+
+
 @admin_router.put("/{sale_id}/full-edit")
 async def full_edit_sale(
     sale_id: str,
