@@ -503,7 +503,7 @@ const ShopPage = () => {
                       <TableCell className="text-right">
                         <div className="space-y-0.5">
                           <p className="text-xs text-muted-foreground">Threshold: <span className="font-medium text-foreground">{formatCurrency(shop.credit_threshold || 0)}</span></p>
-                          <p className="text-xs text-muted-foreground">Margin: <span className="font-medium text-foreground">{shop.profit_margin || 0}%</span></p>
+                          <p className="text-xs text-muted-foreground">Margin: <span className="font-medium text-foreground">{shop.profit_margin || 0}</span></p>
                           <p className="text-xs text-muted-foreground">Rate Edit: <span className={`font-medium ${shop.allow_rate_edit ? "text-green-600" : "text-red-500"}`}>{shop.allow_rate_edit ? "Allowed" : "Not Allowed"}</span></p>
                         </div>
                       </TableCell>
