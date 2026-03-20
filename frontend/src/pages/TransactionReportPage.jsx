@@ -1089,7 +1089,6 @@ const TransactionReportPage = () => {
                     <SelectItem value="100">100</SelectItem>
                     <SelectItem value="200">200</SelectItem>
                     <SelectItem value="500">500</SelectItem>
-                    <SelectItem value="all">All</SelectItem>
                   </SelectContent>
                 </Select>
                 <span>per page</span>
@@ -1379,16 +1378,7 @@ const TransactionReportPage = () => {
                     )}
                     {isSuperadmin && (
                       <>
-                        <Button
-                          size="sm"
-                          onClick={() => handleRecalculateClick(sale)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white h-7 px-3 text-xs font-medium"
-                          data-testid={`recalculate-btn-${index}`}
-                          title="Recalculate today's dues for this shop"
-                        >
-                          <Calculator size={14} className="mr-1" />
-                          Recalculate
-                        </Button>
+                        {/* Recalculate button hidden per user request */}
                         <Button
                           size="sm"
                           onClick={() => handleFullEditClick(sale)}
