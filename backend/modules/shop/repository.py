@@ -26,10 +26,9 @@ class ShopRepository:
     
     async def get_all(self, skip: int = 0, limit: int = 1000, route_id: Optional[str] = None) -> list[dict]:
         """Get all active shops with optional filtering by route"""
-        # Only get active shops (is_active=True or field doesn't exist for backward compatibility)
-        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        query = {"is_active": {"$ne": False}}
         if route_id:
-            query = {"$and": [query, {"route_id": route_id}]}
+            query["route_id"] = route_id
             
         cursor = self.collection.find(query, {"_id": 0}).skip(skip).limit(limit)
         return await cursor.to_list(length=limit)
@@ -41,9 +40,9 @@ class ShopRepository:
     
     async def get_count(self, route_id: Optional[str] = None) -> int:
         """Get total count of active shops"""
-        query = {"$or": [{"is_active": True}, {"is_active": {"$exists": False}}]}
+        query = {"is_active": {"$ne": False}}
         if route_id:
-            query = {"$and": [query, {"route_id": route_id}]}
+            query["route_id"] = route_id
         return await self.collection.count_documents(query)
     
     async def get_inactive_count(self) -> int:
