@@ -63,6 +63,8 @@ async def create_transportation_expense(
         "other_expenses": request.other_expenses,
         "total_expense": round(total_expense, 2),
         "balance_given_back": round(balance_given_back, 2),
+        "vehicle_number": request.vehicle_number or "",
+        "comments": request.comments or "",
         "expense_date": expense_date,
         "created_at": now.isoformat(),
         "updated_at": now.isoformat()
@@ -189,6 +191,10 @@ async def update_transportation_expense(
         update_data["loading_charges"] = request.loading_charges
     if request.other_expenses is not None:
         update_data["other_expenses"] = request.other_expenses
+    if request.vehicle_number is not None:
+        update_data["vehicle_number"] = request.vehicle_number
+    if request.comments is not None:
+        update_data["comments"] = request.comments
     
     # Recalculate totals
     amount_given = update_data.get("amount_given", expense.get("amount_given", 0))

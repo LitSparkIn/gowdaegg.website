@@ -531,6 +531,7 @@ const TransportationExpensePage = () => {
                     <TableHead className="text-right py-4">Amount Given</TableHead>
                     <TableHead className="text-right py-4">Total Expense</TableHead>
                     <TableHead className="text-right py-4">Balance Back</TableHead>
+                    <TableHead className="py-4">Comments</TableHead>
                     <TableHead className="text-center py-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -551,6 +552,7 @@ const TransportationExpensePage = () => {
                         "text-right py-4 font-semibold",
                         expense.balance_given_back >= 0 ? "text-green-600" : "text-red-600"
                       )}>{formatCurrency(expense.balance_given_back)}</TableCell>
+                      <TableCell className="py-4 max-w-[200px] truncate text-sm text-muted-foreground">{expense.comments || "-"}</TableCell>
                       <TableCell className="text-center py-4">
                         <div className="flex items-center justify-center gap-1">
                           <Button
