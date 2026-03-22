@@ -124,22 +124,31 @@ class SalesmanService:
         limit: int = 1000,
         route_id: Optional[str] = None
     ) -> SalesmanListResponse:
-        """Get all salesmen with pagination and optional route filter (active and inactive)"""
+        """Get all salesmen with pagination and optional route filter (active, exited and inactive)"""
         salesmen = await self.repository.get_all(skip=skip, limit=limit, route_id=route_id)
         inactive_salesmen = await self.repository.get_inactive(skip=0, limit=1000)
         total = await self.repository.get_count(route_id=route_id)
         
         responses = []
+        exited_responses = []
         for salesman in salesmen:
             response = await self._build_response(salesman)
-            responses.append(response)
+            if salesman.get("is_exited", False):
+                exited_responses.append(response)
+            else:
+                responses.append(response)
         
         inactive_responses = []
         for salesman in inactive_salesmen:
             response = await self._build_response(salesman)
             inactive_responses.append(response)
         
-        return SalesmanListResponse(salesmen=responses, inactive_salesmen=inactive_responses, total=total)
+        return SalesmanListResponse(
+            salesmen=responses,
+            inactive_salesmen=inactive_responses,
+            exited_salesmen=exited_responses,
+            total=total
+        )
     
     async def update_salesman(self, salesman_id: str, request: SalesmanUpdateRequest) -> SalesmanResponse:
         """Update an existing salesman"""

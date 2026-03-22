@@ -49,7 +49,7 @@ const SalaryHistoryPage = () => {
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 
   const formatCurrencyPdf = (amount) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(amount);
+    "Rs. " + new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(amount);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";

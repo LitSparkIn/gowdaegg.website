@@ -47,6 +47,7 @@ const SalesmanPage = () => {
   const { isReadOnly } = useUserRole();
   const [salesmen, setSalesmen] = useState([]);
   const [inactiveSalesmen, setInactiveSalesmen] = useState([]);
+  const [exitedSalesmen, setExitedSalesmen] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -55,6 +56,7 @@ const SalesmanPage = () => {
   const [deleteSalesman, setDeleteSalesman] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
+  const [showExited, setShowExited] = useState(false);
   
   const [formData, setFormData] = useState({
     route_id: "",
@@ -89,6 +91,7 @@ const SalesmanPage = () => {
       const response = await api.get(`/salesmen`);
       setSalesmen(response.data.salesmen || []);
       setInactiveSalesmen(response.data.inactive_salesmen || []);
+      setExitedSalesmen(response.data.exited_salesmen || []);
     } catch (error) {
       console.error("Error fetching salesmen:", error);
       toast.error("Failed to fetch salesmen");
@@ -303,7 +306,6 @@ const SalesmanPage = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Route</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
                     <TableHead className="text-right">Tray Balance</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -329,18 +331,6 @@ const SalesmanPage = () => {
                         <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                           {salesman.route?.route_name || "N/A"}
                         </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {salesman.is_exited ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
-                            <LogOut size={12} />
-                            Exited
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                            Active
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -395,6 +385,74 @@ const SalesmanPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Exited Salesmen Section */}
+      {exitedSalesmen.length > 0 && (
+        <Card className="border-border/50 mt-6">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-orange-600 flex items-center gap-2">
+                <LogOut size={20} />
+                Exited Salesmen ({exitedSalesmen.length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowExited(!showExited)}
+              >
+                {showExited ? "Hide" : "Show"}
+              </Button>
+            </div>
+          </CardHeader>
+          {showExited && (
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Route</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {exitedSalesmen.map((salesman, index) => (
+                      <TableRow key={salesman.id} className="opacity-70 hover:opacity-100">
+                        <TableCell className="font-medium">{index + 1}</TableCell>
+                        <TableCell className="font-medium">{salesman.name}</TableCell>
+                        <TableCell>{salesman.phone}</TableCell>
+                        <TableCell>{salesman.route?.route_name || "N/A"}</TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+                            Exited
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {!isReadOnly && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleToggleExit(salesman)}
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              data-testid={`reenter-salesman-${index}`}
+                            >
+                              <Undo2 size={14} className="mr-1" />
+                              Mark as Active
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
 
       {/* Inactive Salesmen Section */}
       {inactiveSalesmen.length > 0 && (

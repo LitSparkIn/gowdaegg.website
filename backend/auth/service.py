@@ -103,6 +103,10 @@ class AuthService:
         if not salesman.get("is_active", True):
             raise UnauthorizedException("Account is deactivated. Please contact admin.")
         
+        # Check if salesman is exited
+        if salesman.get("is_exited", False):
+            raise UnauthorizedException("Account is deactivated. Please contact admin.")
+        
         # Get route info
         route_name = None
         if salesman.get("route_id"):

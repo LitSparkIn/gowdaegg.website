@@ -95,6 +95,7 @@ class SalesmanListResponse(BaseModel):
     """Schema for list of salesmen response"""
     salesmen: list[SalesmanResponse]
     inactive_salesmen: Optional[list[SalesmanResponse]] = []
+    exited_salesmen: Optional[list[SalesmanResponse]] = []
     total: int
 
 class MessageResponse(BaseModel):
