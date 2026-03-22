@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { 
   Loader2, 
   CalendarIcon, 
@@ -45,7 +46,8 @@ import {
   AlertCircle,
   Lock,
   FileText,
-  Printer
+  Printer,
+  UserCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -64,6 +66,11 @@ const DailySummaryPage = () => {
   const [showSalesmanSubmitDialog, setShowSalesmanSubmitDialog] = useState(false);
   const [selectedSalesman, setSelectedSalesman] = useState(null);
   const [salesmanSubmitting, setSalesmanSubmitting] = useState(false);
+
+  // Attendance state
+  const [attendance, setAttendance] = useState(null);
+  const [togglingAttendance, setTogglingAttendance] = useState({});
+
   const [salesmanReportForm, setSalesmanReportForm] = useState({
     crates_damaged: 0,
     expense: 0,
@@ -97,11 +104,37 @@ const DailySummaryPage = () => {
       
       const response = await api.get(`/daily-summary?date=${dateStr}`);
       setSummary(response.data.data);
+
+      // Fetch attendance for the same date
+      fetchAttendance(dateStr);
     } catch (error) {
       console.error("Error fetching daily summary:", error);
       toast.error("Failed to fetch daily summary");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAttendance = async (dateStr) => {
+    try {
+      const response = await api.get(`/attendance?date=${dateStr}`);
+      setAttendance(response.data.data);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
+  };
+
+  const toggleAttendance = async (salesmanId) => {
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    setTogglingAttendance(prev => ({ ...prev, [salesmanId]: true }));
+    try {
+      await api.put(`/attendance/toggle?salesman_id=${salesmanId}&date=${dateStr}`);
+      fetchAttendance(dateStr);
+    } catch (error) {
+      console.error("Error toggling attendance:", error);
+      toast.error("Failed to update attendance");
+    } finally {
+      setTogglingAttendance(prev => ({ ...prev, [salesmanId]: false }));
     }
   };
 
@@ -901,6 +934,92 @@ const DailySummaryPage = () => {
                 <p className="text-sm text-amber-800">
                   {summary.salesman_status.pending_count} active salesman(s) have not submitted their daily reports yet.
                 </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Salesman Attendance Status */}
+      {attendance && attendance.salesmen && (
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <UserCheck size={20} className="text-teal-600" />
+                Salesman Attendance Status
+              </div>
+              <div className="flex items-center gap-4 text-sm font-normal">
+                <span className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 size={16} />
+                  {attendance.present_count} Present
+                </span>
+                {attendance.absent_count > 0 && (
+                  <span className="flex items-center gap-1 text-red-600">
+                    <XCircle size={16} />
+                    {attendance.absent_count} Absent
+                  </span>
+                )}
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-2">
+            {attendance.salesmen.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No salesmen found
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">#</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Salesman</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Phone</th>
+                      <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+                      <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Attendance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendance.salesmen.map((s, index) => (
+                      <tr
+                        key={s.salesman_id}
+                        data-testid={`attendance-row-${index}`}
+                        className={cn(
+                          "border-b last:border-b-0",
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                        )}
+                      >
+                        <td className="py-3 px-4 text-sm text-muted-foreground">{index + 1}</td>
+                        <td className="py-3 px-4">
+                          <p className="font-medium text-sm">{s.salesman_name}</p>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">{s.phone || "-"}</td>
+                        <td className="text-center py-3 px-4">
+                          {s.status === "present" ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+                              Present
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-100 text-red-700 font-medium">
+                              Absent
+                            </span>
+                          )}
+                        </td>
+                        <td className="text-center py-3 px-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <Switch
+                              checked={s.status === "present"}
+                              onCheckedChange={() => toggleAttendance(s.salesman_id)}
+                              disabled={togglingAttendance[s.salesman_id]}
+                              data-testid={`attendance-toggle-${index}`}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>

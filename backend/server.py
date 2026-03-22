@@ -73,6 +73,7 @@ from modules.admin_users.routes import router as admin_users_router
 from modules.transportation_expense.routes import router as transportation_expense_router
 from modules.salary_setup.routes import router as salary_setup_router
 from modules.salary_expense.routes import router as salary_expense_router
+from modules.attendance.routes import router as attendance_router
 
 api_router.include_router(auth_router)
 api_router.include_router(route_router)
@@ -97,6 +98,7 @@ api_router.include_router(admin_users_router)
 api_router.include_router(transportation_expense_router)
 api_router.include_router(salary_setup_router)
 api_router.include_router(salary_expense_router)
+api_router.include_router(attendance_router)
 
 # Include the main api router
 app.include_router(api_router)
