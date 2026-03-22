@@ -174,6 +174,8 @@ async def get_salary_setup_activities(
     setup_id: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
+    from_date: Optional[str] = Query(None, description="Filter from date (YYYY-MM-DD)"),
+    to_date: Optional[str] = Query(None, description="Filter to date (YYYY-MM-DD)"),
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: dict = Depends(verify_admin)
 ):
@@ -183,13 +185,22 @@ async def get_salary_setup_activities(
     if not setup:
         raise HTTPException(status_code=404, detail="Salary setup not found")
     
+    query = {"salary_setup_id": setup_id}
+    if from_date or to_date:
+        date_filter = {}
+        if from_date:
+            date_filter["$gte"] = from_date
+        if to_date:
+            date_filter["$lte"] = to_date
+        query["activity_date"] = date_filter
+    
     cursor = db.salary_activities.find(
-        {"salary_setup_id": setup_id}, 
+        query, 
         {"_id": 0}
     ).sort("created_at", -1).skip(skip).limit(limit)
     
     activities = await cursor.to_list(limit)
-    total = await db.salary_activities.count_documents({"salary_setup_id": setup_id})
+    total = await db.salary_activities.count_documents(query)
     
     return success_response(
         data={

@@ -2,16 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   ArrowLeft,
   History,
@@ -19,13 +11,13 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  Banknote,
   ArrowUpCircle,
   ArrowDownCircle,
-  CheckCircle2,
-  XCircle,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -49,13 +41,22 @@ const SalaryHistoryPage = () => {
   const [attendance, setAttendance] = useState(null);
   const [loadingAttendance, setLoadingAttendance] = useState(true);
 
+  // Balance history month state (independent of calendar)
+  const [histMonth, setHistMonth] = useState(now.getMonth() + 1);
+  const [histYear, setHistYear] = useState(now.getFullYear());
+
   const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
+
+  const formatCurrencyPdf = (amount) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(amount);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     return new Date(dateStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
   };
+
+  const daysInMonth = (m, y) => new Date(y, m, 0).getDate();
 
   const fetchSetup = async () => {
     try {
@@ -70,10 +71,13 @@ const SalaryHistoryPage = () => {
     }
   };
 
-  const fetchActivities = async () => {
+  const fetchActivities = async (month, year) => {
     try {
       setLoadingActivities(true);
-      const response = await api.get(`/salary-setup/${setupId}/activities?limit=500`);
+      const dim = daysInMonth(month, year);
+      const from_date = `${year}-${String(month).padStart(2, "0")}-01`;
+      const to_date = `${year}-${String(month).padStart(2, "0")}-${String(dim).padStart(2, "0")}`;
+      const response = await api.get(`/salary-setup/${setupId}/activities?limit=500&from_date=${from_date}&to_date=${to_date}`);
       setActivities(response.data.data?.activities || []);
     } catch (error) {
       console.error("Error fetching activities:", error);
@@ -100,8 +104,11 @@ const SalaryHistoryPage = () => {
 
   useEffect(() => {
     fetchSetup();
-    fetchActivities();
   }, [setupId]);
+
+  useEffect(() => {
+    fetchActivities(histMonth, histYear);
+  }, [setupId, histMonth, histYear]);
 
   useEffect(() => {
     if (setup) {
@@ -109,22 +116,24 @@ const SalaryHistoryPage = () => {
     }
   }, [setup, calMonth, calYear]);
 
+  // Calendar navigation
   const handlePrevMonth = () => {
-    if (calMonth === 1) {
-      setCalMonth(12);
-      setCalYear(calYear - 1);
-    } else {
-      setCalMonth(calMonth - 1);
-    }
+    if (calMonth === 1) { setCalMonth(12); setCalYear(calYear - 1); }
+    else setCalMonth(calMonth - 1);
+  };
+  const handleNextMonth = () => {
+    if (calMonth === 12) { setCalMonth(1); setCalYear(calYear + 1); }
+    else setCalMonth(calMonth + 1);
   };
 
-  const handleNextMonth = () => {
-    if (calMonth === 12) {
-      setCalMonth(1);
-      setCalYear(calYear + 1);
-    } else {
-      setCalMonth(calMonth + 1);
-    }
+  // History month navigation
+  const handleHistPrevMonth = () => {
+    if (histMonth === 1) { setHistMonth(12); setHistYear(histYear - 1); }
+    else setHistMonth(histMonth - 1);
+  };
+  const handleHistNextMonth = () => {
+    if (histMonth === 12) { setHistMonth(1); setHistYear(histYear + 1); }
+    else setHistMonth(histMonth + 1);
   };
 
   // Build calendar grid
@@ -133,19 +142,124 @@ const SalaryHistoryPage = () => {
     const firstDay = new Date(calYear, calMonth - 1, 1).getDay();
     const rows = [];
     let currentRow = new Array(firstDay).fill(null);
-
     for (const d of attendance.days) {
       currentRow.push(d);
-      if (currentRow.length === 7) {
-        rows.push(currentRow);
-        currentRow = [];
-      }
+      if (currentRow.length === 7) { rows.push(currentRow); currentRow = []; }
     }
     if (currentRow.length > 0) {
       while (currentRow.length < 7) currentRow.push(null);
       rows.push(currentRow);
     }
     return rows;
+  };
+
+  // PDF Statement generation
+  const generateStatement = async () => {
+    if (!setup) return;
+
+    // Fetch attendance for the history month (might differ from calendar month)
+    let stmtAttendance = null;
+    try {
+      const res = await api.get(
+        `/attendance/salesman/${setup.salesman_id}?month=${histMonth}&year=${histYear}`
+      );
+      stmtAttendance = res.data.data;
+    } catch (e) {
+      console.error("Error fetching attendance for statement:", e);
+    }
+
+    const monthLabel = `${MONTHS[histMonth - 1]} ${histYear}`;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    // Header
+    doc.setFontSize(16);
+    doc.setTextColor(34, 84, 61);
+    doc.text("Salary Statement", 14, 18);
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`Salesman: ${setup.salesman_name}`, 14, 26);
+    doc.text(`Month: ${monthLabel}`, 14, 32);
+    doc.text(`Monthly Salary: ${formatCurrencyPdf(setup.monthly_salary)}  |  Current Balance: ${formatCurrencyPdf(setup.current_balance)}`, 14, 38);
+
+    // Balance History Table
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Balance History", 14, 48);
+
+    if (activities.length > 0) {
+      const tableData = activities.map((a) => [
+        formatDate(a.activity_date),
+        a.activity_type === "credit" ? "Credit" : "Debit",
+        a.remarks || "-",
+        formatCurrencyPdf(a.amount),
+        formatCurrencyPdf(a.balance_before),
+        formatCurrencyPdf(a.balance_after),
+      ]);
+
+      autoTable(doc, {
+        startY: 52,
+        head: [["Date", "Type", "Remarks", "Amount", "Before", "After"]],
+        body: tableData,
+        theme: "grid",
+        headStyles: { fillColor: [34, 84, 61], textColor: 255, fontSize: 8, fontStyle: "bold" },
+        bodyStyles: { fontSize: 8 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 50 },
+          3: { cellWidth: 28, halign: "right" },
+          4: { cellWidth: 28, halign: "right" },
+          5: { cellWidth: 28, halign: "right" },
+        },
+      });
+    } else {
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text("No transactions for this month.", 14, 56);
+    }
+
+    // Attendance Section
+    let nextY = (doc.lastAutoTable?.finalY || 60) + 12;
+    if (nextY > 260) { doc.addPage(); nextY = 18; }
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Attendance Summary", 14, nextY);
+    nextY += 4;
+
+    if (stmtAttendance) {
+      const presentDates = [];
+      const absentDates = [];
+      for (const d of stmtAttendance.days) {
+        if (d.status === "present") presentDates.push(d.day);
+        else absentDates.push(d.day);
+      }
+
+      autoTable(doc, {
+        startY: nextY + 2,
+        head: [["", "Count", "Days"]],
+        body: [
+          ["Present", stmtAttendance.present_count, presentDates.join(", ") || "-"],
+          ["Absent", stmtAttendance.absent_count, absentDates.join(", ") || "-"],
+        ],
+        theme: "grid",
+        headStyles: { fillColor: [34, 84, 61], textColor: 255, fontSize: 8, fontStyle: "bold" },
+        bodyStyles: { fontSize: 8 },
+        columnStyles: {
+          0: { cellWidth: 22, fontStyle: "bold" },
+          1: { cellWidth: 18, halign: "center" },
+          2: { cellWidth: 140 },
+        },
+      });
+    } else {
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text("Attendance data not available.", 14, nextY + 6);
+    }
+
+    doc.save(`Salary_Statement_${setup.salesman_name.replace(/\s+/g, "_")}_${monthLabel.replace(/\s+/g, "_")}.pdf`);
+    toast.success("Statement PDF downloaded!");
   };
 
   if (loadingSetup) {
@@ -204,9 +318,7 @@ const SalaryHistoryPage = () => {
         </Card>
         <Card className="border-orange-200 bg-orange-50">
           <CardContent className="pt-5 pb-4">
-            <p className="text-xs text-muted-foreground">
-              {MONTHS[calMonth - 1]} Attendance
-            </p>
+            <p className="text-xs text-muted-foreground">{MONTHS[calMonth - 1]} Attendance</p>
             {attendance ? (
               <p className="text-xl font-bold text-orange-600">
                 {attendance.present_count}P / {attendance.absent_count}A
@@ -248,7 +360,6 @@ const SalaryHistoryPage = () => {
               </div>
             ) : (
               <>
-                {/* Legend */}
                 <div className="flex items-center gap-4 mb-4 text-xs">
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-sm bg-green-500"></span> Present ({attendance?.present_count || 0})
@@ -257,18 +368,12 @@ const SalaryHistoryPage = () => {
                     <span className="w-3 h-3 rounded-sm bg-red-400"></span> Absent ({attendance?.absent_count || 0})
                   </span>
                 </div>
-
-                {/* Calendar grid */}
                 <div className="border rounded-lg overflow-hidden">
-                  {/* Weekday headers */}
                   <div className="grid grid-cols-7 bg-gray-100 border-b">
                     {WEEKDAYS.map((d) => (
-                      <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">
-                        {d}
-                      </div>
+                      <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">{d}</div>
                     ))}
                   </div>
-                  {/* Day cells */}
                   {calendarGrid.map((row, ri) => (
                     <div key={ri} className="grid grid-cols-7 border-b last:border-b-0">
                       {row.map((cell, ci) => (
@@ -282,15 +387,13 @@ const SalaryHistoryPage = () => {
                           )}
                         >
                           {cell && (
-                            <div className="flex flex-col items-center">
-                              <span className={cn(
-                                "w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium",
-                                cell.status === "present" && "bg-green-500 text-white",
-                                cell.status === "absent" && "bg-red-400 text-white"
-                              )}>
-                                {cell.day}
-                              </span>
-                            </div>
+                            <span className={cn(
+                              "w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium",
+                              cell.status === "present" && "bg-green-500 text-white",
+                              cell.status === "absent" && "bg-red-400 text-white"
+                            )}>
+                              {cell.day}
+                            </span>
                           )}
                         </div>
                       ))}
@@ -305,10 +408,36 @@ const SalaryHistoryPage = () => {
         {/* Balance History */}
         <Card className="border-border/50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <History size={20} className="text-purple-600" />
-              Balance History ({activities.length})
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <History size={20} className="text-purple-600" />
+                Balance History ({activities.length})
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleHistPrevMonth} data-testid="hist-prev-month-btn">
+                  <ChevronLeft size={16} />
+                </Button>
+                <span className="text-sm font-medium min-w-[130px] text-center">
+                  {MONTHS[histMonth - 1]} {histYear}
+                </span>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleHistNextMonth} data-testid="hist-next-month-btn">
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
             </CardTitle>
+            <div className="flex justify-end pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generateStatement}
+                disabled={loadingActivities}
+                className="text-xs"
+                data-testid="get-statement-btn"
+              >
+                <FileText size={14} className="mr-1.5" />
+                Get Statement
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="pt-0">
             {loadingActivities ? (
@@ -318,7 +447,7 @@ const SalaryHistoryPage = () => {
             ) : activities.length === 0 ? (
               <div className="text-center py-12">
                 <History size={40} className="mx-auto text-muted-foreground/50 mb-3" />
-                <p className="text-muted-foreground">No activity history found</p>
+                <p className="text-muted-foreground">No transactions for {MONTHS[histMonth - 1]} {histYear}</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
