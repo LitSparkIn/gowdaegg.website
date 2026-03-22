@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { format } from "date-fns";
+import { format, getDaysInMonth } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +55,8 @@ import {
   PlusCircle,
   ArrowUpCircle,
   ArrowDownCircle,
-  X
+  X,
+  CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -316,7 +317,7 @@ const SalarySetupPage = () => {
       </div>
 
       {/* Summary Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="border-green-200 bg-green-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -360,6 +361,19 @@ const SalarySetupPage = () => {
             </div>
           </CardContent>
         </Card>
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-orange-100 rounded-full">
+                <CalendarDays size={24} className="text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Days in {format(new Date(), "MMMM yyyy")}</p>
+                <p className="text-2xl font-bold text-orange-600">{getDaysInMonth(new Date())}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Table */}
@@ -390,6 +404,7 @@ const SalarySetupPage = () => {
                     <TableHead className="py-4">Salesman</TableHead>
                     <TableHead className="py-4">Joining Date</TableHead>
                     <TableHead className="text-right py-4">Monthly Salary</TableHead>
+                    <TableHead className="text-right py-4">Per Day Salary</TableHead>
                     <TableHead className="text-right py-4">Current Balance</TableHead>
                     <TableHead className="text-center py-4">Actions</TableHead>
                   </TableRow>
@@ -406,6 +421,9 @@ const SalarySetupPage = () => {
                       <TableCell className="py-4">{formatDate(setup.joining_date)}</TableCell>
                       <TableCell className="text-right py-4 font-semibold text-green-600">
                         {formatCurrency(setup.monthly_salary)}
+                      </TableCell>
+                      <TableCell className="text-right py-4 font-semibold text-orange-600">
+                        {formatCurrency(Math.round((setup.monthly_salary || 0) / getDaysInMonth(new Date())))}
                       </TableCell>
                       <TableCell className="text-right py-4 font-semibold text-blue-600">
                         {formatCurrency(setup.current_balance)}
