@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, Loader2, Phone, Mail, RotateCcw, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Loader2, Phone, Mail, RotateCcw, Package, LogOut, Undo2 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -242,6 +242,18 @@ const SalesmanPage = () => {
     }
   };
 
+  const handleToggleExit = async (salesman) => {
+    try {
+      await api.put(`/salesmen/${salesman.id}/toggle-exit`);
+      const newStatus = !salesman.is_exited;
+      toast.success(newStatus ? "Salesman marked as exited" : "Salesman exit status removed");
+      fetchSalesmen();
+    } catch (error) {
+      console.error("Error toggling exit status:", error);
+      toast.error(error.response?.data?.detail || "Failed to update exit status");
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="salesman-page">
       {/* Header */}
@@ -291,6 +303,7 @@ const SalesmanPage = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Route</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
                     <TableHead className="text-right">Tray Balance</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -317,6 +330,18 @@ const SalesmanPage = () => {
                           {salesman.route?.route_name || "N/A"}
                         </span>
                       </TableCell>
+                      <TableCell className="text-center">
+                        {salesman.is_exited ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                            <LogOut size={12} />
+                            Exited
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            Active
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           salesman.tray_balance > 0 
@@ -331,6 +356,16 @@ const SalesmanPage = () => {
                       <TableCell className="text-right">
                         {!isReadOnly && (
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleExit(salesman)}
+                              data-testid={`toggle-exit-${index}`}
+                              className={salesman.is_exited ? "hover:bg-green-100 hover:text-green-600" : "hover:bg-orange-100 hover:text-orange-600"}
+                              title={salesman.is_exited ? "Remove Exit Status" : "Mark as Exited"}
+                            >
+                              {salesman.is_exited ? <Undo2 size={16} /> : <LogOut size={16} />}
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"

@@ -992,7 +992,12 @@ const DailySummaryPage = () => {
                       >
                         <td className="py-3 px-4 text-sm text-muted-foreground">{index + 1}</td>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-sm">{s.salesman_name}</p>
+                          <p className="font-medium text-sm">
+                            {s.salesman_name}
+                            {s.is_exited && (
+                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-100 text-orange-700">Exited</span>
+                            )}
+                          </p>
                         </td>
                         <td className="py-3 px-4 text-sm text-muted-foreground">{s.phone || "-"}</td>
                         <td className="text-center py-3 px-4">

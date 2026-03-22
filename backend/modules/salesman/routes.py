@@ -77,3 +77,31 @@ async def activate_salesman(
     """Activate an inactive salesman"""
     await service.activate_salesman(salesman_id)
     return MessageResponse(message="Salesman activated successfully")
+
+
+@router.put("/{salesman_id}/toggle-exit")
+async def toggle_exit_salesman(
+    salesman_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(get_current_user)
+):
+    """Toggle exited status for a salesman. Exited salesmen remain active but don't get salary."""
+    from core.response import success_response
+
+    salesman = await db.salesmen.find_one({"id": salesman_id}, {"_id": 0})
+    if not salesman:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Salesman not found")
+
+    current = salesman.get("is_exited", False)
+    new_status = not current
+
+    await db.salesmen.update_one(
+        {"id": salesman_id},
+        {"$set": {"is_exited": new_status}}
+    )
+
+    return success_response(
+        data={"id": salesman_id, "is_exited": new_status},
+        message=f"Salesman marked as {'exited' if new_status else 'active'}"
+    )

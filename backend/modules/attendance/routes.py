@@ -32,7 +32,7 @@ async def get_attendance(
     # Get all active salesmen
     salesmen = await db.salesmen.find(
         {"is_active": {"$ne": False}},
-        {"_id": 0, "id": 1, "name": 1, "phone": 1}
+        {"_id": 0, "id": 1, "name": 1, "phone": 1, "is_exited": 1}
     ).sort("name", 1).to_list(1000)
 
     # Get existing attendance records for this date
@@ -49,8 +49,12 @@ async def get_attendance(
 
     for s in salesmen:
         rec = record_map.get(s["id"])
-        # Default is present if no record exists
-        status = rec["status"] if rec else "present"
+        is_exited = s.get("is_exited", False)
+        if rec:
+            status = rec["status"]
+        else:
+            # Default: exited salesmen are absent, others are present
+            status = "absent" if is_exited else "present"
         if status == "present":
             present_count += 1
         else:
@@ -59,7 +63,8 @@ async def get_attendance(
             "salesman_id": s["id"],
             "salesman_name": s["name"],
             "phone": s.get("phone", ""),
-            "status": status
+            "status": status,
+            "is_exited": is_exited
         })
 
     return success_response(
