@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { format, getDaysInMonth } from "date-fns";
@@ -62,6 +63,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
 const SalarySetupPage = () => {
+  const navigate = useNavigate();
   const [setups, setSetups] = useState([]);
   const [salesmen, setSalesmen] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -443,7 +445,7 @@ const SalarySetupPage = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleOpenActivityHistory(setup)}
+                            onClick={() => navigate(`/admin/salary-setup/${setup.id}/history`)}
                             data-testid={`view-history-${index}`}
                             className="hover:bg-purple-100 hover:text-purple-600"
                             title="View History"

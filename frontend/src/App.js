@@ -14,6 +14,7 @@ import SupplierPage from "@/pages/SupplierPage";
 import ExpensePage from "@/pages/ExpensePage";
 import TransportationExpensePage from "@/pages/TransportationExpensePage";
 import SalarySetupPage from "@/pages/SalarySetupPage";
+import SalaryHistoryPage from "@/pages/SalaryHistoryPage";
 import SalaryExpensePage from "@/pages/SalaryExpensePage";
 import PurchasePage from "@/pages/PurchasePage";
 import InitialLoadingReportPage from "@/pages/InitialLoadingReportPage";
@@ -67,6 +68,7 @@ function App() {
             <Route path="transportation-expense" element={<TransportationExpensePage />} />
             <Route path="salary-expense" element={<SalaryExpensePage />} />
             <Route path="salary-setup" element={<SalarySetupPage />} />
+            <Route path="salary-setup/:setupId/history" element={<SalaryHistoryPage />} />
             <Route path="initial-loading-report" element={<InitialLoadingReportPage />} />
             <Route path="route-previous-dues-report" element={<ComingSoon title="Route Previous Dues Report" />} />
             <Route path="transaction-report" element={<TransactionReportPage />} />

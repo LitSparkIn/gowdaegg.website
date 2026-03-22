@@ -132,3 +132,63 @@ async def toggle_attendance(
         },
         message=f"Attendance marked as {new_status}"
     )
+
+
+@router.get("/salesman/{salesman_id}")
+async def get_salesman_attendance(
+    salesman_id: str,
+    month: int = Query(..., ge=1, le=12),
+    year: int = Query(..., ge=2020),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin)
+):
+    """
+    Get attendance records for a specific salesman for a given month/year.
+    Returns a map of date -> status. Days without records are assumed present.
+    """
+    from calendar import monthrange
+
+    salesman = await db.salesmen.find_one({"id": salesman_id}, {"_id": 0, "id": 1, "name": 1, "is_exited": 1})
+    if not salesman:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Salesman not found")
+
+    days_in_month = monthrange(year, month)[1]
+    date_from = f"{year}-{month:02d}-01"
+    date_to = f"{year}-{month:02d}-{days_in_month:02d}"
+
+    records = await db.attendance.find(
+        {"salesman_id": salesman_id, "date": {"$gte": date_from, "$lte": date_to}},
+        {"_id": 0, "date": 1, "status": 1}
+    ).to_list(1000)
+
+    record_map = {r["date"]: r["status"] for r in records}
+
+    is_exited = salesman.get("is_exited", False)
+    default_status = "absent" if is_exited else "present"
+
+    days = []
+    present_count = 0
+    absent_count = 0
+    for day in range(1, days_in_month + 1):
+        date_str = f"{year}-{month:02d}-{day:02d}"
+        status = record_map.get(date_str, default_status)
+        if status == "present":
+            present_count += 1
+        else:
+            absent_count += 1
+        days.append({"date": date_str, "day": day, "status": status})
+
+    return success_response(
+        data={
+            "salesman_id": salesman_id,
+            "salesman_name": salesman["name"],
+            "month": month,
+            "year": year,
+            "days_in_month": days_in_month,
+            "present_count": present_count,
+            "absent_count": absent_count,
+            "days": days
+        },
+        message="Salesman attendance fetched"
+    )
