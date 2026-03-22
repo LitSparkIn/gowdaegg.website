@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from datetime import datetime, timezone, timedelta
+from calendar import monthrange
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import uuid
 
@@ -8,6 +9,9 @@ from core.database import get_database
 from core.response import success_response
 from core.timezone import get_ist_date, get_ist_now
 from auth.security import get_current_user
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/daily-summary", tags=["Daily Summary"])
 
@@ -562,6 +566,67 @@ async def submit_daily_summary(
     }
     
     await db.daily_summaries.insert_one(summary_record)
+
+    # Credit daily salary to present salesmen
+    try:
+        # Get all active salesmen
+        all_salesmen = await db.salesmen.find(
+            {"is_active": {"$ne": False}},
+            {"_id": 0, "id": 1}
+        ).to_list(1000)
+        all_salesman_ids = {s["id"] for s in all_salesmen}
+
+        # Get attendance records marked absent for this date
+        absent_records = await db.attendance.find(
+            {"date": target_date, "status": "absent"},
+            {"_id": 0, "salesman_id": 1}
+        ).to_list(1000)
+        absent_ids = {r["salesman_id"] for r in absent_records}
+
+        # Present salesmen = all active minus absent
+        present_ids = all_salesman_ids - absent_ids
+
+        # Calculate days in the target month
+        days_in_month = monthrange(target_date_obj.year, target_date_obj.month)[1]
+        now_ist = get_ist_now()
+
+        for sid in present_ids:
+            setup = await db.salary_setups.find_one(
+                {"salesman_id": sid},
+                {"_id": 0}
+            )
+            if not setup:
+                continue
+
+            monthly_salary = setup.get("monthly_salary", 0)
+            if monthly_salary == 0:
+                continue
+
+            per_day = round(monthly_salary / days_in_month, 2)
+            balance_before = setup.get("current_balance", 0)
+            balance_after = round(balance_before + per_day, 2)
+
+            await db.salary_setups.update_one(
+                {"id": setup["id"]},
+                {"$set": {"current_balance": balance_after, "updated_at": now_ist.isoformat()}}
+            )
+
+            activity = {
+                "id": str(uuid.uuid4()),
+                "salary_setup_id": setup["id"],
+                "salesman_id": sid,
+                "salesman_name": setup.get("salesman_name", "Unknown"),
+                "activity_type": "credit",
+                "amount": per_day,
+                "balance_before": balance_before,
+                "balance_after": balance_after,
+                "remarks": "Daily Salary",
+                "activity_date": target_date,
+                "created_at": now_ist.isoformat()
+            }
+            await db.salary_activities.insert_one(activity)
+    except Exception as e:
+        logger.error(f"Error crediting daily salary: {str(e)}", exc_info=True)
     
     return success_response(
         data={"date": target_date, "id": summary_record["id"]},
