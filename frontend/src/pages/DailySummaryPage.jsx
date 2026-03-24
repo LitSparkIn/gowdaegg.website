@@ -742,7 +742,7 @@ const DailySummaryPage = () => {
                   label="Gross Profit" 
                   value={formatCurrency(summary.expenses.total_sale - summary.expenses.net_purchase)}
                   calculation={`Total Sale - COGS = ${formatCurrency(summary.expenses.total_sale)} - ${formatCurrency(summary.expenses.net_purchase)}`}
-                  valueClass={(summary.expenses.total_sale - summary.expenses.net_purchase) >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
+                  valueClass={(summary.expenses.total_sale - summary.expenses.net_purchase) >= 0 ? "text-purple-600 font-bold" : "text-purple-600 font-bold"}
                 />
                 <SummaryRowWithCalc 
                   label="Net Profit" 
