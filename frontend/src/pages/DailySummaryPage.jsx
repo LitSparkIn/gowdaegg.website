@@ -311,6 +311,7 @@ const DailySummaryPage = () => {
         ["---", "---"],
         ["Total Sale", formatCurrency(summary.expenses.total_sale)],
         ["Net Purchase (COGS)", formatCurrency(summary.expenses.net_purchase)],
+        ["Gross Profit", formatCurrency(summary.expenses.total_sale - summary.expenses.net_purchase)],
         ["Net Profit", formatCurrency(summary.expenses.net_profit)],
         ["---", "---"],
         ["Carryover for Tomorrow", `${formatNumber(summary.expenses.carryover_tomorrow)} crates`],
@@ -396,6 +397,7 @@ const DailySummaryPage = () => {
               <tr class="separator"><td colspan="2"></td></tr>
               <tr><td>Total Sale</td><td class="text-right profit">${formatCurrency(summary.expenses.total_sale)}</td></tr>
               <tr><td>Net Purchase (COGS)</td><td class="text-right">${formatCurrency(summary.expenses.net_purchase)}</td></tr>
+              <tr><td>Gross Profit</td><td class="text-right ${(summary.expenses.total_sale - summary.expenses.net_purchase) >= 0 ? 'profit' : 'loss'}">${formatCurrency(summary.expenses.total_sale - summary.expenses.net_purchase)}</td></tr>
               <tr class="highlight"><td>Net Profit</td><td class="text-right ${summary.expenses.net_profit >= 0 ? 'profit' : 'loss'}">${formatCurrency(summary.expenses.net_profit)}</td></tr>
               <tr class="separator"><td colspan="2"></td></tr>
               <tr class="highlight"><td>Carryover for Tomorrow</td><td class="text-right">${formatNumber(summary.expenses.carryover_tomorrow)} crates</td></tr>
@@ -735,6 +737,12 @@ const DailySummaryPage = () => {
                   value={formatCurrency(summary.expenses.net_purchase)}
                   calculation={`${formatNumber(summary.profit_loss.total_sale_crates)} crates × 30 × ₹${summary.profit_loss.buy_rate}`}
                   valueClass="text-red-600"
+                />
+                <SummaryRowWithCalc 
+                  label="Gross Profit" 
+                  value={formatCurrency(summary.expenses.total_sale - summary.expenses.net_purchase)}
+                  calculation={`Total Sale - COGS = ${formatCurrency(summary.expenses.total_sale)} - ${formatCurrency(summary.expenses.net_purchase)}`}
+                  valueClass={(summary.expenses.total_sale - summary.expenses.net_purchase) >= 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}
                 />
                 <SummaryRowWithCalc 
                   label="Net Profit" 
