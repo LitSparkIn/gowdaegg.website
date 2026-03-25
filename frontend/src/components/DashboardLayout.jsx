@@ -56,15 +56,14 @@ const allMenuItems = [
   { name: "Profit Loss Report", path: "/admin/profit-loss-report", icon: BarChart3, superadminOnly: true },
   { name: "Daily Summary", path: "/admin/daily-summary", icon: CalendarDays, superadminOnly: true },
   { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History, superadminOnly: true },
+  { name: "Daily Cash Summary", path: "/admin/daily-cash-summary", icon: Coins, superadminOnly: true, comingSoon: true },
+  { name: "Light Damage Summary", path: "/admin/light-damage-summary", icon: AlertTriangle, superadminOnly: true, comingSoon: true },
+  { name: "Profit & Expense Summary", path: "/admin/profit-expense-summary", icon: TrendingUp, superadminOnly: true, comingSoon: true },
   { type: "divider", label: "Settings" },
   { name: "Salary Setup", path: "/admin/salary-setup", icon: UserCheck, superadminOnly: true },
   { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
   { name: "Current Active Balance", path: "/admin/current-active-balance", icon: Wallet, superadminOnly: true },
   { name: "Config Setting", path: "/admin/config-setting", icon: Settings, superadminOnly: true },
-  { type: "divider", label: "Summaries" },
-  { name: "Daily Cash Summary", path: "#", icon: Coins, comingSoon: true },
-  { name: "Light Damage Summary", path: "#", icon: AlertTriangle, comingSoon: true },
-  { name: "Profit & Expense Summary", path: "#", icon: TrendingUp, comingSoon: true },
 ];
 
 const DashboardLayout = () => {
@@ -119,14 +118,18 @@ const DashboardLayout = () => {
 
     if (item.comingSoon) {
       return (
-        <div
-          className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-green-100/40 cursor-default"
-          data-testid={`menu-item-coming-soon-${item.name.replace(/\s+/g, '-').toLowerCase()}`}
+        <button
+          onClick={() => {
+            navigate(item.path);
+            if (onClick) onClick();
+          }}
+          className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-green-100/40 hover:text-green-100/60 hover:bg-green-800/20 transition-colors w-full text-left"
+          data-testid={`menu-item-${item.path.slice(1)}`}
         >
           <Icon size={18} />
           <span className="text-sm whitespace-nowrap">{item.name}</span>
           <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-green-800/50 text-green-300/60 font-medium">Soon</span>
-        </div>
+        </button>
       );
     }
 
