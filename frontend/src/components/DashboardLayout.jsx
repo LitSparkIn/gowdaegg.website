@@ -30,6 +30,9 @@ import {
   Car,
   Banknote,
   UserCheck,
+  Coins,
+  AlertTriangle,
+  TrendingUp,
 } from "lucide-react";
 
 // Menu items with role restrictions
@@ -58,6 +61,10 @@ const allMenuItems = [
   { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
   { name: "Current Active Balance", path: "/admin/current-active-balance", icon: Wallet, superadminOnly: true },
   { name: "Config Setting", path: "/admin/config-setting", icon: Settings, superadminOnly: true },
+  { type: "divider", label: "Summaries" },
+  { name: "Daily Cash Summary", path: "#", icon: Coins, comingSoon: true },
+  { name: "Light Damage Summary", path: "#", icon: AlertTriangle, comingSoon: true },
+  { name: "Profit & Expense Summary", path: "#", icon: TrendingUp, comingSoon: true },
 ];
 
 const DashboardLayout = () => {
@@ -109,6 +116,19 @@ const DashboardLayout = () => {
 
     const Icon = item.icon;
     const active = isActive(item.path);
+
+    if (item.comingSoon) {
+      return (
+        <div
+          className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-green-100/40 cursor-default"
+          data-testid={`menu-item-coming-soon-${item.name.replace(/\s+/g, '-').toLowerCase()}`}
+        >
+          <Icon size={18} />
+          <span className="text-sm whitespace-nowrap">{item.name}</span>
+          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-green-800/50 text-green-300/60 font-medium">Soon</span>
+        </div>
+      );
+    }
 
     return (
       <button
