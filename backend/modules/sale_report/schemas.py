@@ -14,6 +14,7 @@ class SaleReportSubmitRequest(BaseModel):
     online: float = Field(default=0, ge=0, description="Online Amount")
     return_tray: int = Field(default=0, ge=0, description="Return Trays")
     comments: str = Field(default="", description="Comments")
+    denomination: Optional[dict] = Field(default=None, description="Cash denomination breakdown")
 
 class AdminSaleReportSubmitRequest(BaseModel):
     """Schema for admin submitting a sale report on behalf of a salesman"""

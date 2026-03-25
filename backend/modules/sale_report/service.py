@@ -65,6 +65,7 @@ class SaleReportService:
             return_tray=request.return_tray,
             comments=request.comments,
             image_url=image_url,
+            denomination=request.denomination,
             submitted_at=now.isoformat()
         )
         

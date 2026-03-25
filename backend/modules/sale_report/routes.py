@@ -31,6 +31,7 @@ async def submit_sale_report(
     online: float = Form(0),
     return_tray: int = Form(0),
     comments: str = Form(""),
+    denomination: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(default=None),
     service: SaleReportService = Depends(get_service),
     current_user: dict = Depends(verify_salesman)
@@ -40,6 +41,15 @@ async def submit_sale_report(
     Only one report can be submitted per day per salesman.
     """
     salesman_id = current_user["sub"]
+    
+    # Parse denomination JSON
+    denomination_data = None
+    if denomination:
+        import json
+        try:
+            denomination_data = json.loads(denomination)
+        except (json.JSONDecodeError, TypeError):
+            denomination_data = None
     
     # Save image if provided and has a valid filename
     image_url = None
@@ -59,7 +69,8 @@ async def submit_sale_report(
         cheque=cheque,
         online=online,
         return_tray=return_tray,
-        comments=comments
+        comments=comments,
+        denomination=denomination_data
     )
     
     report = await service.submit_sale_report(salesman_id, request, image_url)

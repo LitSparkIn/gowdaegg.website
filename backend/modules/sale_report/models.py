@@ -21,6 +21,7 @@ class SaleReportModel(BaseModel):
     return_tray: int  # User entered
     comments: str  # User entered
     image_url: Optional[str] = None  # Optional image
+    denomination: Optional[dict] = None  # Cash denomination breakdown
     submitted_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
     
     class Config:
