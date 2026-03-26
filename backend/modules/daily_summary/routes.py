@@ -627,6 +627,36 @@ async def submit_daily_summary(
             await db.salary_activities.insert_one(activity)
     except Exception as e:
         logger.error(f"Error crediting daily salary: {str(e)}", exc_info=True)
+
+    # Save daily cash summary snapshot
+    try:
+        cash_txns = await db.cash_transactions.find(
+            {"date": target_date}, {"_id": 0}
+        ).to_list(1000)
+
+        cash_total_credit = sum(t["amount"] for t in cash_txns if t["type"] == "credit")
+        cash_total_debit = sum(t["amount"] for t in cash_txns if t["type"] == "debit")
+
+        cash_snapshot = {
+            "id": str(uuid.uuid4()),
+            "date": target_date,
+            "total_credit": round(cash_total_credit, 2),
+            "total_debit": round(cash_total_debit, 2),
+            "net_cash": round(cash_total_credit - cash_total_debit, 2),
+            "transaction_count": len(cash_txns),
+            "transactions": cash_txns,
+            "submitted_by": current_user.get("sub"),
+            "submitted_at": get_ist_now().isoformat()
+        }
+
+        # Upsert - replace if already exists for the date
+        await db.daily_cash_summaries.update_one(
+            {"date": target_date},
+            {"$set": cash_snapshot},
+            upsert=True
+        )
+    except Exception as e:
+        logger.error(f"Error saving daily cash summary: {str(e)}", exc_info=True)
     
     return success_response(
         data={"date": target_date, "id": summary_record["id"]},

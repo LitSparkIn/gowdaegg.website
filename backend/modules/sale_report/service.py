@@ -8,6 +8,9 @@ from modules.sale_report.models import SaleReportModel
 from modules.sale_report.schemas import SaleReportSubmitRequest, SaleReportResponse
 from core.exceptions import NotFoundException, BadRequestException
 from core.timezone import get_ist_date, get_ist_now
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SaleReportService:
     """Service layer for Sale Report business logic."""
@@ -106,6 +109,25 @@ class SaleReportService:
                 }
             }
         )
+        
+        # Auto-create cash transaction if cash was collected
+        if request.cash_collected and request.cash_collected > 0:
+            try:
+                cash_txn = {
+                    "id": str(uuid.uuid4()),
+                    "date": today_date,
+                    "type": "credit",
+                    "amount": round(request.cash_collected, 2),
+                    "denomination": request.denomination,
+                    "comments": f"Cash Submitted by {salesman_name}",
+                    "source": "sale_report",
+                    "source_id": report_id,
+                    "created_by": salesman_name,
+                    "created_at": now.isoformat()
+                }
+                await self.db.cash_transactions.insert_one(cash_txn)
+            except Exception as e:
+                logger.error(f"Error creating cash transaction: {str(e)}")
         
         return SaleReportResponse(**report.model_dump())
     
