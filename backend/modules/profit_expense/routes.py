@@ -58,7 +58,7 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
     # Get daily summary data for gross profit
     daily_summary = await db.daily_summaries.find_one(
         {"date": target_date},
-        {"_id": 0, "expenses": 1}
+        {"_id": 0, "expenses": 1, "profit_loss": 1}
     )
 
     total_sale = 0
@@ -66,6 +66,38 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
     if daily_summary and daily_summary.get("expenses"):
         total_sale = daily_summary["expenses"].get("total_sale", 0)
         net_purchase = daily_summary["expenses"].get("net_purchase", 0)
+
+    # If no daily summary yet, calculate live from sales data
+    if total_sale == 0:
+        sales_pipeline = [
+            {"$match": {"sale_date": target_date}},
+            {"$group": {
+                "_id": None,
+                "total_crates": {"$sum": "$crates"},
+                "total_value": {"$sum": "$order_amount"}
+            }}
+        ]
+        sales_result = await db.sales.aggregate(sales_pipeline).to_list(1)
+        if sales_result:
+            total_sale = round(sales_result[0].get("total_value", 0), 2)
+            total_crates = sales_result[0].get("total_crates", 0)
+
+            # Calculate net_purchase (COGS) from purchase data
+            purchase_pipeline = [
+                {"$match": {"purchase_date": target_date}},
+                {"$group": {
+                    "_id": None,
+                    "total_crates": {"$sum": "$crates"},
+                    "total_amount": {"$sum": "$amount"},
+                    "weighted_sum": {"$sum": {"$multiply": ["$crates", "$rate"]}}
+                }}
+            ]
+            purchase_result = await db.purchases.aggregate(purchase_pipeline).to_list(1)
+            if purchase_result and purchase_result[0].get("total_crates", 0) > 0:
+                buy_rate = round(purchase_result[0]["weighted_sum"] / purchase_result[0]["total_crates"], 2)
+            else:
+                buy_rate = 0
+            net_purchase = round(total_crates * 30 * buy_rate, 2)
 
     gross_profit = round(total_sale - net_purchase, 2)
 
