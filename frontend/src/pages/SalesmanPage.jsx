@@ -113,6 +113,7 @@ const SalesmanPage = () => {
       email: "",
       pin: "",
       confirm_pin: "",
+      tray_balance: "",
     });
   };
 
@@ -126,6 +127,7 @@ const SalesmanPage = () => {
         email: salesman.email,
         pin: "",
         confirm_pin: "",
+        tray_balance: salesman.tray_balance?.toString() || "0",
       });
     } else {
       setEditingSalesman(null);
@@ -194,6 +196,11 @@ const SalesmanPage = () => {
       if (formData.pin) {
         payload.pin = formData.pin;
         payload.confirm_pin = formData.confirm_pin;
+      }
+
+      // Include tray_balance on edit
+      if (editingSalesman && formData.tray_balance !== "") {
+        payload.tray_balance = parseInt(formData.tray_balance) || 0;
       }
 
       if (editingSalesman) {
@@ -615,6 +622,22 @@ const SalesmanPage = () => {
                   />
                 </div>
               </div>
+
+              {/* Tray Balance (edit only) */}
+              {editingSalesman && (
+                <div className="space-y-2">
+                  <Label htmlFor="tray_balance">Tray Balance</Label>
+                  <Input
+                    id="tray_balance"
+                    type="number"
+                    placeholder="0"
+                    value={formData.tray_balance}
+                    onChange={(e) => handleInputChange("tray_balance", e.target.value)}
+                    data-testid="salesman-tray-balance-input"
+                  />
+                  <p className="text-xs text-muted-foreground">Positive = owes trays, Negative = has extra trays</p>
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button

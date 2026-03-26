@@ -43,6 +43,7 @@ class SalesmanUpdateRequest(BaseModel):
     email: Optional[EmailStr] = Field(None, description="Email address")
     pin: Optional[str] = Field(None, description="4-digit PIN (leave empty to keep current)")
     confirm_pin: Optional[str] = Field(None, description="Confirm 4-digit PIN")
+    tray_balance: Optional[int] = Field(None, description="Tray balance (crates sold - empty trays returned)")
     
     @field_validator('phone')
     @classmethod

@@ -182,6 +182,9 @@ class SalesmanService:
         if request.pin is not None:
             update_data["pin_hash"] = self._hash_pin(request.pin)
         
+        if request.tray_balance is not None:
+            update_data["tray_balance"] = request.tray_balance
+        
         updated = await self.repository.update(salesman_id, update_data)
         return await self._build_response(updated)
     
