@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BASE_URL = "https://tray-balance-hub.preview.emergentagent.com/api"
+BASE_URL = "https://daily-financials-hub.preview.emergentagent.com/api"
 
 def print_test_header(title):
     """Print a formatted test section header"""

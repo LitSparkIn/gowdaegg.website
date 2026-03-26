@@ -129,8 +129,17 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
     salesman_diesel_total = round(sum(e.get("diesel_expense", 0) for e in salesman_expenses), 2)
     salesman_other_total = round(sum(e.get("other_expense", 0) for e in salesman_expenses), 2)
 
+    # 5. Damage Loss
+    damage_pipeline = [
+        {"$match": {"report_date": date_filter}},
+        {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
+    ]
+    damage_result = await db.sale_reports.aggregate(damage_pipeline).to_list(1)
+    damage_crates = damage_result[0]["total_damaged"] if damage_result else 0
+    damage_loss = round(damage_crates * 30 * buy_rate, 2)
+
     total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
-    net_profit = round(gross_profit - total_expenses, 2)
+    net_profit = round(gross_profit - total_expenses - damage_loss, 2)
 
     return {
         "date": f"{from_date} to {to_date}",
@@ -140,6 +149,7 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
         "total_sale": total_sale,
         "net_purchase": net_purchase,
         "gross_profit": gross_profit,
+        "damage_loss": round(damage_loss, 2),
         "general_expenses": general_expenses,
         "general_total": general_total,
         "transportation_expenses": [
@@ -166,56 +176,105 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
 
 
 async def calculate_profit_expense(db, target_date: str) -> dict:
-    """Calculate profit and expense summary for a date from live data."""
+    """Calculate profit and expense summary for a date using same logic as Daily Summary."""
+    from datetime import datetime, timedelta
 
-    # Get daily summary data for gross profit
-    daily_summary = await db.daily_summaries.find_one(
+    # ===== COGS CALCULATION (same as Daily Summary) =====
+
+    # Check for submitted daily summary with carryover values
+    submitted_summary = await db.daily_summaries.find_one(
         {"date": target_date},
-        {"_id": 0, "expenses": 1, "profit_loss": 1}
+        {"_id": 0}
     )
 
-    total_sale = 0
-    net_purchase = 0
+    if submitted_summary and submitted_summary.get("expenses"):
+        # Use submitted data directly
+        total_sale = submitted_summary["expenses"].get("total_sale", 0)
+        net_purchase = submitted_summary["expenses"].get("net_purchase", 0)
+        damage_loss = submitted_summary["expenses"].get("damage_loss", 0)
+    else:
+        # Calculate live - replicate Daily Summary logic exactly
 
-    # Try to get from submitted daily summary first
-    if daily_summary and daily_summary.get("expenses"):
-        total_sale = daily_summary["expenses"].get("total_sale", 0)
-        net_purchase = daily_summary["expenses"].get("net_purchase", 0)
+        # Calculate previous date for carryover
+        target_date_obj = datetime.strptime(target_date, "%Y-%m-%d")
+        previous_date = (target_date_obj - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # Calculate live from sales data if values are missing
-    if total_sale == 0 or net_purchase == 0:
-        sales_pipeline = [
-            {"$match": {"sale_date": target_date}},
-            {"$group": {
-                "_id": None,
-                "total_crates": {"$sum": "$crates"},
-                "total_value": {"$sum": "$order_amount"}
-            }}
+        # Check yesterday's submitted summary for carryover (same as Daily Summary)
+        yesterday_summary = await db.daily_summaries.find_one(
+            {"date": previous_date},
+            {"_id": 0, "expenses.carryover_tomorrow": 1, "expenses.carryover_rate_tomorrow": 1, "crate_information.average_rate": 1}
+        )
+
+        if yesterday_summary:
+            carryover_crates = yesterday_summary.get("expenses", {}).get("carryover_tomorrow", 0)
+            carryover_price = yesterday_summary.get("expenses", {}).get("carryover_rate_tomorrow") or \
+                              yesterday_summary.get("crate_information", {}).get("average_rate", 0)
+            carryover_price = round(carryover_price, 2)
+        else:
+            # No submitted summary for yesterday - calculate from raw data
+            prev_purchase_pipeline = [
+                {"$match": {"purchase_date": {"$lt": target_date}}},
+                {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$total"}}}
+            ]
+            prev_purchase_result = await db.purchases.aggregate(prev_purchase_pipeline).to_list(1)
+            prev_total_purchased = prev_purchase_result[0]["total_crates"] if prev_purchase_result else 0
+            prev_total_purchase_value = prev_purchase_result[0]["total_value"] if prev_purchase_result else 0
+
+            prev_sales_pipeline = [
+                {"$match": {"sale_date": {"$lt": target_date}}},
+                {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}}}
+            ]
+            prev_sales_result = await db.sales.aggregate(prev_sales_pipeline).to_list(1)
+            prev_total_sold = prev_sales_result[0]["total_crates"] if prev_sales_result else 0
+
+            prev_damage_pipeline = [
+                {"$match": {"report_date": {"$lt": target_date}}},
+                {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
+            ]
+            prev_damage_result = await db.sale_reports.aggregate(prev_damage_pipeline).to_list(1)
+            prev_total_damaged = prev_damage_result[0]["total_damaged"] if prev_damage_result else 0
+
+            carryover_crates = max(0, prev_total_purchased - prev_total_sold - prev_total_damaged)
+            carryover_price = round(prev_total_purchase_value / (prev_total_purchased * 30), 2) if prev_total_purchased > 0 else 0
+
+        # Today's purchases
+        today_purchase_pipeline = [
+            {"$match": {"purchase_date": target_date}},
+            {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$total"}}}
         ]
-        sales_result = await db.sales.aggregate(sales_pipeline).to_list(1)
-        if sales_result:
-            if total_sale == 0:
-                total_sale = round(sales_result[0].get("total_value", 0), 2)
-            total_crates = sales_result[0].get("total_crates", 0)
+        today_purchase_result = await db.purchases.aggregate(today_purchase_pipeline).to_list(1)
+        purchase_today = today_purchase_result[0]["total_crates"] if today_purchase_result else 0
+        purchase_today_value = round(today_purchase_result[0]["total_value"], 2) if today_purchase_result else 0
 
-            if net_purchase == 0:
-                # Calculate COGS from purchase data
-                purchase_pipeline = [
-                    {"$match": {"purchase_date": target_date}},
-                    {"$group": {
-                        "_id": None,
-                        "total_crates": {"$sum": "$crates"},
-                        "weighted_sum": {"$sum": {"$multiply": ["$crates", "$rate"]}}
-                    }}
-                ]
-                purchase_result = await db.purchases.aggregate(purchase_pipeline).to_list(1)
-                if purchase_result and purchase_result[0].get("total_crates", 0) > 0:
-                    buy_rate = round(purchase_result[0]["weighted_sum"] / purchase_result[0]["total_crates"], 2)
-                else:
-                    buy_rate = 0
-                net_purchase = round(total_crates * 30 * buy_rate, 2)
+        total_crates = carryover_crates + purchase_today
+        carryover_value = round(carryover_crates * 30 * carryover_price, 2)
+        total_value = round(carryover_value + purchase_today_value, 2)
+        average_rate = round(total_value / (total_crates * 30), 2) if total_crates > 0 else 0
+
+        # Today's damage
+        today_damage_pipeline = [
+            {"$match": {"report_date": target_date}},
+            {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
+        ]
+        today_damage_result = await db.sale_reports.aggregate(today_damage_pipeline).to_list(1)
+        damage_today = today_damage_result[0]["total_damaged"] if today_damage_result else 0
+
+        # Today's sales
+        today_sales_pipeline = [
+            {"$match": {"sale_date": target_date}},
+            {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$order_amount"}}}
+        ]
+        today_sales_result = await db.sales.aggregate(today_sales_pipeline).to_list(1)
+        total_sale_crates = today_sales_result[0]["total_crates"] if today_sales_result else 0
+        total_sale = round(today_sales_result[0]["total_value"], 2) if today_sales_result else 0
+
+        buy_rate = average_rate
+        net_purchase = round(total_sale_crates * 30 * buy_rate, 2)
+        damage_loss = round(damage_today * 30 * average_rate, 2)
 
     gross_profit = round(total_sale - net_purchase, 2)
+
+    # ===== FETCH EXPENSE LINE ITEMS =====
 
     # Fetch individual expense line items from 3 sources
 
@@ -251,13 +310,14 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
     salesman_other_total = round(sum(e.get("other_expense", 0) for e in salesman_expenses), 2)
 
     total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
-    net_profit = round(gross_profit - total_expenses, 2)
+    net_profit = round(gross_profit - total_expenses - damage_loss, 2)
 
     return {
         "date": target_date,
         "total_sale": round(total_sale, 2),
         "net_purchase": round(net_purchase, 2),
         "gross_profit": gross_profit,
+        "damage_loss": round(damage_loss, 2),
         "general_expenses": general_expenses,
         "general_total": general_total,
         "transportation_expenses": [

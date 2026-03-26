@@ -124,9 +124,9 @@ const ProfitExpenseSummaryPage = () => {
             <CardContent>
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-purple-600">{formatCurrency(data.total_sale - data.net_purchase)}</p>
+                  <p className="text-3xl font-bold text-purple-600" data-testid="gross-profit-value">{formatCurrency(data.gross_profit)}</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Total Sale - COGS = {formatCurrency(data.total_sale)} - {formatCurrency(data.net_purchase)}
+                    Total Sale ({formatCurrency(data.total_sale)}) - COGS ({formatCurrency(data.net_purchase)})
                   </p>
                 </div>
               </div>
@@ -273,7 +273,7 @@ const ProfitExpenseSummaryPage = () => {
             </Card>
           </div>
 
-          {/* Total Expenses + Net Profit */}
+          {/* Total Expenses + Damage Loss + Net Profit */}
           <div className="space-y-3">
             <Card className="border-red-200 bg-red-50">
               <CardContent className="pt-5 pb-4 flex items-center justify-between">
@@ -287,16 +287,30 @@ const ProfitExpenseSummaryPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={cn("border-2", data.net_profit >= 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50")}>
+            {(data.damage_loss || 0) > 0 && (
+              <Card className="border-amber-200 bg-amber-50" data-testid="damage-loss-card">
+                <CardContent className="pt-5 pb-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Damage Loss</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Damaged crates valued at avg buy rate
+                    </p>
+                  </div>
+                  <p className="text-2xl font-bold text-amber-600">{formatCurrency(data.damage_loss)}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className={cn("border-2", data.net_profit >= 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50")} data-testid="net-profit-card">
               <CardContent className="pt-5 pb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Net Profit</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Gross Profit ({formatCurrency(data.total_sale - data.net_purchase)}) - Total Expenses ({formatCurrency(data.total_expenses)})
+                    Gross Profit ({formatCurrency(data.gross_profit)}) - Total Expenses ({formatCurrency(data.total_expenses)}){(data.damage_loss || 0) > 0 ? ` - Damage Loss (${formatCurrency(data.damage_loss)})` : ""}
                   </p>
                 </div>
                 <p className={cn("text-3xl font-bold", data.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
-                  {formatCurrency((data.total_sale - data.net_purchase) - data.total_expenses)}
+                  {formatCurrency(data.net_profit)}
                 </p>
               </CardContent>
             </Card>
