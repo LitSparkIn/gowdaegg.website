@@ -46,11 +46,21 @@ async def get_cash_summary(
     # Calculate totals
     total_credit = 0
     total_debit = 0
+    total_notes = 0
+    total_coins = 0
     for t in transactions:
         if t["type"] == "credit":
             total_credit += t["amount"]
         else:
             total_debit += t["amount"]
+        denom = t.get("denomination")
+        if denom:
+            if denom.get("notes"):
+                for d, count in denom["notes"].items():
+                    total_notes += int(d) * int(count)
+            if denom.get("coins"):
+                for d, count in denom["coins"].items():
+                    total_coins += int(d) * int(count)
 
     # Check if daily summary snapshot exists
     daily_snapshot = await db.daily_cash_summaries.find_one(
@@ -65,6 +75,8 @@ async def get_cash_summary(
             "total_credit": round(total_credit, 2),
             "total_debit": round(total_debit, 2),
             "net_cash": round(total_credit - total_debit, 2),
+            "total_notes": total_notes,
+            "total_coins": total_coins,
             "transaction_count": len(transactions),
             "is_submitted": daily_snapshot is not None,
             "snapshot": daily_snapshot

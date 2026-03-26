@@ -256,6 +256,18 @@ const DailyCashSummaryPage = () => {
                   <p className="text-2xl font-bold text-purple-600">{summary.transaction_count}</p>
                 </CardContent>
               </Card>
+              <Card className="border-teal-200 bg-teal-50">
+                <CardContent className="pt-5 pb-4">
+                  <p className="text-xs text-muted-foreground">Total Notes</p>
+                  <p className="text-2xl font-bold text-teal-600">{formatCurrency(summary.total_notes || 0)}</p>
+                </CardContent>
+              </Card>
+              <Card className="border-amber-200 bg-amber-50">
+                <CardContent className="pt-5 pb-4">
+                  <p className="text-xs text-muted-foreground">Total Coins</p>
+                  <p className="text-2xl font-bold text-amber-600">{formatCurrency(summary.total_coins || 0)}</p>
+                </CardContent>
+              </Card>
               {summary.is_submitted && (
                 <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
                   <CheckCircle2 size={14} />

@@ -110,14 +110,15 @@ class SaleReportService:
             }
         )
         
-        # Auto-create cash transaction if cash was collected
-        if request.cash_collected and request.cash_collected > 0:
+        # Auto-create cash transaction (excluding expenses)
+        actual_cash = round(request.cash_collected - request.expense, 2)
+        if actual_cash > 0:
             try:
                 cash_txn = {
                     "id": str(uuid.uuid4()),
                     "date": today_date,
                     "type": "credit",
-                    "amount": round(request.cash_collected, 2),
+                    "amount": actual_cash,
                     "denomination": request.denomination,
                     "comments": f"Cash Submitted by {salesman_name}",
                     "source": "sale_report",
