@@ -199,6 +199,40 @@ const ProfitExpenseSummaryPage = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Salesman Expenses */}
+            <Card className="border-border/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Receipt size={18} className="text-purple-500" />
+                    Salesman Expenses
+                  </div>
+                  <span className="text-purple-600 font-bold">{formatCurrency(data.salesman_expense_total || 0)}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {!data.salesman_expenses || data.salesman_expenses.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No salesman expenses</p>
+                ) : (
+                  <div className="divide-y">
+                    {data.salesman_expenses.map((exp) => (
+                      <div key={exp.id} className="flex items-center justify-between py-2.5">
+                        <div>
+                          <p className="text-sm font-medium">{exp.description}</p>
+                          <div className="flex gap-3 mt-0.5">
+                            {exp.food_expense > 0 && <span className="text-[11px] text-muted-foreground">Food: {formatCurrency(exp.food_expense)}</span>}
+                            {exp.diesel_expense > 0 && <span className="text-[11px] text-muted-foreground">Diesel: {formatCurrency(exp.diesel_expense)}</span>}
+                            {exp.other_expense > 0 && <span className="text-[11px] text-muted-foreground">Other: {formatCurrency(exp.other_expense)}</span>}
+                          </div>
+                        </div>
+                        <span className="text-sm font-semibold text-red-600">{formatCurrency(exp.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Total Expenses + Net Profit */}
@@ -208,7 +242,7 @@ const ProfitExpenseSummaryPage = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Expenses</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    General ({formatCurrency(data.general_total)}) + Transportation ({formatCurrency(data.transportation_total)}) + Salary ({formatCurrency(data.salary_total)})
+                    General ({formatCurrency(data.general_total)}) + Transportation ({formatCurrency(data.transportation_total)}) + Salary ({formatCurrency(data.salary_total)}) + Salesman ({formatCurrency(data.salesman_expense_total || 0)})
                   </p>
                 </div>
                 <p className="text-2xl font-bold text-red-600">{formatCurrency(data.total_expenses)}</p>

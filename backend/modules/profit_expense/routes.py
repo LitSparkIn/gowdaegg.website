@@ -124,7 +124,14 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
     ).to_list(1000)
     salary_total = round(sum(e.get("amount", 0) for e in salary_expenses), 2)
 
-    total_expenses = round(general_total + transportation_total + salary_total, 2)
+    # 4. Salesman Expenses (from sale reports)
+    salesman_expenses = await db.sale_reports.find(
+        {"report_date": target_date, "expense": {"$gt": 0}},
+        {"_id": 0, "id": 1, "salesman_name": 1, "expense": 1, "food_expense": 1, "diesel_expense": 1, "other_expense": 1}
+    ).to_list(1000)
+    salesman_expense_total = round(sum(e.get("expense", 0) for e in salesman_expenses), 2)
+
+    total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
     net_profit = round(gross_profit - total_expenses, 2)
 
     return {
@@ -154,6 +161,18 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
             for e in salary_expenses
         ],
         "salary_total": salary_total,
+        "salesman_expenses": [
+            {
+                "id": e["id"],
+                "description": e.get("salesman_name", "N/A"),
+                "amount": e.get("expense", 0),
+                "food_expense": e.get("food_expense", 0),
+                "diesel_expense": e.get("diesel_expense", 0),
+                "other_expense": e.get("other_expense", 0),
+            }
+            for e in salesman_expenses
+        ],
+        "salesman_expense_total": salesman_expense_total,
         "total_expenses": total_expenses,
         "net_profit": net_profit,
     }
