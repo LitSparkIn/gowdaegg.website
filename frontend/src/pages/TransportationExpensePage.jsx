@@ -613,7 +613,7 @@ const TransportationExpensePage = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Car size={20} className="text-orange-500" />
@@ -622,27 +622,40 @@ const TransportationExpensePage = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
-              {/* Salesman Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="salesman">Select Salesman *</Label>
-                <Select 
-                  value={formData.salesman_id} 
-                  onValueChange={(val) => handleInputChange("salesman_id", val)}
-                >
-                  <SelectTrigger data-testid="salesman-select">
-                    <SelectValue placeholder="Select a salesman" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {salesmen.map((salesman) => (
-                      <SelectItem key={salesman.id} value={salesman.id}>
-                        {salesman.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Top fields in 2 columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="salesman">Select Salesman *</Label>
+                  <Select 
+                    value={formData.salesman_id} 
+                    onValueChange={(val) => handleInputChange("salesman_id", val)}
+                  >
+                    <SelectTrigger data-testid="salesman-select">
+                      <SelectValue placeholder="Select a salesman" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {salesmen.map((salesman) => (
+                        <SelectItem key={salesman.id} value={salesman.id}>
+                          {salesman.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="vehicle_number">Vehicle Number</Label>
+                  <Input
+                    id="vehicle_number"
+                    type="text"
+                    value={formData.vehicle_number}
+                    onChange={(e) => handleInputChange("vehicle_number", e.target.value.toUpperCase())}
+                    placeholder="e.g., KA01AB1234"
+                    data-testid="vehicle-number-input"
+                  />
+                </div>
               </div>
 
-              {/* Amount Given */}
               <div className="space-y-2">
                 <Label htmlFor="amount_given">Amount Given to Driver (₹) *</Label>
                 <Input
@@ -657,24 +670,11 @@ const TransportationExpensePage = () => {
                 />
               </div>
 
-              {/* Vehicle Number */}
-              <div className="space-y-2">
-                <Label htmlFor="vehicle_number">Vehicle Number</Label>
-                <Input
-                  id="vehicle_number"
-                  type="text"
-                  value={formData.vehicle_number}
-                  onChange={(e) => handleInputChange("vehicle_number", e.target.value.toUpperCase())}
-                  placeholder="e.g., KA01AB1234"
-                  data-testid="vehicle-number-input"
-                />
-              </div>
-
               {/* Expense Fields */}
               <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
                 <p className="text-sm font-medium text-gray-700">Expense Breakdown</p>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor="diesel" className="text-xs">Diesel (₹)</Label>
                     <Input
@@ -732,30 +732,32 @@ const TransportationExpensePage = () => {
                   </div>
                 </div>
                 
-                <div className="space-y-1">
-                  <Label htmlFor="other_expenses" className="text-xs">Other Expenses (₹)</Label>
-                  <Input
-                    id="other_expenses"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.other_expenses}
-                    onChange={(e) => handleInputChange("other_expenses", e.target.value)}
-                    placeholder="0"
-                    data-testid="other-expenses-input"
-                  />
-                </div>
-                
-                <div className="space-y-1">
-                  <Label htmlFor="comments" className="text-xs">Comments</Label>
-                  <Input
-                    id="comments"
-                    type="text"
-                    value={formData.comments}
-                    onChange={(e) => handleInputChange("comments", e.target.value)}
-                    placeholder="Add any notes or comments"
-                    data-testid="comments-input"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="other_expenses" className="text-xs">Other Expenses (₹)</Label>
+                    <Input
+                      id="other_expenses"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.other_expenses}
+                      onChange={(e) => handleInputChange("other_expenses", e.target.value)}
+                      placeholder="0"
+                      data-testid="other-expenses-input"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label htmlFor="comments" className="text-xs">Comments</Label>
+                    <Input
+                      id="comments"
+                      type="text"
+                      value={formData.comments}
+                      onChange={(e) => handleInputChange("comments", e.target.value)}
+                      placeholder="Add any notes or comments"
+                      data-testid="comments-input"
+                    />
+                  </div>
                 </div>
               </div>
 
