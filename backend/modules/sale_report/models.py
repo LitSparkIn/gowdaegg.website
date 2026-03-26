@@ -15,6 +15,9 @@ class SaleReportModel(BaseModel):
     remaining_crates: int  # Total - Sold - Damaged
     cash_collected: float
     expense: float  # User entered
+    food_expense: float = 0  # Food expense breakdown
+    diesel_expense: float = 0  # Diesel expense breakdown
+    other_expense: float = 0  # Other expense breakdown
     remaining_cash: float  # cash_collected - expense
     cheque: float
     online: float
