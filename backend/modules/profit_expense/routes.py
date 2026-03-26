@@ -176,12 +176,14 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
 
     total_sale = 0
     net_purchase = 0
+
+    # Try to get from submitted daily summary first
     if daily_summary and daily_summary.get("expenses"):
         total_sale = daily_summary["expenses"].get("total_sale", 0)
         net_purchase = daily_summary["expenses"].get("net_purchase", 0)
 
-    # If no daily summary yet, calculate live from sales data
-    if total_sale == 0:
+    # Calculate live from sales data if values are missing
+    if total_sale == 0 or net_purchase == 0:
         sales_pipeline = [
             {"$match": {"sale_date": target_date}},
             {"$group": {
@@ -192,25 +194,26 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
         ]
         sales_result = await db.sales.aggregate(sales_pipeline).to_list(1)
         if sales_result:
-            total_sale = round(sales_result[0].get("total_value", 0), 2)
+            if total_sale == 0:
+                total_sale = round(sales_result[0].get("total_value", 0), 2)
             total_crates = sales_result[0].get("total_crates", 0)
 
-            # Calculate net_purchase (COGS) from purchase data
-            purchase_pipeline = [
-                {"$match": {"purchase_date": target_date}},
-                {"$group": {
-                    "_id": None,
-                    "total_crates": {"$sum": "$crates"},
-                    "total_amount": {"$sum": "$amount"},
-                    "weighted_sum": {"$sum": {"$multiply": ["$crates", "$rate"]}}
-                }}
-            ]
-            purchase_result = await db.purchases.aggregate(purchase_pipeline).to_list(1)
-            if purchase_result and purchase_result[0].get("total_crates", 0) > 0:
-                buy_rate = round(purchase_result[0]["weighted_sum"] / purchase_result[0]["total_crates"], 2)
-            else:
-                buy_rate = 0
-            net_purchase = round(total_crates * 30 * buy_rate, 2)
+            if net_purchase == 0:
+                # Calculate COGS from purchase data
+                purchase_pipeline = [
+                    {"$match": {"purchase_date": target_date}},
+                    {"$group": {
+                        "_id": None,
+                        "total_crates": {"$sum": "$crates"},
+                        "weighted_sum": {"$sum": {"$multiply": ["$crates", "$rate"]}}
+                    }}
+                ]
+                purchase_result = await db.purchases.aggregate(purchase_pipeline).to_list(1)
+                if purchase_result and purchase_result[0].get("total_crates", 0) > 0:
+                    buy_rate = round(purchase_result[0]["weighted_sum"] / purchase_result[0]["total_crates"], 2)
+                else:
+                    buy_rate = 0
+                net_purchase = round(total_crates * 30 * buy_rate, 2)
 
     gross_profit = round(total_sale - net_purchase, 2)
 
