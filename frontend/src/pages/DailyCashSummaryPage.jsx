@@ -37,6 +37,8 @@ import {
   CheckCircle2,
   Banknote,
   Trash2,
+  Pencil,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +51,10 @@ const DailyCashSummaryPage = () => {
   const [summary, setSummary] = useState(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingTxn, setEditingTxn] = useState(null);
+
+  // Denomination view dialog
+  const [viewDenomTxn, setViewDenomTxn] = useState(null);
 
   // Form state
   const [txnType, setTxnType] = useState("credit");
@@ -87,12 +93,8 @@ const DailyCashSummaryPage = () => {
 
   const calcDenominationTotal = () => {
     let total = 0;
-    for (const d of NOTE_DENOMINATIONS) {
-      total += d * (parseInt(notes[d]) || 0);
-    }
-    for (const d of COIN_DENOMINATIONS) {
-      total += d * (parseInt(coins[d]) || 0);
-    }
+    for (const d of NOTE_DENOMINATIONS) total += d * (parseInt(notes[d]) || 0);
+    for (const d of COIN_DENOMINATIONS) total += d * (parseInt(coins[d]) || 0);
     return total;
   };
 
@@ -102,6 +104,35 @@ const DailyCashSummaryPage = () => {
     setTxnComments("");
     setNotes({});
     setCoins({});
+    setEditingTxn(null);
+  };
+
+  const openAddDialog = () => {
+    resetForm();
+    setShowAddDialog(true);
+  };
+
+  const openEditDialog = (txn) => {
+    setEditingTxn(txn);
+    setTxnType(txn.type);
+    setTxnAmount(String(txn.amount));
+    setTxnComments(txn.comments || "");
+    // Populate denomination fields
+    const n = {};
+    const c = {};
+    if (txn.denomination?.notes) {
+      for (const [d, count] of Object.entries(txn.denomination.notes)) {
+        if (count > 0) n[d] = String(count);
+      }
+    }
+    if (txn.denomination?.coins) {
+      for (const [d, count] of Object.entries(txn.denomination.coins)) {
+        if (count > 0) c[d] = String(count);
+      }
+    }
+    setNotes(n);
+    setCoins(c);
+    setShowAddDialog(true);
   };
 
   const handleSubmitTransaction = async () => {
@@ -119,20 +150,22 @@ const DailyCashSummaryPage = () => {
         coins: Object.fromEntries(COIN_DENOMINATIONS.map(d => [d, parseInt(coins[d]) || 0]).filter(([, v]) => v > 0)),
       } : null;
 
-      await api.post("/cash-summary/transaction", {
-        type: txnType,
-        amount,
-        denomination,
-        comments: txnComments,
-      });
+      const payload = { type: txnType, amount, denomination, comments: txnComments };
 
-      toast.success(`Cash ${txnType} recorded successfully`);
+      if (editingTxn) {
+        await api.put(`/cash-summary/transaction/${editingTxn.id}`, payload);
+        toast.success("Transaction updated successfully");
+      } else {
+        await api.post("/cash-summary/transaction", payload);
+        toast.success(`Cash ${txnType} recorded successfully`);
+      }
+
       setShowAddDialog(false);
       resetForm();
       fetchSummary();
     } catch (error) {
       console.error("Error:", error);
-      toast.error(error.response?.data?.detail || "Failed to record transaction");
+      toast.error(error.response?.data?.detail || "Failed to save transaction");
     } finally {
       setSubmitting(false);
     }
@@ -148,32 +181,14 @@ const DailyCashSummaryPage = () => {
     }
   };
 
-  const denomTotal = calcDenominationTotal();
-
-  const renderDenomination = (denom) => {
-    if (!denom) return null;
-    const items = [];
-    if (denom.notes) {
-      for (const [d, count] of Object.entries(denom.notes)) {
-        if (count > 0) items.push({ label: `${d} x ${count}`, value: parseInt(d) * count, type: "note" });
-      }
-    }
-    if (denom.coins) {
-      for (const [d, count] of Object.entries(denom.coins)) {
-        if (count > 0) items.push({ label: `${d} x ${count}`, value: parseInt(d) * count, type: "coin" });
-      }
-    }
-    if (items.length === 0) return null;
-    return (
-      <div className="flex flex-wrap gap-1.5 mt-1">
-        {items.map((item, i) => (
-          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
-            {item.label} = {formatCurrency(item.value)}
-          </span>
-        ))}
-      </div>
-    );
+  const hasDenomination = (denom) => {
+    if (!denom) return false;
+    const hasNotes = denom.notes && Object.values(denom.notes).some(v => v > 0);
+    const hasCoins = denom.coins && Object.values(denom.coins).some(v => v > 0);
+    return hasNotes || hasCoins;
   };
+
+  const denomTotal = calcDenominationTotal();
 
   return (
     <div className="space-y-6" data-testid="daily-cash-summary-page">
@@ -183,7 +198,7 @@ const DailyCashSummaryPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Daily Cash Summary</h1>
           <p className="text-muted-foreground text-sm">Track daily cash credits and debits</p>
         </div>
-        <Button onClick={() => { resetForm(); setShowAddDialog(true); }} data-testid="update-cash-btn">
+        <Button onClick={openAddDialog} data-testid="update-cash-btn">
           <Plus size={16} className="mr-2" />
           Update Cash
         </Button>
@@ -193,7 +208,6 @@ const DailyCashSummaryPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left - Summary */}
         <div className="space-y-4">
-          {/* Date Picker */}
           <Card className="border-border/50">
             <CardContent className="pt-5">
               <Popover>
@@ -210,7 +224,6 @@ const DailyCashSummaryPage = () => {
             </CardContent>
           </Card>
 
-          {/* Summary Cards */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={24} className="animate-spin text-primary" />
@@ -298,11 +311,31 @@ const DailyCashSummaryPage = () => {
                               {txn.type === "credit" ? "+" : "-"}{formatCurrency(txn.amount)}
                             </span>
                             <p className="text-sm text-muted-foreground mt-0.5">{txn.comments || "-"}</p>
-                            {renderDenomination(txn.denomination)}
+                            {hasDenomination(txn.denomination) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 mt-1 -ml-2"
+                                onClick={() => setViewDenomTxn(txn)}
+                                data-testid={`view-denom-${txn.id}`}
+                              >
+                                <Eye size={12} className="mr-1" />
+                                View Denomination
+                              </Button>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">{formatTime(txn.created_at)}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground mr-1">{formatTime(txn.created_at)}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 hover:bg-blue-100 hover:text-blue-600"
+                            onClick={() => openEditDialog(txn)}
+                            data-testid={`edit-txn-${txn.id}`}
+                          >
+                            <Pencil size={14} />
+                          </Button>
                           {txn.source === "manual" && (
                             <Button
                               variant="ghost"
@@ -334,17 +367,16 @@ const DailyCashSummaryPage = () => {
         </div>
       </div>
 
-      {/* Add Transaction Dialog */}
+      {/* Add/Edit Transaction Dialog */}
       <Dialog open={showAddDialog} onOpenChange={(open) => { setShowAddDialog(open); if (!open) resetForm(); }}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Coins size={20} className="text-green-600" />
-              Update Cash
+              {editingTxn ? "Edit Transaction" : "Update Cash"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            {/* Type */}
             <div className="space-y-2">
               <Label>Type</Label>
               <Select value={txnType} onValueChange={setTxnType}>
@@ -358,7 +390,6 @@ const DailyCashSummaryPage = () => {
               </Select>
             </div>
 
-            {/* Amount */}
             <div className="space-y-2">
               <Label>Amount</Label>
               <Input
@@ -370,7 +401,6 @@ const DailyCashSummaryPage = () => {
               />
             </div>
 
-            {/* Denominations */}
             <div className="space-y-3">
               <Label className="text-sm font-medium">Denominations (optional)</Label>
               <div className="space-y-2">
@@ -418,7 +448,6 @@ const DailyCashSummaryPage = () => {
               )}
             </div>
 
-            {/* Comments */}
             <div className="space-y-2">
               <Label>Comments</Label>
               <Textarea
@@ -433,9 +462,125 @@ const DailyCashSummaryPage = () => {
             <Button variant="outline" onClick={() => setShowAddDialog(false)} disabled={submitting}>Cancel</Button>
             <Button onClick={handleSubmitTransaction} disabled={submitting} data-testid="submit-txn-btn">
               {submitting ? <Loader2 size={16} className="mr-2 animate-spin" /> : null}
-              {submitting ? "Saving..." : "Save Transaction"}
+              {submitting ? "Saving..." : editingTxn ? "Update Transaction" : "Save Transaction"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Denomination Dialog */}
+      <Dialog open={!!viewDenomTxn} onOpenChange={(open) => { if (!open) setViewDenomTxn(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Coins size={20} className="text-blue-600" />
+              Denomination Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewDenomTxn && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Amount:</span>
+                <span className={cn("font-bold text-lg", viewDenomTxn.type === "credit" ? "text-green-600" : "text-red-600")}>
+                  {formatCurrency(viewDenomTxn.amount)}
+                </span>
+              </div>
+              {viewDenomTxn.comments && (
+                <p className="text-sm text-muted-foreground">{viewDenomTxn.comments}</p>
+              )}
+
+              {/* Notes Section */}
+              {viewDenomTxn.denomination?.notes && Object.values(viewDenomTxn.denomination.notes).some(v => v > 0) && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <Banknote size={14} className="text-green-600" />
+                    Notes
+                  </h4>
+                  <div className="bg-green-50 rounded-lg border border-green-200 overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-green-200 bg-green-100/50">
+                          <th className="text-left py-2 px-3 font-medium text-muted-foreground">Denomination</th>
+                          <th className="text-center py-2 px-3 font-medium text-muted-foreground">Count</th>
+                          <th className="text-right py-2 px-3 font-medium text-muted-foreground">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(viewDenomTxn.denomination.notes)
+                          .filter(([, count]) => count > 0)
+                          .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                          .map(([d, count]) => (
+                            <tr key={`n-${d}`} className="border-b border-green-100 last:border-b-0">
+                              <td className="py-2 px-3 font-medium">{formatCurrency(parseInt(d))}</td>
+                              <td className="py-2 px-3 text-center">{count}</td>
+                              <td className="py-2 px-3 text-right font-semibold">{formatCurrency(parseInt(d) * count)}</td>
+                            </tr>
+                          ))}
+                        <tr className="bg-green-100/70">
+                          <td colSpan={2} className="py-2 px-3 font-semibold">Notes Total</td>
+                          <td className="py-2 px-3 text-right font-bold text-green-700">
+                            {formatCurrency(Object.entries(viewDenomTxn.denomination.notes).reduce((s, [d, c]) => s + parseInt(d) * c, 0))}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Coins Section */}
+              {viewDenomTxn.denomination?.coins && Object.values(viewDenomTxn.denomination.coins).some(v => v > 0) && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <Coins size={14} className="text-orange-500" />
+                    Coins
+                  </h4>
+                  <div className="bg-orange-50 rounded-lg border border-orange-200 overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-orange-200 bg-orange-100/50">
+                          <th className="text-left py-2 px-3 font-medium text-muted-foreground">Denomination</th>
+                          <th className="text-center py-2 px-3 font-medium text-muted-foreground">Count</th>
+                          <th className="text-right py-2 px-3 font-medium text-muted-foreground">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(viewDenomTxn.denomination.coins)
+                          .filter(([, count]) => count > 0)
+                          .sort(([a], [b]) => parseInt(b) - parseInt(a))
+                          .map(([d, count]) => (
+                            <tr key={`c-${d}`} className="border-b border-orange-100 last:border-b-0">
+                              <td className="py-2 px-3 font-medium">{formatCurrency(parseInt(d))}</td>
+                              <td className="py-2 px-3 text-center">{count}</td>
+                              <td className="py-2 px-3 text-right font-semibold">{formatCurrency(parseInt(d) * count)}</td>
+                            </tr>
+                          ))}
+                        <tr className="bg-orange-100/70">
+                          <td colSpan={2} className="py-2 px-3 font-semibold">Coins Total</td>
+                          <td className="py-2 px-3 text-right font-bold text-orange-700">
+                            {formatCurrency(Object.entries(viewDenomTxn.denomination.coins).reduce((s, [d, c]) => s + parseInt(d) * c, 0))}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Grand Total */}
+              {viewDenomTxn.denomination && (
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <span className="font-semibold">Grand Total</span>
+                  <span className="font-bold text-lg">
+                    {formatCurrency(
+                      (viewDenomTxn.denomination.notes ? Object.entries(viewDenomTxn.denomination.notes).reduce((s, [d, c]) => s + parseInt(d) * c, 0) : 0) +
+                      (viewDenomTxn.denomination.coins ? Object.entries(viewDenomTxn.denomination.coins).reduce((s, [d, c]) => s + parseInt(d) * c, 0) : 0)
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

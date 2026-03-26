@@ -116,3 +116,36 @@ async def delete_cash_transaction(
         raise HTTPException(status_code=404, detail="Transaction not found or cannot be deleted (auto-generated)")
 
     return success_response(data=None, message="Transaction deleted successfully")
+
+
+@router.put("/transaction/{transaction_id}")
+async def update_cash_transaction(
+    transaction_id: str,
+    request: CashTransactionRequest,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin)
+):
+    """Update a cash transaction."""
+    existing = await db.cash_transactions.find_one({"id": transaction_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    now = get_ist_now().isoformat()
+    update_data = {
+        "type": request.type,
+        "amount": round(request.amount, 2),
+        "denomination": request.denomination,
+        "comments": request.comments,
+        "updated_at": now,
+        "updated_by": current_user.get("name", current_user.get("sub", "Admin"))
+    }
+
+    await db.cash_transactions.update_one(
+        {"id": transaction_id},
+        {"$set": update_data}
+    )
+
+    return success_response(
+        data={"id": transaction_id, **update_data},
+        message="Transaction updated successfully"
+    )
