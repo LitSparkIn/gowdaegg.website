@@ -130,6 +130,9 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
         {"_id": 0, "id": 1, "salesman_name": 1, "expense": 1, "food_expense": 1, "diesel_expense": 1, "other_expense": 1}
     ).to_list(1000)
     salesman_expense_total = round(sum(e.get("expense", 0) for e in salesman_expenses), 2)
+    salesman_food_total = round(sum(e.get("food_expense", 0) for e in salesman_expenses), 2)
+    salesman_diesel_total = round(sum(e.get("diesel_expense", 0) for e in salesman_expenses), 2)
+    salesman_other_total = round(sum(e.get("other_expense", 0) for e in salesman_expenses), 2)
 
     total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
     net_profit = round(gross_profit - total_expenses, 2)
@@ -173,6 +176,9 @@ async def calculate_profit_expense(db, target_date: str) -> dict:
             for e in salesman_expenses
         ],
         "salesman_expense_total": salesman_expense_total,
+        "salesman_food_total": salesman_food_total,
+        "salesman_diesel_total": salesman_diesel_total,
+        "salesman_other_total": salesman_other_total,
         "total_expenses": total_expenses,
         "net_profit": net_profit,
     }

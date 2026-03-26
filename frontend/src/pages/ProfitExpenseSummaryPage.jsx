@@ -231,6 +231,14 @@ const ProfitExpenseSummaryPage = () => {
                     ))}
                   </div>
                 )}
+                {data.salesman_expenses && data.salesman_expenses.length > 0 && (data.salesman_food_total > 0 || data.salesman_diesel_total > 0 || data.salesman_other_total > 0) && (
+                  <div className="flex items-center gap-4 mt-3 pt-3 border-t text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">By Category:</span>
+                    {data.salesman_food_total > 0 && <span>Food: <span className="font-semibold text-foreground">{formatCurrency(data.salesman_food_total)}</span></span>}
+                    {data.salesman_diesel_total > 0 && <span>Diesel: <span className="font-semibold text-foreground">{formatCurrency(data.salesman_diesel_total)}</span></span>}
+                    {data.salesman_other_total > 0 && <span>Other: <span className="font-semibold text-foreground">{formatCurrency(data.salesman_other_total)}</span></span>}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
