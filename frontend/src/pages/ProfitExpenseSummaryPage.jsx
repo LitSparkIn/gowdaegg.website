@@ -19,23 +19,34 @@ import {
   Car,
   Banknote,
   ArrowDown,
-  Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ProfitExpenseSummaryPage = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(new Date());
+  const [toDate, setToDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
 
   const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 
+  const isSameDay = format(fromDate, "yyyy-MM-dd") === format(toDate, "yyyy-MM-dd");
+
   const fetchSummary = async () => {
     try {
       setLoading(true);
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await api.get(`/profit-expense-summary?date=${dateStr}`);
+      const from = format(fromDate, "yyyy-MM-dd");
+      const to = format(toDate, "yyyy-MM-dd");
+
+      let url;
+      if (isSameDay) {
+        url = `/profit-expense-summary?date=${from}`;
+      } else {
+        url = `/profit-expense-summary?from_date=${from}&to_date=${to}`;
+      }
+
+      const response = await api.get(url);
       setData(response.data.data);
     } catch (error) {
       console.error("Error fetching profit expense summary:", error);
@@ -47,27 +58,44 @@ const ProfitExpenseSummaryPage = () => {
 
   useEffect(() => {
     fetchSummary();
-  }, [selectedDate]);
+  }, [fromDate, toDate]);
+
+  const dateLabel = isSameDay
+    ? format(fromDate, "dd MMM yyyy")
+    : `${format(fromDate, "dd MMM yyyy")} — ${format(toDate, "dd MMM yyyy")}`;
 
   return (
     <div className="space-y-6" data-testid="profit-expense-summary-page">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-primary-950">Profit & Expense Summary</h1>
           <p className="text-muted-foreground text-sm">Daily gross profit and detailed expense breakdown</p>
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" data-testid="date-picker-btn">
-              <CalendarIcon size={16} className="mr-2" />
-              {format(selectedDate, "dd MMM yyyy")}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar mode="single" selected={selectedDate} onSelect={(d) => d && setSelectedDate(d)} initialFocus />
-          </PopoverContent>
-        </Popover>
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" data-testid="from-date-btn">
+                <CalendarIcon size={14} className="mr-1.5" />
+                From: {format(fromDate, "dd MMM yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar mode="single" selected={fromDate} onSelect={(d) => { if (d) { setFromDate(d); if (d > toDate) setToDate(d); } }} initialFocus />
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" data-testid="to-date-btn">
+                <CalendarIcon size={14} className="mr-1.5" />
+                To: {format(toDate, "dd MMM yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar mode="single" selected={toDate} onSelect={(d) => { if (d) { setToDate(d); if (d < fromDate) setFromDate(d); } }} initialFocus />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {loading ? (
@@ -75,21 +103,23 @@ const ProfitExpenseSummaryPage = () => {
           <Loader2 size={32} className="animate-spin text-primary" />
         </div>
       ) : !data ? (
-        <div className="text-center py-24 text-muted-foreground">No data available for this date</div>
+        <div className="text-center py-24 text-muted-foreground">No data available for this period</div>
       ) : (
         <div className="space-y-6">
           {/* Submitted badge */}
-          {data.is_submitted && (
+          {data.is_submitted && isSameDay && (
             <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-2 w-fit">
               <CheckCircle2 size={16} />
-              Summary submitted on {format(selectedDate, "dd MMM yyyy")}
+              Summary submitted for {dateLabel}
             </div>
           )}
 
           {/* Gross Profit Card */}
           <Card className="border-purple-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-muted-foreground">Gross Profit</CardTitle>
+              <CardTitle className="text-base text-muted-foreground">
+                Gross Profit {!isSameDay && <span className="text-xs font-normal ml-2">({dateLabel})</span>}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-end justify-between">
