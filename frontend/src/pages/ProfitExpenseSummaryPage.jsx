@@ -124,9 +124,9 @@ const ProfitExpenseSummaryPage = () => {
             <CardContent>
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-purple-600">{formatCurrency(data.gross_profit)}</p>
+                  <p className="text-3xl font-bold text-purple-600">{formatCurrency(data.total_sale - data.net_purchase)}</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Total Sale {formatCurrency(data.total_sale)} - COGS {formatCurrency(data.net_purchase)}
+                    Total Sale - COGS = {formatCurrency(data.total_sale)} - {formatCurrency(data.net_purchase)}
                   </p>
                 </div>
               </div>
@@ -292,11 +292,11 @@ const ProfitExpenseSummaryPage = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Net Profit</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Gross Profit ({formatCurrency(data.gross_profit)}) - Total Expenses ({formatCurrency(data.total_expenses)})
+                    Gross Profit ({formatCurrency(data.total_sale - data.net_purchase)}) - Total Expenses ({formatCurrency(data.total_expenses)})
                   </p>
                 </div>
                 <p className={cn("text-3xl font-bold", data.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
-                  {formatCurrency(data.net_profit)}
+                  {formatCurrency((data.total_sale - data.net_purchase) - data.total_expenses)}
                 </p>
               </CardContent>
             </Card>
