@@ -657,6 +657,23 @@ async def submit_daily_summary(
         )
     except Exception as e:
         logger.error(f"Error saving daily cash summary: {str(e)}", exc_info=True)
+
+    # Save profit & expense summary snapshot
+    try:
+        from modules.profit_expense.routes import calculate_profit_expense
+        pe_data = await calculate_profit_expense(db, target_date)
+        pe_data["is_submitted"] = True
+        pe_data["submitted_by"] = current_user.get("sub")
+        pe_data["submitted_at"] = get_ist_now().isoformat()
+        pe_data["id"] = str(uuid.uuid4())
+
+        await db.profit_expense_summaries.update_one(
+            {"date": target_date},
+            {"$set": pe_data},
+            upsert=True
+        )
+    except Exception as e:
+        logger.error(f"Error saving profit expense summary: {str(e)}", exc_info=True)
     
     return success_response(
         data={"date": target_date, "id": summary_record["id"]},

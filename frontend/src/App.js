@@ -27,6 +27,7 @@ import ProfitLossReportPage from "@/pages/ProfitLossReportPage";
 import ChangePasswordPage from "@/pages/ChangePasswordPage";
 import ConfigSettingsPage from "@/pages/ConfigSettingsPage";
 import DailyCashSummaryPage from "@/pages/DailyCashSummaryPage";
+import ProfitExpenseSummaryPage from "@/pages/ProfitExpenseSummaryPage";
 import ComingSoon from "@/pages/ComingSoon";
 
 // Auth guard component
@@ -84,7 +85,7 @@ function App() {
             <Route path="current-active-balance" element={<ComingSoon title="Current Active Balance" />} />
             <Route path="daily-cash-summary" element={<DailyCashSummaryPage />} />
             <Route path="light-damage-summary" element={<ComingSoon title="Light Damage Summary" />} />
-            <Route path="profit-expense-summary" element={<ComingSoon title="Profit & Expense Summary" />} />
+            <Route path="profit-expense-summary" element={<ProfitExpenseSummaryPage />} />
             <Route path="config-setting" element={<ConfigSettingsPage />} />
           </Route>
           

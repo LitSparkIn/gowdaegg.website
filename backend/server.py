@@ -75,6 +75,7 @@ from modules.salary_setup.routes import router as salary_setup_router
 from modules.salary_expense.routes import router as salary_expense_router
 from modules.attendance.routes import router as attendance_router
 from modules.cash_summary.routes import router as cash_summary_router
+from modules.profit_expense.routes import router as profit_expense_router
 
 api_router.include_router(auth_router)
 api_router.include_router(route_router)
@@ -101,6 +102,7 @@ api_router.include_router(salary_setup_router)
 api_router.include_router(salary_expense_router)
 api_router.include_router(attendance_router)
 api_router.include_router(cash_summary_router)
+api_router.include_router(profit_expense_router)
 
 # Include the main api router
 app.include_router(api_router)

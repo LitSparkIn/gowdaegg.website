@@ -58,7 +58,7 @@ const allMenuItems = [
   { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History, superadminOnly: true },
   { name: "Daily Cash Summary", path: "/admin/daily-cash-summary", icon: Coins, superadminOnly: true },
   { name: "Light Damage Summary", path: "/admin/light-damage-summary", icon: AlertTriangle, superadminOnly: true, comingSoon: true },
-  { name: "Profit & Expense Summary", path: "/admin/profit-expense-summary", icon: TrendingUp, superadminOnly: true, comingSoon: true },
+  { name: "Profit & Expense Summary", path: "/admin/profit-expense-summary", icon: TrendingUp, superadminOnly: true },
   { type: "divider", label: "Settings" },
   { name: "Salary Setup", path: "/admin/salary-setup", icon: UserCheck, superadminOnly: true },
   { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
