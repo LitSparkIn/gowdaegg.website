@@ -56,7 +56,7 @@ const allMenuItems = [
   { name: "Profit Loss Report", path: "/admin/profit-loss-report", icon: BarChart3, superadminOnly: true },
   { name: "Daily Summary", path: "/admin/daily-summary", icon: CalendarDays, superadminOnly: true },
   { name: "Daily Summary History", path: "/admin/daily-submit-history", icon: History, superadminOnly: true },
-  { name: "Daily Cash Summary", path: "/admin/daily-cash-summary", icon: Coins, superadminOnly: true },
+  { name: "Daily Cash Summary", path: "/admin/daily-cash-summary", icon: Coins },
   { name: "Light Damage Summary", path: "/admin/light-damage-summary", icon: AlertTriangle, superadminOnly: true, comingSoon: true },
   { name: "Profit & Expense Summary", path: "/admin/profit-expense-summary", icon: TrendingUp, superadminOnly: true },
   { type: "divider", label: "Settings" },

@@ -41,11 +41,13 @@ import {
   Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const NOTE_DENOMINATIONS = [500, 200, 100, 50, 20, 10];
 const COIN_DENOMINATIONS = [20, 10, 5, 2, 1];
 
 const DailyCashSummaryPage = () => {
+  const { isReadOnly } = useUserRole();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
@@ -198,10 +200,12 @@ const DailyCashSummaryPage = () => {
           <h1 className="text-2xl font-semibold text-primary-950">Daily Cash Summary</h1>
           <p className="text-muted-foreground text-sm">Track daily cash credits and debits</p>
         </div>
-        <Button onClick={openAddDialog} data-testid="update-cash-btn">
-          <Plus size={16} className="mr-2" />
-          Update Cash
-        </Button>
+        {!isReadOnly && (
+          <Button onClick={openAddDialog} data-testid="update-cash-btn">
+            <Plus size={16} className="mr-2" />
+            Update Cash
+          </Button>
+        )}
       </div>
 
       {/* Main layout */}
@@ -339,16 +343,18 @@ const DailyCashSummaryPage = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="text-xs text-muted-foreground mr-1">{formatTime(txn.created_at)}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 hover:bg-blue-100 hover:text-blue-600"
-                            onClick={() => openEditDialog(txn)}
-                            data-testid={`edit-txn-${txn.id}`}
-                          >
-                            <Pencil size={14} />
-                          </Button>
-                          {txn.source === "manual" && (
+                          {!isReadOnly && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 hover:bg-blue-100 hover:text-blue-600"
+                              onClick={() => openEditDialog(txn)}
+                              data-testid={`edit-txn-${txn.id}`}
+                            >
+                              <Pencil size={14} />
+                            </Button>
+                          )}
+                          {!isReadOnly && txn.source === "manual" && (
                             <Button
                               variant="ghost"
                               size="icon"
