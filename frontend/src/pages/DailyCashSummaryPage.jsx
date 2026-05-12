@@ -324,7 +324,12 @@ const DailyCashSummaryPage = () => {
                               "font-semibold text-base",
                               txn.type === "credit" ? "text-green-700" : "text-red-700"
                             )}>
-                              {txn.type === "credit" ? "+" : "-"}{formatCurrency(txn.amount)}
+                              {txn.type === "credit" ? "+" : "-"}{formatCurrency(
+                                hasDenomination(txn.denomination)
+                                  ? (txn.denomination.notes ? Object.entries(txn.denomination.notes).reduce((s, [d, c]) => s + parseInt(d) * c, 0) : 0) +
+                                    (txn.denomination.coins ? Object.entries(txn.denomination.coins).reduce((s, [d, c]) => s + parseInt(d) * c, 0) : 0)
+                                  : txn.amount
+                              )}
                             </span>
                             <p className="text-sm text-muted-foreground mt-0.5">{txn.comments || "-"}</p>
                             {hasDenomination(txn.denomination) && (
