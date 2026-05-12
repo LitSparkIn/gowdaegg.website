@@ -19,6 +19,7 @@ import {
   Car,
   Banknote,
   ArrowDown,
+  CalendarRange,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -315,6 +316,48 @@ const ProfitExpenseSummaryPage = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Day-wise Net Profit Breakdown (only for date ranges) */}
+          {!isSameDay && data.daily_breakdown && data.daily_breakdown.length > 0 && (
+            <Card className="border-border/50" data-testid="daily-breakdown-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CalendarRange size={18} className="text-indigo-500" />
+                  Day-wise Net Profit
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/40">
+                        <th className="text-left py-2.5 px-3 font-medium text-muted-foreground">Date</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Sale</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">COGS</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Expenses</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Damage</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Net Profit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.daily_breakdown.map((day) => (
+                        <tr key={day.date} className="border-b last:border-b-0 hover:bg-muted/20">
+                          <td className="py-2.5 px-3 font-medium">{format(new Date(day.date + "T00:00:00"), "dd MMM yyyy")}</td>
+                          <td className="py-2.5 px-3 text-right">{formatCurrency(day.total_sale)}</td>
+                          <td className="py-2.5 px-3 text-right">{formatCurrency(day.net_purchase)}</td>
+                          <td className="py-2.5 px-3 text-right text-red-600">{formatCurrency(day.total_expenses)}</td>
+                          <td className="py-2.5 px-3 text-right text-amber-600">{formatCurrency(day.damage_loss)}</td>
+                          <td className={cn("py-2.5 px-3 text-right font-semibold", day.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
+                            {formatCurrency(day.net_profit)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </div>

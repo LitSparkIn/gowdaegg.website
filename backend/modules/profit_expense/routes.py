@@ -61,6 +61,8 @@ async def get_profit_expense_summary(
 
 async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> dict:
     """Aggregate profit and expense data across a date range."""
+    from datetime import datetime, timedelta
+
     date_filter = {"$gte": from_date, "$lte": to_date}
 
     # Sales
@@ -141,6 +143,25 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
     total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
     net_profit = round(gross_profit - total_expenses - damage_loss, 2)
 
+    # 6. Day-wise breakdown
+    daily_breakdown = []
+    start = datetime.strptime(from_date, "%Y-%m-%d")
+    end = datetime.strptime(to_date, "%Y-%m-%d")
+    current = start
+    while current <= end:
+        day_str = current.strftime("%Y-%m-%d")
+        day_data = await calculate_profit_expense(db, day_str)
+        daily_breakdown.append({
+            "date": day_str,
+            "total_sale": day_data["total_sale"],
+            "net_purchase": day_data["net_purchase"],
+            "gross_profit": day_data["gross_profit"],
+            "total_expenses": day_data["total_expenses"],
+            "damage_loss": day_data["damage_loss"],
+            "net_profit": day_data["net_profit"],
+        })
+        current += timedelta(days=1)
+
     return {
         "date": f"{from_date} to {to_date}",
         "from_date": from_date,
@@ -172,6 +193,7 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
         "salesman_other_total": salesman_other_total,
         "total_expenses": total_expenses,
         "net_profit": net_profit,
+        "daily_breakdown": daily_breakdown,
     }
 
 
