@@ -197,7 +197,7 @@ async def get_shops_by_route(
     
     # Get shops for this route (include all needed fields)
     shops = await db.shops.find(
-        {"route_id": route_id},
+        {"route_id": route_id, "is_active": {"$ne": False}},
         {"_id": 0}
     ).to_list(1000)
     
