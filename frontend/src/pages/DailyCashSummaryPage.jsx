@@ -262,14 +262,11 @@ const DailyCashSummaryPage = () => {
               </Card>
               <Card className="border-teal-200 bg-teal-50">
                 <CardContent className="pt-5 pb-4">
-                  <p className="text-xs text-muted-foreground">Total Notes</p>
-                  <p className="text-2xl font-bold text-teal-600">{formatCurrency(summary.total_notes || 0)}</p>
-                </CardContent>
-              </Card>
-              <Card className="border-amber-200 bg-amber-50">
-                <CardContent className="pt-5 pb-4">
-                  <p className="text-xs text-muted-foreground">Total Coins</p>
-                  <p className="text-2xl font-bold text-amber-600">{formatCurrency(summary.total_coins || 0)}</p>
+                  <p className="text-xs text-muted-foreground">Denomination Grand Total</p>
+                  <p className="text-2xl font-bold text-teal-600">{formatCurrency((summary.total_notes || 0) + (summary.total_coins || 0))}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Notes: {formatCurrency(summary.total_notes || 0)} | Coins: {formatCurrency(summary.total_coins || 0)}
+                  </p>
                 </CardContent>
               </Card>
               {summary.is_submitted && (
