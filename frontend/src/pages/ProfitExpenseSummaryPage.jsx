@@ -334,24 +334,36 @@ const ProfitExpenseSummaryPage = () => {
                         <th className="text-left py-2.5 px-3 font-medium text-muted-foreground">Date</th>
                         <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Sale</th>
                         <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">COGS</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Gross Profit</th>
                         <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Expenses</th>
                         <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Damage</th>
                         <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Net Profit</th>
+                        <th className="text-right py-2.5 px-3 font-medium text-muted-foreground">Day by Day</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {data.daily_breakdown.map((day) => (
-                        <tr key={day.date} className="border-b last:border-b-0 hover:bg-muted/20">
-                          <td className="py-2.5 px-3 font-medium">{format(new Date(day.date + "T00:00:00"), "dd MMM yyyy")}</td>
-                          <td className="py-2.5 px-3 text-right">{formatCurrency(day.total_sale)}</td>
-                          <td className="py-2.5 px-3 text-right">{formatCurrency(day.net_purchase)}</td>
-                          <td className="py-2.5 px-3 text-right text-red-600">{formatCurrency(day.total_expenses)}</td>
-                          <td className="py-2.5 px-3 text-right text-amber-600">{formatCurrency(day.damage_loss)}</td>
-                          <td className={cn("py-2.5 px-3 text-right font-semibold", day.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
-                            {formatCurrency(day.net_profit)}
-                          </td>
-                        </tr>
-                      ))}
+                      {(() => {
+                        let cumulative = 0;
+                        return data.daily_breakdown.map((day, idx) => {
+                          if (idx > 0) cumulative += day.net_profit;
+                          return (
+                            <tr key={day.date} className="border-b last:border-b-0 hover:bg-muted/20">
+                              <td className="py-2.5 px-3 font-medium">{format(new Date(day.date + "T00:00:00"), "dd MMM yyyy")}</td>
+                              <td className="py-2.5 px-3 text-right">{formatCurrency(day.total_sale)}</td>
+                              <td className="py-2.5 px-3 text-right">{formatCurrency(day.net_purchase)}</td>
+                              <td className="py-2.5 px-3 text-right text-purple-600">{formatCurrency(day.gross_profit)}</td>
+                              <td className="py-2.5 px-3 text-right text-red-600">{formatCurrency(day.total_expenses)}</td>
+                              <td className="py-2.5 px-3 text-right text-amber-600">{formatCurrency(day.damage_loss)}</td>
+                              <td className={cn("py-2.5 px-3 text-right font-semibold", day.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
+                                {formatCurrency(day.net_profit)}
+                              </td>
+                              <td className={cn("py-2.5 px-3 text-right font-semibold", cumulative >= 0 ? "text-blue-600" : "text-red-600")}>
+                                {formatCurrency(cumulative)}
+                              </td>
+                            </tr>
+                          );
+                        });
+                      })()}
                     </tbody>
                   </table>
                 </div>
