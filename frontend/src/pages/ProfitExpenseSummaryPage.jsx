@@ -288,33 +288,36 @@ const ProfitExpenseSummaryPage = () => {
               </CardContent>
             </Card>
 
-            {(data.damage_loss || 0) > 0 && (
-              <Card className="border-amber-200 bg-amber-50" data-testid="damage-loss-card">
-                <CardContent className="pt-5 pb-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Damage Loss</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Damaged crates valued at avg buy rate
-                    </p>
-                  </div>
-                  <p className="text-2xl font-bold text-amber-600">{formatCurrency(data.damage_loss)}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            <Card className={cn("border-2", data.net_profit >= 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50")} data-testid="net-profit-card">
+            <Card className="border-amber-200 bg-amber-50" data-testid="damage-loss-card">
               <CardContent className="pt-5 pb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Net Profit</p>
+                  <p className="text-sm text-muted-foreground">Damage Loss</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Gross Profit ({formatCurrency(data.gross_profit)}) - Total Expenses ({formatCurrency(data.total_expenses)}){(data.damage_loss || 0) > 0 ? ` - Damage Loss (${formatCurrency(data.damage_loss)})` : ""}
+                    Damaged crates valued at avg buy rate
                   </p>
                 </div>
-                <p className={cn("text-3xl font-bold", data.net_profit >= 0 ? "text-green-600" : "text-red-600")}>
-                  {formatCurrency(data.net_profit)}
-                </p>
+                <p className="text-2xl font-bold text-amber-600">{formatCurrency(data.damage_loss || 0)}</p>
               </CardContent>
             </Card>
+
+            {(() => {
+              const calcNetProfit = data.gross_profit - data.total_expenses - (data.damage_loss || 0);
+              return (
+                <Card className={cn("border-2", calcNetProfit >= 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50")} data-testid="net-profit-card">
+                  <CardContent className="pt-5 pb-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Net Profit</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Gross Profit ({formatCurrency(data.gross_profit)}) - Total Expenses ({formatCurrency(data.total_expenses)}) - Damage Loss ({formatCurrency(data.damage_loss || 0)})
+                      </p>
+                    </div>
+                    <p className={cn("text-3xl font-bold", calcNetProfit >= 0 ? "text-green-600" : "text-red-600")}>
+                      {formatCurrency(calcNetProfit)}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })()}
           </div>
 
           {/* Day-wise Net Profit Breakdown (only for date ranges) */}

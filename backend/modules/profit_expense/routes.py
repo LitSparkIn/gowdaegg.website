@@ -131,17 +131,9 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
     salesman_diesel_total = round(sum(e.get("diesel_expense", 0) for e in salesman_expenses), 2)
     salesman_other_total = round(sum(e.get("other_expense", 0) for e in salesman_expenses), 2)
 
-    # 5. Damage Loss
-    damage_pipeline = [
-        {"$match": {"report_date": date_filter}},
-        {"$group": {"_id": None, "total_damaged": {"$sum": "$crates_damaged"}}}
-    ]
-    damage_result = await db.sale_reports.aggregate(damage_pipeline).to_list(1)
-    damage_crates = damage_result[0]["total_damaged"] if damage_result else 0
-    damage_loss = round(damage_crates * 30 * buy_rate, 2)
+    # 5. Damage Loss - will be recalculated from daily breakdown below
 
     total_expenses = round(general_total + transportation_total + salary_total + salesman_expense_total, 2)
-    net_profit = round(gross_profit - total_expenses - damage_loss, 2)
 
     # 6. Day-wise breakdown
     daily_breakdown = []
@@ -161,6 +153,10 @@ async def calculate_profit_expense_range(db, from_date: str, to_date: str) -> di
             "net_profit": day_data["net_profit"],
         })
         current += timedelta(days=1)
+
+    # Use daily breakdown totals for accurate aggregate damage_loss
+    damage_loss = round(sum(d["damage_loss"] for d in daily_breakdown), 2)
+    net_profit = round(gross_profit - total_expenses - damage_loss, 2)
 
     return {
         "date": f"{from_date} to {to_date}",
