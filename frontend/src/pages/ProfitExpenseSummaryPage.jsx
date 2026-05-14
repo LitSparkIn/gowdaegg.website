@@ -344,7 +344,7 @@ const ProfitExpenseSummaryPage = () => {
                     <tbody>
                       {(() => {
                         let cumulative = 0;
-                        return data.daily_breakdown.map((day) => {
+                        const rows = data.daily_breakdown.map((day) => {
                           const dayNetProfit = day.gross_profit - day.total_expenses - day.damage_loss;
                           cumulative += dayNetProfit;
                           return (
@@ -364,6 +364,29 @@ const ProfitExpenseSummaryPage = () => {
                             </tr>
                           );
                         });
+                        const totSale = data.daily_breakdown.reduce((s, d) => s + d.total_sale, 0);
+                        const totCogs = data.daily_breakdown.reduce((s, d) => s + d.net_purchase, 0);
+                        const totGross = data.daily_breakdown.reduce((s, d) => s + d.gross_profit, 0);
+                        const totExp = data.daily_breakdown.reduce((s, d) => s + d.total_expenses, 0);
+                        const totDmg = data.daily_breakdown.reduce((s, d) => s + d.damage_loss, 0);
+                        const totNet = totGross - totExp - totDmg;
+                        rows.push(
+                          <tr key="total" className="bg-muted/60 font-semibold border-t-2">
+                            <td className="py-2.5 px-3">Total</td>
+                            <td className="py-2.5 px-3 text-right">{formatCurrency(totSale)}</td>
+                            <td className="py-2.5 px-3 text-right">{formatCurrency(totCogs)}</td>
+                            <td className="py-2.5 px-3 text-right text-purple-600">{formatCurrency(totGross)}</td>
+                            <td className="py-2.5 px-3 text-right text-red-600">{formatCurrency(totExp)}</td>
+                            <td className="py-2.5 px-3 text-right text-amber-600">{formatCurrency(totDmg)}</td>
+                            <td className={cn("py-2.5 px-3 text-right", totNet >= 0 ? "text-green-600" : "text-red-600")}>
+                              {formatCurrency(totNet)}
+                            </td>
+                            <td className={cn("py-2.5 px-3 text-right", cumulative >= 0 ? "text-blue-600" : "text-red-600")}>
+                              {formatCurrency(cumulative)}
+                            </td>
+                          </tr>
+                        );
+                        return rows;
                       })()}
                     </tbody>
                   </table>
