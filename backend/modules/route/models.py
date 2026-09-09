@@ -7,6 +7,7 @@ class RouteModel(BaseModel):
     """Database model for Route document"""
     id: str
     route_name: str
+    upi_qr_url: Optional[str] = None
     created_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
     updated_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
     is_active: bool = True

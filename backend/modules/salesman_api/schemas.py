@@ -7,6 +7,7 @@ class RouteResponse(BaseModel):
     """Route info for salesman"""
     id: str
     route_name: str
+    upi_qr_url: Optional[str] = None
 
 class RouteListResponse(BaseModel):
     """List of routes"""

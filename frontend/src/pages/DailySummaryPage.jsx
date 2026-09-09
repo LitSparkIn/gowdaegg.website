@@ -679,6 +679,14 @@ const DailySummaryPage = () => {
                 <div className="p-4 bg-green-50 rounded-lg text-center">
                   <p className="text-xs text-muted-foreground mb-1">Total Sale Value</p>
                   <p className="text-xl font-bold text-green-600">{formatCurrency(summary.profit_loss.sale_value)}</p>
+                  <div className="mt-3 space-y-1 border-t border-green-200 pt-3 text-left text-xs">
+                    <p><span className="font-semibold">Total Cash Transactions</span> {formatCurrency(summary.profit_loss.payment_breakdown?.total_cash_transactions || 0)}</p>
+                    <p><span className="font-semibold">Collected Cash</span> {formatCurrency(summary.profit_loss.payment_breakdown?.collected_cash || 0)}</p>
+                    <p><span className="font-semibold">Total Online Transactions</span> {formatCurrency(summary.profit_loss.payment_breakdown?.total_online_transactions || 0)}</p>
+                    <p><span className="font-semibold">Collected Online</span> {formatCurrency(summary.profit_loss.payment_breakdown?.collected_online || 0)}</p>
+                    <p><span className="font-semibold">Total Cheque Transactions</span> {formatCurrency(summary.profit_loss.payment_breakdown?.total_cheque_transactions || 0)}</p>
+                    <p><span className="font-semibold">Collected Cheque</span> {formatCurrency(summary.profit_loss.payment_breakdown?.collected_cheque || 0)}</p>
+                  </div>
                 </div>
               </div>
             </CardContent>

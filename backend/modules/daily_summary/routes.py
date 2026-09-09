@@ -21,6 +21,49 @@ def verify_admin(current_user: dict = Depends(get_current_user)) -> dict:
         raise HTTPException(status_code=403, detail="Access denied. Admin only.")
     return current_user
 
+
+async def get_payment_breakdowns_by_date(db: AsyncIOMotorDatabase, dates: list[str]) -> dict:
+    """Aggregate sale and collected values by payment mode for the requested dates."""
+    if not dates:
+        return {}
+
+    results = await db.sales.aggregate([
+        {"$match": {"sale_date": {"$in": dates}}},
+        {"$group": {
+            "_id": "$sale_date",
+            "total_cash_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]}, "$order_amount", 0
+            ]}},
+            "collected_cash": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]}, "$collected_amount", 0
+            ]}},
+            "total_online_transactions": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]}, "$order_amount", 0
+            ]}},
+            "collected_online": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]}, "$collected_amount", 0
+            ]}},
+            "total_cheque_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]}, "$order_amount", 0
+            ]}},
+            "collected_cheque": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]}, "$collected_amount", 0
+            ]}}
+        }}
+    ]).to_list(len(dates))
+
+    return {
+        result["_id"]: {
+            key: round(result.get(key, 0), 2)
+            for key in (
+                "total_cash_transactions", "collected_cash",
+                "total_online_transactions", "collected_online",
+                "total_cheque_transactions", "collected_cheque"
+            )
+        }
+        for result in results
+    }
+
 @router.get("")
 async def get_daily_summary(
     date: Optional[str] = Query(None, description="Summary date (YYYY-MM-DD). Defaults to today (IST)."),
@@ -151,13 +194,52 @@ async def get_daily_summary(
             "_id": None,
             "total_crates": {"$sum": "$crates"},
             "total_value": {"$sum": "$order_amount"},
-            "total_collected": {"$sum": "$collected_amount"}
+            "total_collected": {"$sum": "$collected_amount"},
+            "total_cash_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]},
+                "$order_amount",
+                0
+            ]}},
+            "collected_cash": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]},
+                "$collected_amount",
+                0
+            ]}},
+            "total_online_transactions": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]},
+                "$order_amount",
+                0
+            ]}},
+            "collected_online": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]},
+                "$collected_amount",
+                0
+            ]}},
+            "total_cheque_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]},
+                "$order_amount",
+                0
+            ]}},
+            "collected_cheque": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]},
+                "$collected_amount",
+                0
+            ]}}
         }}
     ]
     today_sales_result = await db.sales.aggregate(today_sales_pipeline).to_list(1)
-    total_sales = today_sales_result[0]["total_crates"] if today_sales_result else 0
-    total_sale_value = round(today_sales_result[0]["total_value"], 2) if today_sales_result else 0
-    total_collected = round(today_sales_result[0]["total_collected"], 2) if today_sales_result else 0
+    sales_totals = today_sales_result[0] if today_sales_result else {}
+    total_sales = sales_totals.get("total_crates", 0)
+    total_sale_value = round(sales_totals.get("total_value", 0), 2)
+    total_collected = round(sales_totals.get("total_collected", 0), 2)
+    payment_breakdown = {
+        "total_cash_transactions": round(sales_totals.get("total_cash_transactions", 0), 2),
+        "collected_cash": round(sales_totals.get("collected_cash", 0), 2),
+        "total_online_transactions": round(sales_totals.get("total_online_transactions", 0), 2),
+        "collected_online": round(sales_totals.get("collected_online", 0), 2),
+        "total_cheque_transactions": round(sales_totals.get("total_cheque_transactions", 0), 2),
+        "collected_cheque": round(sales_totals.get("collected_cheque", 0), 2)
+    }
     
     # Calculate weighted average sale rate: Total Value / (Total Crates * 30 eggs)
     sale_rate = round(total_sale_value / (total_sales * 30), 2) if total_sales > 0 else 0
@@ -356,7 +438,8 @@ async def get_daily_summary(
                 "buy_value": round(buy_value, 2),
                 "total_sale_crates": total_sale_crates,
                 "sale_rate": round(sale_rate, 2),
-                "sale_value": round(sale_value, 2)
+                "sale_value": round(sale_value, 2),
+                "payment_breakdown": payment_breakdown
             },
             "expenses": {
                 "salesman_expenses": round(salesman_expenses, 2),
@@ -485,11 +568,44 @@ async def submit_daily_summary(
     
     today_sales_pipeline = [
         {"$match": {"sale_date": target_date}},
-        {"$group": {"_id": None, "total_crates": {"$sum": "$crates"}, "total_value": {"$sum": "$order_amount"}}}
+        {"$group": {
+            "_id": None,
+            "total_crates": {"$sum": "$crates"},
+            "total_value": {"$sum": "$order_amount"},
+            "total_collected": {"$sum": "$collected_amount"},
+            "total_cash_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]}, "$order_amount", 0
+            ]}},
+            "collected_cash": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cash"]}, "$collected_amount", 0
+            ]}},
+            "total_online_transactions": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]}, "$order_amount", 0
+            ]}},
+            "collected_online": {"$sum": {"$cond": [
+                {"$in": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, ["online", "upi"]]}, "$collected_amount", 0
+            ]}},
+            "total_cheque_transactions": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]}, "$order_amount", 0
+            ]}},
+            "collected_cheque": {"$sum": {"$cond": [
+                {"$eq": [{"$toLower": {"$ifNull": ["$payment_type", ""]}}, "cheque"]}, "$collected_amount", 0
+            ]}}
+        }}
     ]
     today_sales_result = await db.sales.aggregate(today_sales_pipeline).to_list(1)
-    total_sales = today_sales_result[0]["total_crates"] if today_sales_result else 0
-    total_sale_value = round(today_sales_result[0]["total_value"], 2) if today_sales_result else 0
+    sales_totals = today_sales_result[0] if today_sales_result else {}
+    total_sales = sales_totals.get("total_crates", 0)
+    total_sale_value = round(sales_totals.get("total_value", 0), 2)
+    total_collected = round(sales_totals.get("total_collected", 0), 2)
+    payment_breakdown = {
+        "total_cash_transactions": round(sales_totals.get("total_cash_transactions", 0), 2),
+        "collected_cash": round(sales_totals.get("collected_cash", 0), 2),
+        "total_online_transactions": round(sales_totals.get("total_online_transactions", 0), 2),
+        "collected_online": round(sales_totals.get("collected_online", 0), 2),
+        "total_cheque_transactions": round(sales_totals.get("total_cheque_transactions", 0), 2),
+        "collected_cheque": round(sales_totals.get("collected_cheque", 0), 2)
+    }
     sale_rate = round(total_sale_value / (total_sales * 30), 2) if total_sales > 0 else 0
     returned_crates = max(0, total_initial_load - total_sales - damage_today)
     
@@ -538,6 +654,7 @@ async def submit_daily_summary(
         "sale_information": {
             "total_initial_load": total_initial_load,
             "total_sales": total_sales,
+            "total_collected": total_collected,
             "total_damages": damage_today,
             "returned": returned_crates
         },
@@ -547,7 +664,8 @@ async def submit_daily_summary(
             "buy_value": buy_value,
             "total_sale_crates": total_sales,
             "sale_rate": sale_rate,
-            "sale_value": total_sale_value
+            "sale_value": total_sale_value,
+            "payment_breakdown": payment_breakdown
         },
         "expenses": {
             "salesman_expenses": salesman_expenses,
@@ -708,6 +826,26 @@ async def get_submitted_summaries(
     cursor = db.daily_summaries.find(query, {"_id": 0}).sort("date", -1).skip(skip).limit(limit)
     summaries = await cursor.to_list(limit)
     total = await db.daily_summaries.count_documents(query)
+
+    # Legacy snapshots do not contain payment_breakdown. Reconstruct it from the
+    # locked sales for those dates without changing the stored summary.
+    legacy_dates = [
+        summary["date"] for summary in summaries
+        if not summary.get("profit_loss", {}).get("payment_breakdown")
+    ]
+    legacy_breakdowns = await get_payment_breakdowns_by_date(db, legacy_dates)
+    empty_breakdown = {
+        "total_cash_transactions": 0,
+        "collected_cash": 0,
+        "total_online_transactions": 0,
+        "collected_online": 0,
+        "total_cheque_transactions": 0,
+        "collected_cheque": 0
+    }
+    for summary in summaries:
+        profit_loss = summary.setdefault("profit_loss", {})
+        if not profit_loss.get("payment_breakdown"):
+            profit_loss["payment_breakdown"] = legacy_breakdowns.get(summary["date"], empty_breakdown.copy())
     
     return success_response(
         data={
@@ -732,6 +870,17 @@ async def get_submitted_summary_by_date(
     summary = await db.daily_summaries.find_one({"date": date}, {"_id": 0})
     if not summary:
         raise HTTPException(status_code=404, detail=f"No submitted summary found for {date}")
+
+    if not summary.get("profit_loss", {}).get("payment_breakdown"):
+        breakdowns = await get_payment_breakdowns_by_date(db, [date])
+        summary.setdefault("profit_loss", {})["payment_breakdown"] = breakdowns.get(date, {
+            "total_cash_transactions": 0,
+            "collected_cash": 0,
+            "total_online_transactions": 0,
+            "collected_online": 0,
+            "total_cheque_transactions": 0,
+            "collected_cheque": 0
+        })
     
     return success_response(
         data=summary,

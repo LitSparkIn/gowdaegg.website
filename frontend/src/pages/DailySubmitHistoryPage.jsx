@@ -48,6 +48,7 @@ const DailySubmitHistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSummary, setSelectedSummary] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [paymentSummary, setPaymentSummary] = useState(null);
   
   // Date filter state
   const [fromDate, setFromDate] = useState(null);
@@ -139,6 +140,10 @@ const DailySubmitHistoryPage = () => {
   const handleView = (summary) => {
     setSelectedSummary(summary);
     setViewDialogOpen(true);
+  };
+
+  const handleViewPaymentBreakdown = (summary) => {
+    setPaymentSummary(summary);
   };
 
   const SummaryRow = ({ label, value, valueClass = "" }) => (
@@ -540,8 +545,22 @@ const DailySubmitHistoryPage = () => {
                       <td className="text-right py-3 px-4 text-green-600 font-medium">
                         {formatNumber(summary.sale_information?.total_sales)}
                       </td>
-                      <td className="text-right py-3 px-4 text-green-600">
-                        {formatCurrency(summary.profit_loss?.sale_value)}
+                      <td className="py-3 px-4 text-green-600">
+                        <div className="flex items-center justify-end gap-1">
+                          <span>{formatCurrency(summary.profit_loss?.sale_value)}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewPaymentBreakdown(summary)}
+                            className="h-7 w-7 text-green-700 hover:bg-green-100 hover:text-green-800"
+                            title="View payment breakdown"
+                            aria-label={`View payment breakdown for ${formatDate(summary.date)}`}
+                            data-testid={`payment-breakdown-btn-${index}`}
+                          >
+                            <Eye size={15} />
+                          </Button>
+                        </div>
                       </td>
                       <td className="text-right py-3 px-4 text-red-600">
                         {formatCurrency(summary.expenses?.total_expenses)}
@@ -689,6 +708,37 @@ const DailySubmitHistoryPage = () => {
                 >
                   <Printer size={16} className="mr-1" /> Print
                 </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Sale Value Payment Breakdown */}
+      <Dialog open={!!paymentSummary} onOpenChange={(open) => { if (!open) setPaymentSummary(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye size={20} className="text-green-600" />
+              Sale Value Breakdown
+            </DialogTitle>
+          </DialogHeader>
+
+          {paymentSummary && (
+            <div className="mt-2">
+              <div className="mb-4 rounded-lg bg-green-50 p-3 text-center">
+                <p className="text-xs text-muted-foreground">{formatDate(paymentSummary.date)} · Sale Value</p>
+                <p className="text-xl font-bold text-green-600">
+                  {formatCurrency(paymentSummary.profit_loss?.sale_value)}
+                </p>
+              </div>
+              <div className="divide-y rounded-lg border px-4">
+                <SummaryRow label="Total Cash Transactions" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.total_cash_transactions)} />
+                <SummaryRow label="Collected Cash" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.collected_cash)} valueClass="text-green-600" />
+                <SummaryRow label="Total Online Transactions" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.total_online_transactions)} />
+                <SummaryRow label="Collected Online" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.collected_online)} valueClass="text-green-600" />
+                <SummaryRow label="Total Cheque Transactions" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.total_cheque_transactions)} />
+                <SummaryRow label="Collected Cheque" value={formatCurrency(paymentSummary.profit_loss?.payment_breakdown?.collected_cheque)} valueClass="text-green-600" />
               </div>
             </div>
           )}

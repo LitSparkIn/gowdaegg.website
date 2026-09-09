@@ -17,6 +17,7 @@ class RouteResponse(BaseModel):
     """Schema for route response"""
     id: str
     route_name: str
+    upi_qr_url: Optional[str] = None
     is_active: Optional[bool] = True
     created_at: str
     updated_at: str

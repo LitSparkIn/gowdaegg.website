@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Route as RouteIcon, Loader2, Search, FileSpreadsheet, FileText, Printer, RotateCcw } from "lucide-react";
+import { Plus, Pencil, Trash2, Route as RouteIcon, Loader2, Search, FileSpreadsheet, FileText, Printer, RotateCcw, Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -52,6 +52,8 @@ const RoutePage = () => {
   const [editingRoute, setEditingRoute] = useState(null);
   const [deleteRoute, setDeleteRoute] = useState(null);
   const [routeName, setRouteName] = useState("");
+  const [qrFile, setQrFile] = useState(null);
+  const [qrPreview, setQrPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
 
@@ -109,20 +111,36 @@ const RoutePage = () => {
   }, []);
 
   const handleOpenDialog = (route = null) => {
+    if (qrPreview?.startsWith("blob:")) URL.revokeObjectURL(qrPreview);
+    setQrFile(null);
     if (route) {
       setEditingRoute(route);
       setRouteName(route.route_name);
+      setQrPreview(route.upi_qr_url ? `${process.env.REACT_APP_BACKEND_URL}${route.upi_qr_url}` : null);
     } else {
       setEditingRoute(null);
       setRouteName("");
+      setQrPreview(null);
     }
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
+    if (qrPreview?.startsWith("blob:")) URL.revokeObjectURL(qrPreview);
     setIsDialogOpen(false);
     setEditingRoute(null);
     setRouteName("");
+    setQrFile(null);
+    setQrPreview(null);
+  };
+
+  const handleQrChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (qrPreview?.startsWith("blob:")) URL.revokeObjectURL(qrPreview);
+    setQrFile(file);
+    setQrPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
@@ -136,6 +154,13 @@ const RoutePage = () => {
     try {
       if (editingRoute) {
         await api.put(`/routes/${editingRoute.id}`, { route_name: routeName.trim() });
+        if (qrFile) {
+          const qrData = new FormData();
+          qrData.append("qr_image", qrFile);
+          await api.put(`/routes/${editingRoute.id}/qr`, qrData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
+        }
         toast.success("Route updated successfully");
       } else {
         await api.post(`/routes`, { route_name: routeName.trim() });
@@ -446,7 +471,7 @@ const RoutePage = () => {
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
@@ -466,6 +491,28 @@ const RoutePage = () => {
                   autoFocus
                 />
               </div>
+              {editingRoute && (
+                <div className="space-y-2">
+                  <Label htmlFor="routeQr">UPI QR Code <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="routeQr"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    onChange={handleQrChange}
+                    data-testid="route-qr-input"
+                  />
+                  <p className="text-xs text-muted-foreground">Upload an image to add or replace this route's UPI QR code.</p>
+                  {qrPreview && (
+                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
+                      <img src={qrPreview} alt="UPI QR preview" className="h-24 w-24 rounded border bg-white object-contain" />
+                      <div className="text-sm text-muted-foreground">
+                        <Upload size={16} className="mb-1" />
+                        {qrFile ? qrFile.name : "Current QR code"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button

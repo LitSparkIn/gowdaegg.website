@@ -56,6 +56,7 @@ class RouteService:
         return RouteResponse(
             id=created_route.id,
             route_name=created_route.route_name,
+            upi_qr_url=created_route.upi_qr_url,
             created_at=created_route.created_at,
             updated_at=created_route.updated_at
         )
@@ -134,6 +135,18 @@ class RouteService:
         # Update in database
         updated_route = await self.repository.update(route_id, update_data)
         
+        return RouteResponse(**updated_route)
+
+    async def update_route_qr(self, route_id: str, upi_qr_url: str) -> RouteResponse:
+        """Set or replace the UPI QR image for a route."""
+        existing = await self.repository.get_by_id(route_id)
+        if not existing:
+            raise NotFoundException("Route", route_id)
+
+        updated_route = await self.repository.update(route_id, {
+            "upi_qr_url": upi_qr_url,
+            "updated_at": get_ist_now().isoformat()
+        })
         return RouteResponse(**updated_route)
     
     async def delete_route(self, route_id: str) -> bool:

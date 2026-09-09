@@ -62,6 +62,7 @@ async def get_home_data(
             "id": r.get("id"),
             "slug": r.get("route_name", "").lower().replace(" ", "-"),
             "name": r.get("route_name", ""),
+            "upi_qr_url": r.get("upi_qr_url"),
             "route_order": idx + 1,
             "status": 1,
             "created_at": r.get("created_at"),
@@ -171,7 +172,10 @@ async def get_all_routes(
     Get all available routes.
     Accessible by authenticated salesmen only.
     """
-    routes = await db.routes.find({}, {"_id": 0, "id": 1, "route_name": 1}).to_list(1000)
+    routes = await db.routes.find(
+        {},
+        {"_id": 0, "id": 1, "route_name": 1, "upi_qr_url": 1}
+    ).to_list(1000)
     
     route_list = [RouteResponse(**r).model_dump() for r in routes]
     
