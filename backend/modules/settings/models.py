@@ -10,8 +10,12 @@ class SettingsModel(BaseModel):
     whatsapp_api_token: Optional[str] = None
     whatsapp_phone_number_id: str = "109780805521902"
     whatsapp_template_id: str = "gowda_egg_sale_receipt"
+    customer_login_otp_template: Optional[str] = None
     msg91_auth_key: Optional[str] = None
     msg91_template_id: Optional[str] = None
+    customer_login_otp_flow_id: Optional[str] = None
+    firebase_enabled: bool = False
+    firebase_service_account_json: Optional[str] = None
     updated_at: str = Field(default_factory=lambda: get_ist_now().isoformat())
     
     class Config:

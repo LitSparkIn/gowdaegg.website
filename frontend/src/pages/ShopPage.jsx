@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X, RotateCcw, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Store, Loader2, Phone, MapPin, Search, FileSpreadsheet, FileText, Printer, Filter, X, RotateCcw, Eye, Bell } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -63,6 +63,7 @@ const ShopPage = () => {
   const [deleteShop, setDeleteShop] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
+  const [testingNotification, setTestingNotification] = useState({});
   
   // Form fields
   const [formData, setFormData] = useState({
@@ -282,6 +283,26 @@ const ShopPage = () => {
     } catch (error) {
       console.error("Error activating shop:", error);
       toast.error(error.response?.data?.detail || "Failed to activate shop");
+    }
+  };
+
+  const handleTestNotification = async (shop) => {
+    setTestingNotification(prev => ({ ...prev, [shop.id]: true }));
+    try {
+      const response = await api.post(`/shops/${shop.id}/test-notification`);
+      const result = response.data.data;
+      if (result.sent > 0) {
+        toast.success(`Test notification sent to ${result.sent} device${result.sent === 1 ? "" : "s"}`);
+      } else if (result.device_count === 0) {
+        toast.info("No active customer devices found for this shop");
+      } else {
+        toast.error("Test notification could not be delivered");
+      }
+    } catch (error) {
+      console.error("Error sending test notification:", error);
+      toast.error(error.response?.data?.detail || "Failed to send test notification");
+    } finally {
+      setTestingNotification(prev => ({ ...prev, [shop.id]: false }));
     }
   };
 
@@ -519,6 +540,17 @@ const ShopPage = () => {
                       <TableCell className="text-right">{shop.tray_balance}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleTestNotification(shop)}
+                            disabled={testingNotification[shop.id]}
+                            className="hover:bg-orange-100 hover:text-orange-600"
+                            title="Send test customer notification"
+                            data-testid={`test-notification-${index}`}
+                          >
+                            {testingNotification[shop.id] ? <Loader2 size={16} className="animate-spin" /> : <Bell size={16} />}
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"

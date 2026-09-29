@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,7 +21,7 @@ import {
 import { 
   Loader2, Settings, MessageCircle, MessageSquare, Save, Eye, EyeOff, FileText, 
   Download, Trash2, AlertTriangle, ShieldAlert, Truck, Store, Users, ShoppingCart, 
-  Package, Receipt, CalendarDays, CreditCard
+  Package, Receipt, CalendarDays, CreditCard, Bell
 } from "lucide-react";
 
 const ConfigSettingsPage = () => {
@@ -32,9 +33,14 @@ const ConfigSettingsPage = () => {
     whatsapp_api_token: "",
     whatsapp_phone_number_id: "109780805521902",
     whatsapp_template_id: "gowda_egg_sale_receipt",
+    customer_login_otp_template: "",
     whatsapp_header_image_url: "",
     msg91_auth_key: "",
     msg91_template_id: "",
+    customer_login_otp_flow_id: "",
+    firebase_enabled: false,
+    firebase_service_account_json: "",
+    firebase_service_account_json_set: false,
     whatsapp_api_token_set: false,
     msg91_auth_key_set: false,
     allow_multiple_reports: false,
@@ -80,9 +86,14 @@ const ConfigSettingsPage = () => {
         whatsapp_api_token: "", // Don't show actual token
         whatsapp_phone_number_id: data.whatsapp_phone_number_id || "109780805521902",
         whatsapp_template_id: data.whatsapp_template_id || "gowda_egg_sale_receipt",
+        customer_login_otp_template: data.customer_login_otp_template || "",
         whatsapp_header_image_url: data.whatsapp_header_image_url || "",
         msg91_auth_key: "", // Don't show actual key
         msg91_template_id: data.msg91_template_id || "",
+        customer_login_otp_flow_id: data.customer_login_otp_flow_id || "",
+        firebase_enabled: data.firebase_enabled || false,
+        firebase_service_account_json: "",
+        firebase_service_account_json_set: data.firebase_service_account_json_set || false,
         whatsapp_api_token_set: data.whatsapp_api_token_set || false,
         msg91_auth_key_set: data.msg91_auth_key_set || false,
         allow_multiple_reports: data.allow_multiple_reports || false,
@@ -139,6 +150,9 @@ const ConfigSettingsPage = () => {
       if (settings.whatsapp_template_id) {
         updateData.whatsapp_template_id = settings.whatsapp_template_id;
       }
+      if (settings.customer_login_otp_template) {
+        updateData.customer_login_otp_template = settings.customer_login_otp_template;
+      }
       if (settings.whatsapp_header_image_url !== undefined) {
         updateData.whatsapp_header_image_url = settings.whatsapp_header_image_url;
       }
@@ -147,6 +161,13 @@ const ConfigSettingsPage = () => {
       }
       if (settings.msg91_template_id) {
         updateData.msg91_template_id = settings.msg91_template_id;
+      }
+      if (settings.customer_login_otp_flow_id) {
+        updateData.customer_login_otp_flow_id = settings.customer_login_otp_flow_id;
+      }
+      updateData.firebase_enabled = settings.firebase_enabled;
+      if (settings.firebase_service_account_json) {
+        updateData.firebase_service_account_json = settings.firebase_service_account_json;
       }
       
       if (Object.keys(updateData).length === 0) {
@@ -164,7 +185,8 @@ const ConfigSettingsPage = () => {
       setSettings(prev => ({
         ...prev,
         whatsapp_api_token: "",
-        msg91_auth_key: ""
+        msg91_auth_key: "",
+        firebase_service_account_json: ""
       }));
     } catch (error) {
       console.error("Error saving credentials:", error);
@@ -489,6 +511,18 @@ const ConfigSettingsPage = () => {
                   Image displayed in WhatsApp message header (recommended: 300x300px)
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customer-otp-template">Customer Login OTP Template</Label>
+                <Input
+                  id="customer-otp-template"
+                  type="text"
+                  placeholder="gowda_egg_customer_otp"
+                  value={settings.customer_login_otp_template}
+                  onChange={(e) => setSettings(prev => ({ ...prev, customer_login_otp_template: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">Approved WhatsApp template used to send customer login OTPs.</p>
+              </div>
             </CardContent>
           </Card>
 
@@ -534,6 +568,57 @@ const ConfigSettingsPage = () => {
                   value={settings.msg91_template_id}
                   onChange={(e) => setSettings(prev => ({ ...prev, msg91_template_id: e.target.value }))}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customer-otp-flow">Customer Login OTP Flow ID</Label>
+                <Input
+                  id="customer-otp-flow"
+                  type="text"
+                  placeholder="Enter MSG91 customer OTP Flow ID"
+                  value={settings.customer_login_otp_flow_id}
+                  onChange={(e) => setSettings(prev => ({ ...prev, customer_login_otp_flow_id: e.target.value }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Firebase Push Configuration */}
+          <Card className="border-border/50 border-red-200">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Bell size={20} className="text-orange-600" />
+                Firebase Push Configuration
+              </CardTitle>
+              <CardDescription>
+                Configure Firebase HTTP v1 push notifications for the customer app
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div>
+                  <Label htmlFor="firebase-toggle" className="text-base font-medium">Enable Firebase Push</Label>
+                  <p className="text-sm text-muted-foreground">Send sale and payment notifications to logged-in customer devices.</p>
+                </div>
+                <Switch
+                  id="firebase-toggle"
+                  checked={settings.firebase_enabled}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, firebase_enabled: checked }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="firebase-json">
+                  Service Account JSON {settings.firebase_service_account_json_set && <span className="text-green-600 text-xs">(configured)</span>}
+                </Label>
+                <Textarea
+                  id="firebase-json"
+                  rows={10}
+                  className="font-mono text-xs"
+                  placeholder={settings.firebase_service_account_json_set ? "Paste JSON to replace the configured service account" : "Paste the complete Firebase service-account JSON"}
+                  value={settings.firebase_service_account_json}
+                  onChange={(e) => setSettings(prev => ({ ...prev, firebase_service_account_json: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">The private JSON is stored by the backend and is never returned by the settings API.</p>
               </div>
             </CardContent>
           </Card>

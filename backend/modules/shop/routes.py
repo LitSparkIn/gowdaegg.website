@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from core.database import get_database
+from core.response import success_response
 from auth.security import get_current_user
 from modules.shop.service import ShopService
 from modules.shop.schemas import (
@@ -14,6 +15,12 @@ from modules.shop.schemas import (
 )
 
 router = APIRouter(prefix="/shops", tags=["Shops"])
+
+
+def verify_admin(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user.get("role") not in ["superadmin", "admin"]:
+        raise HTTPException(status_code=403, detail="Access denied. Admin only.")
+    return current_user
 
 def get_shop_service(db: AsyncIOMotorDatabase = Depends(get_database)) -> ShopService:
     """Dependency to get ShopService instance"""
@@ -77,6 +84,30 @@ async def activate_shop(
     """Activate an inactive shop"""
     await service.activate_shop(shop_id)
     return MessageResponse(message="Shop activated successfully")
+
+
+@router.post("/{shop_id}/test-notification")
+async def test_customer_notification(
+    shop_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin),
+):
+    """Send a test push to every active customer device for a shop."""
+    shop = await db.shops.find_one({"id": shop_id}, {"_id": 0})
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    from modules.customer.notifications import CustomerNotificationService
+
+    result = await CustomerNotificationService.send_to_shop(
+        db,
+        shop_id,
+        "Test Notification",
+        f"Push notifications are configured for {shop.get('name', 'this shop')}.",
+        {"type": "test", "shop_id": shop_id, "screen": "home"},
+    )
+    message = "Test notification sent successfully" if result.get("success") else "Test notification completed with errors"
+    return success_response(data=result, message=message)
 
 
 @router.get("/{shop_id}/transactions")

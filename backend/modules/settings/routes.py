@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -34,9 +36,13 @@ async def get_settings(
             "whatsapp_api_token": None,
             "whatsapp_phone_number_id": "937349779458170",
             "whatsapp_template_id": "gowda_egg_wa_template",
+            "customer_login_otp_template": None,
             "whatsapp_header_image_url": "https://litspark.solutions/litspark-logo.png",
             "msg91_auth_key": None,
             "msg91_template_id": None,
+            "customer_login_otp_flow_id": None,
+            "firebase_enabled": False,
+            "firebase_service_account_json": None,
             "todays_egg_rate": 0.0,
             "allow_multiple_reports": False,
             "updated_at": get_ist_now().isoformat()
@@ -51,10 +57,14 @@ async def get_settings(
         sms_enabled=settings.get("sms_enabled", False),
         whatsapp_phone_number_id=settings.get("whatsapp_phone_number_id", "937349779458170"),
         whatsapp_template_id=settings.get("whatsapp_template_id", "gowda_egg_wa_template"),
+        customer_login_otp_template=settings.get("customer_login_otp_template"),
         whatsapp_header_image_url=settings.get("whatsapp_header_image_url", "https://litspark.solutions/litspark-logo.png"),
         whatsapp_api_token_set=bool(settings.get("whatsapp_api_token")),
         msg91_auth_key_set=bool(settings.get("msg91_auth_key")),
         msg91_template_id=settings.get("msg91_template_id"),
+        customer_login_otp_flow_id=settings.get("customer_login_otp_flow_id"),
+        firebase_enabled=settings.get("firebase_enabled", False),
+        firebase_service_account_json_set=bool(settings.get("firebase_service_account_json")),
         todays_egg_rate=settings.get("todays_egg_rate", 0.0),
         allow_multiple_reports=settings.get("allow_multiple_reports", False),
         updated_at=settings.get("updated_at", "")
@@ -86,9 +96,13 @@ async def update_settings(
             "whatsapp_api_token": None,
             "whatsapp_phone_number_id": "937349779458170",
             "whatsapp_template_id": "gowda_egg_wa_template",
+            "customer_login_otp_template": None,
             "whatsapp_header_image_url": "https://litspark.solutions/litspark-logo.png",
             "msg91_auth_key": None,
             "msg91_template_id": None,
+            "customer_login_otp_flow_id": None,
+            "firebase_enabled": False,
+            "firebase_service_account_json": None,
             "todays_egg_rate": 0.0,
             "allow_multiple_reports": False,
             "updated_at": get_ist_now().isoformat()
@@ -107,12 +121,27 @@ async def update_settings(
         update_data["whatsapp_phone_number_id"] = request.whatsapp_phone_number_id
     if request.whatsapp_template_id is not None:
         update_data["whatsapp_template_id"] = request.whatsapp_template_id
+    if request.customer_login_otp_template is not None:
+        update_data["customer_login_otp_template"] = request.customer_login_otp_template
     if request.whatsapp_header_image_url is not None:
         update_data["whatsapp_header_image_url"] = request.whatsapp_header_image_url
     if request.msg91_auth_key is not None:
         update_data["msg91_auth_key"] = request.msg91_auth_key
     if request.msg91_template_id is not None:
         update_data["msg91_template_id"] = request.msg91_template_id
+    if request.customer_login_otp_flow_id is not None:
+        update_data["customer_login_otp_flow_id"] = request.customer_login_otp_flow_id
+    if request.firebase_enabled is not None:
+        update_data["firebase_enabled"] = request.firebase_enabled
+    if request.firebase_service_account_json is not None:
+        try:
+            service_account = json.loads(request.firebase_service_account_json)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Firebase service account must be valid JSON")
+        required_fields = {"project_id", "private_key", "client_email", "token_uri"}
+        if not isinstance(service_account, dict) or not required_fields.issubset(service_account):
+            raise HTTPException(status_code=400, detail="Firebase service account JSON is missing required fields")
+        update_data["firebase_service_account_json"] = request.firebase_service_account_json
     if request.todays_egg_rate is not None:
         update_data["todays_egg_rate"] = request.todays_egg_rate
     if request.allow_multiple_reports is not None:
@@ -134,10 +163,14 @@ async def update_settings(
         sms_enabled=updated_settings.get("sms_enabled", False),
         whatsapp_phone_number_id=updated_settings.get("whatsapp_phone_number_id", "937349779458170"),
         whatsapp_template_id=updated_settings.get("whatsapp_template_id", "gowda_egg_wa_template"),
+        customer_login_otp_template=updated_settings.get("customer_login_otp_template"),
         whatsapp_header_image_url=updated_settings.get("whatsapp_header_image_url", "https://litspark.solutions/litspark-logo.png"),
         whatsapp_api_token_set=bool(updated_settings.get("whatsapp_api_token")),
         msg91_auth_key_set=bool(updated_settings.get("msg91_auth_key")),
         msg91_template_id=updated_settings.get("msg91_template_id"),
+        customer_login_otp_flow_id=updated_settings.get("customer_login_otp_flow_id"),
+        firebase_enabled=updated_settings.get("firebase_enabled", False),
+        firebase_service_account_json_set=bool(updated_settings.get("firebase_service_account_json")),
         todays_egg_rate=updated_settings.get("todays_egg_rate", 0.0),
         allow_multiple_reports=updated_settings.get("allow_multiple_reports", False),
         updated_at=updated_settings.get("updated_at", "")

@@ -135,6 +135,15 @@ class SaleService:
         
         # Save the sale
         await self.repository.create(sale)
+
+        # Customer push notifications are non-blocking and never affect the sale.
+        try:
+            from modules.customer.notifications import CustomerNotificationService
+            asyncio.create_task(
+                CustomerNotificationService.send_transaction_push(self.db, sale.model_dump())
+            )
+        except Exception as e:
+            logger.error(f"Unable to schedule customer push notification: {str(e)}")
         
         # Update shop's tray balance and previous_dues
         await self.db.shops.update_one(

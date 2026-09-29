@@ -46,6 +46,22 @@ class Database:
             # Expenses collection indexes
             await self.db.expenses.create_index("expense_date")
             await self.db.expenses.create_index([("expense_date", -1)])
+
+            # Customer app indexes
+            await self.db.shops.create_index([("phone", 1), ("is_active", 1)])
+            await self.db.customer_otps.create_index("phone", unique=True)
+            await self.db.customer_otps.create_index("expires_at", expireAfterSeconds=0)
+            await self.db.customer_sessions.create_index("refresh_token_hash", unique=True)
+            await self.db.customer_sessions.create_index("shop_id")
+            await self.db.customer_sessions.create_index([("shop_id", 1), ("revoked_at", 1)])
+            await self.db.customer_sessions.create_index("fcm_token")
+            await self.db.customer_sessions.create_index("expires_at", expireAfterSeconds=0)
+            await self.db.sales.create_index([
+                ("shop_id", 1),
+                ("transaction_type", 1),
+                ("sale_date", -1),
+                ("sale_time", -1),
+            ])
             
             logger.info("Database indexes created successfully")
         except Exception as e:
