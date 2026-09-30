@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from typing import Optional
+from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import json
 import logging
@@ -168,6 +169,96 @@ async def get_all_sales_admin(
     return success_response(
         data=result,
         message="Sales fetched successfully"
+    )
+
+
+@admin_router.get("/all-transactions-report")
+async def get_all_transactions_report(
+    from_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    to_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(verify_admin),
+):
+    """Return every transaction in a required date range without pagination."""
+    try:
+        start = datetime.strptime(from_date, "%Y-%m-%d")
+        end = datetime.strptime(to_date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Dates must use YYYY-MM-DD format")
+    if start > end:
+        raise HTTPException(status_code=400, detail="Start date cannot be after end date")
+
+    pipeline = [
+        {"$match": {"sale_date": {"$gte": from_date, "$lte": to_date}}},
+        {"$sort": {"sale_date": -1, "sale_time": -1, "created_at": -1}},
+        {"$lookup": {
+            "from": "salesmen",
+            "localField": "salesman_id",
+            "foreignField": "id",
+            "as": "salesman"
+        }},
+        {"$unwind": {"path": "$salesman", "preserveNullAndEmptyArrays": True}},
+        {"$lookup": {
+            "from": "shops",
+            "localField": "shop_id",
+            "foreignField": "id",
+            "as": "shop"
+        }},
+        {"$unwind": {"path": "$shop", "preserveNullAndEmptyArrays": True}},
+        {"$lookup": {
+            "from": "routes",
+            "localField": "shop.route_id",
+            "foreignField": "id",
+            "as": "route"
+        }},
+        {"$unwind": {"path": "$route", "preserveNullAndEmptyArrays": True}},
+        {"$project": {
+            "_id": 0,
+            "id": 1,
+            "sale_date": 1,
+            "sale_time": 1,
+            "created_at": 1,
+            "transaction_type": {
+                "$ifNull": [
+                    "$transaction_type",
+                    {"$cond": [{"$gt": ["$crates", 0]}, "Sale", "Collection"]}
+                ]
+            },
+            "salesman_id": 1,
+            "salesman_name": {"$ifNull": ["$salesman.name", "Unknown"]},
+            "shop_id": 1,
+            "shop_name": {"$ifNull": ["$shop.name", "$shop_name"]},
+            "shop_phone": {"$ifNull": ["$shop.phone", ""]},
+            "route_id": {"$ifNull": ["$shop.route_id", ""]},
+            "route_name": {"$ifNull": ["$route.route_name", ""]},
+            "crates": {"$ifNull": ["$crates", 0]},
+            "price": {"$ifNull": ["$price", 0]},
+            "order_amount": {"$ifNull": ["$order_amount", 0]},
+            "shop_previous_dues": {"$ifNull": ["$shop_previous_dues", 0]},
+            "total_amount": {"$ifNull": ["$total_amount", 0]},
+            "collected_amount": {"$ifNull": ["$collected_amount", 0]},
+            "pending_amount": {"$ifNull": ["$pending_amount", 0]},
+            "payment_type": {"$ifNull": ["$payment_type", ""]},
+            "return_tray": {"$ifNull": ["$return_tray", 0]},
+            "previous_tray_balance": {"$ifNull": ["$previous_tray_balance", 0]},
+            "current_tray_balance": {"$ifNull": ["$current_tray_balance", 0]},
+            "image_url": 1,
+            "report_submitted": {"$ifNull": ["$report_submitted", False]}
+        }}
+    ]
+    transactions = await db.sales.aggregate(pipeline, allowDiskUse=True).to_list(length=None)
+
+    totals = {
+        "total_records": len(transactions),
+        "total_crates": sum(item.get("crates", 0) for item in transactions),
+        "total_order_amount": round(sum(item.get("order_amount", 0) for item in transactions), 2),
+        "total_collected": round(sum(item.get("collected_amount", 0) for item in transactions), 2),
+        "total_pending": round(sum(item.get("pending_amount", 0) for item in transactions), 2),
+        "total_return_tray": sum(item.get("return_tray", 0) for item in transactions),
+    }
+    return success_response(
+        data={"transactions": transactions, "totals": totals, "from_date": from_date, "to_date": to_date},
+        message="All transactions fetched successfully",
     )
 
 @admin_router.post("/{sale_id}/send-whatsapp")

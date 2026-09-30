@@ -92,3 +92,17 @@ async def get_payments(
         data={"payments": payments, "count": len(payments)},
         message="Payments fetched successfully",
     )
+
+
+@router.get("/all-transactions")
+async def get_all_transactions(
+    service: CustomerService = Depends(get_customer_service),
+    current_user: dict = Depends(verify_customer),
+):
+    """Return the customer's newest sales and collections in one list."""
+    shop = await service.get_shop_for_customer(current_user["sub"])
+    transactions = await service.get_all_transactions(shop["id"])
+    return success_response(
+        data={"transactions": transactions, "count": len(transactions)},
+        message="Transactions and collections fetched successfully",
+    )

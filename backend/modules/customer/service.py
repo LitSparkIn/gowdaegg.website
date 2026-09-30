@@ -278,3 +278,17 @@ class CustomerService:
         return await self.db.sales.find(query, {"_id": 0}).sort(
             [("sale_date", -1), ("sale_time", -1)]
         ).limit(limit).to_list(limit)
+
+    async def get_all_transactions(self, shop_id: str, limit: int = 20) -> list[dict]:
+        """Return sales and collections together, newest first."""
+        records = await self.db.sales.find(
+            {"shop_id": shop_id}, {"_id": 0}
+        ).sort(
+            [("sale_date", -1), ("sale_time", -1)]
+        ).limit(limit).to_list(limit)
+
+        # Older records predate transaction_type; classify them consistently.
+        for record in records:
+            if not record.get("transaction_type"):
+                record["transaction_type"] = "Sale" if record.get("crates", 0) > 0 else "Collection"
+        return records

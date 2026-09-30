@@ -29,6 +29,7 @@ import ConfigSettingsPage from "@/pages/ConfigSettingsPage";
 import DailyCashSummaryPage from "@/pages/DailyCashSummaryPage";
 import ProfitExpenseSummaryPage from "@/pages/ProfitExpenseSummaryPage";
 import ComingSoon from "@/pages/ComingSoon";
+import AllTransactionsReportPage from "@/pages/AllTransactionsReportPage";
 
 // Auth guard component
 const ProtectedRoute = ({ children }) => {
@@ -86,6 +87,7 @@ function App() {
             <Route path="daily-cash-summary" element={<DailyCashSummaryPage />} />
             <Route path="light-damage-summary" element={<ComingSoon title="Light Damage Summary" />} />
             <Route path="profit-expense-summary" element={<ProfitExpenseSummaryPage />} />
+            <Route path="all-transactions-report" element={<AllTransactionsReportPage />} />
             <Route path="config-setting" element={<ConfigSettingsPage />} />
           </Route>
           

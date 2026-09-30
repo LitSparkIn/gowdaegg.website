@@ -33,6 +33,7 @@ import {
   Coins,
   AlertTriangle,
   TrendingUp,
+  List,
 } from "lucide-react";
 
 // Menu items with role restrictions
@@ -59,6 +60,7 @@ const allMenuItems = [
   { name: "Daily Cash Summary", path: "/admin/daily-cash-summary", icon: Coins },
   { name: "Light Damage Summary", path: "/admin/light-damage-summary", icon: AlertTriangle, superadminOnly: true, comingSoon: true },
   { name: "Profit & Expense Summary", path: "/admin/profit-expense-summary", icon: TrendingUp, superadminOnly: true },
+  { name: "All Transactions Report", path: "/admin/all-transactions-report", icon: List, superadminOnly: true },
   { type: "divider", label: "Settings" },
   { name: "Salary Setup", path: "/admin/salary-setup", icon: UserCheck, superadminOnly: true },
   { name: "Change Password", path: "/admin/change-password", icon: Lock, superadminOnly: true },
