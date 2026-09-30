@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from auth.security import get_current_user
@@ -96,13 +96,14 @@ async def get_payments(
 
 @router.get("/all-transactions")
 async def get_all_transactions(
+    page: int = Query(1, ge=1, description="Page number"),
     service: CustomerService = Depends(get_customer_service),
     current_user: dict = Depends(verify_customer),
 ):
-    """Return the customer's newest sales and collections in one list."""
+    """Return the customer's sales and collections, 15 records per page."""
     shop = await service.get_shop_for_customer(current_user["sub"])
-    transactions = await service.get_all_transactions(shop["id"])
+    result = await service.get_all_transactions(shop["id"], page=page, limit=15)
     return success_response(
-        data={"transactions": transactions, "count": len(transactions)},
+        data=result,
         message="Transactions and collections fetched successfully",
     )

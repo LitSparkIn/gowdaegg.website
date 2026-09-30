@@ -279,16 +279,26 @@ class CustomerService:
             [("sale_date", -1), ("sale_time", -1)]
         ).limit(limit).to_list(limit)
 
-    async def get_all_transactions(self, shop_id: str, limit: int = 20) -> list[dict]:
-        """Return sales and collections together, newest first."""
+    async def get_all_transactions(self, shop_id: str, page: int = 1, limit: int = 15) -> dict:
+        """Return a page of sales and collections together, newest first."""
+        query = {"shop_id": shop_id}
+        total_records = await self.db.sales.count_documents(query)
+        skip = (page - 1) * limit
         records = await self.db.sales.find(
-            {"shop_id": shop_id}, {"_id": 0}
+            query, {"_id": 0}
         ).sort(
             [("sale_date", -1), ("sale_time", -1)]
-        ).limit(limit).to_list(limit)
+        ).skip(skip).limit(limit).to_list(limit)
 
         # Older records predate transaction_type; classify them consistently.
         for record in records:
             if not record.get("transaction_type"):
                 record["transaction_type"] = "Sale" if record.get("crates", 0) > 0 else "Collection"
-        return records
+        return {
+            "transactions": records,
+            "count": len(records),
+            "total_records": total_records,
+            "page": page,
+            "limit": limit,
+            "total_pages": (total_records + limit - 1) // limit if total_records else 0,
+        }
