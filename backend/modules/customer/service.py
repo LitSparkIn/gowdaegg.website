@@ -15,6 +15,8 @@ OTP_EXPIRY_SECONDS = 300
 OTP_COOLDOWN_SECONDS = 60
 OTP_MAX_ATTEMPTS = 5
 REFRESH_EXPIRY_SECONDS = 365 * 24 * 60 * 60
+TEST_CUSTOMER_PHONE = "9901080987"
+TEST_CUSTOMER_OTP = "0000"
 
 
 def normalize_phone(phone: str) -> tuple[str, str]:
@@ -118,13 +120,16 @@ class CustomerService:
                     f"Please wait {int(OTP_COOLDOWN_SECONDS - elapsed)} seconds before requesting another OTP"
                 )
 
-        otp = f"{secrets.randbelow(10000):04d}"
-        settings = await self.db.settings.find_one({"id": "global_settings"}, {"_id": 0}) or {}
         normalized_mode = "sms" if mode == "text" else mode
-        if normalized_mode == "whatsapp":
-            await self._send_whatsapp_otp(provider_phone, otp, settings)
+        if normalized_phone == TEST_CUSTOMER_PHONE:
+            otp = TEST_CUSTOMER_OTP
         else:
-            await self._send_sms_otp(provider_phone, otp, settings)
+            otp = f"{secrets.randbelow(10000):04d}"
+            settings = await self.db.settings.find_one({"id": "global_settings"}, {"_id": 0}) or {}
+            if normalized_mode == "whatsapp":
+                await self._send_whatsapp_otp(provider_phone, otp, settings)
+            else:
+                await self._send_sms_otp(provider_phone, otp, settings)
 
         await self.db.customer_otps.update_one(
             {"phone": normalized_phone},

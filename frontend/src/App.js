@@ -30,6 +30,7 @@ import DailyCashSummaryPage from "@/pages/DailyCashSummaryPage";
 import ProfitExpenseSummaryPage from "@/pages/ProfitExpenseSummaryPage";
 import ComingSoon from "@/pages/ComingSoon";
 import AllTransactionsReportPage from "@/pages/AllTransactionsReportPage";
+import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 
 // Auth guard component
 const ProtectedRoute = ({ children }) => {
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/admin/login" element={<Login />} />
           
           {/* Protected admin routes */}

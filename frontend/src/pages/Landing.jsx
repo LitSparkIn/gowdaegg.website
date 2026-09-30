@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Package, BarChart3 } from "lucide-react";
 
@@ -99,9 +99,10 @@ const Landing = () => {
           <p className="text-muted-foreground text-base">
             © {new Date().getFullYear()} Gowda Egg Distributors. All rights reserved.
           </p>
-          <p className="text-muted-foreground text-base">
-            Quality eggs, delivered with care.
-          </p>
+          <div className="flex items-center gap-4 text-base">
+            <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+            <p className="text-muted-foreground">Quality eggs, delivered with care.</p>
+          </div>
         </div>
       </footer>
     </div>
