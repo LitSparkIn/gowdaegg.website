@@ -31,7 +31,7 @@ const ConfigSettingsPage = () => {
     whatsapp_enabled: false,
     sms_enabled: false,
     whatsapp_api_token: "",
-    whatsapp_phone_number_id: "109780805521902",
+    whatsapp_phone_number_id: "1462320893620831",
     whatsapp_template_id: "gowda_egg_sale_receipt",
     customer_login_otp_template: "",
     whatsapp_header_image_url: "",
@@ -84,7 +84,7 @@ const ConfigSettingsPage = () => {
         whatsapp_enabled: data.whatsapp_enabled || false,
         sms_enabled: data.sms_enabled || false,
         whatsapp_api_token: "", // Don't show actual token
-        whatsapp_phone_number_id: data.whatsapp_phone_number_id || "109780805521902",
+        whatsapp_phone_number_id: data.whatsapp_phone_number_id || "1462320893620831",
         whatsapp_template_id: data.whatsapp_template_id || "gowda_egg_sale_receipt",
         customer_login_otp_template: data.customer_login_otp_template || "",
         whatsapp_header_image_url: data.whatsapp_header_image_url || "",
@@ -481,7 +481,7 @@ const ConfigSettingsPage = () => {
                   <Input
                     id="whatsapp-phone-id"
                     type="text"
-                    placeholder="109780805521902"
+                    placeholder="1462320893620831"
                     value={settings.whatsapp_phone_number_id}
                     onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_phone_number_id: e.target.value }))}
                   />

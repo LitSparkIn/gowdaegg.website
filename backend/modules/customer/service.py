@@ -48,7 +48,7 @@ class CustomerService:
 
     async def _send_whatsapp_otp(self, phone: str, otp: str, settings: dict):
         token = settings.get("whatsapp_api_token")
-        phone_number_id = settings.get("whatsapp_phone_number_id")
+        phone_number_id = settings.get("whatsapp_phone_number_id") or "1462320893620831"
         template = settings.get("customer_login_otp_template")
         if not token or not phone_number_id or not template:
             raise BadRequestException("Customer WhatsApp OTP is not configured")

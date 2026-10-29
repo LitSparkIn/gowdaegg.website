@@ -26,6 +26,17 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up application...")
     await database.connect()
     logger.info("Database connected successfully")
+
+    # Move existing deployments from the previous WhatsApp sender IDs to the
+    # current sender. Custom IDs are deliberately left unchanged.
+    await database.get_db().settings.update_many(
+        {
+            "whatsapp_phone_number_id": {
+                "$in": ["937349779458170", "109780805521902"]
+            }
+        },
+        {"$set": {"whatsapp_phone_number_id": "1462320893620831"}},
+    )
     
     yield
     

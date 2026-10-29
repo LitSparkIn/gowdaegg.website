@@ -23,7 +23,7 @@ class NotificationService:
         sale_datetime: str,
         template_id: str,
         api_token: str,
-        phone_number_id: str = "937349779458170",
+        phone_number_id: str = "1462320893620831",
         image_url: str = "https://litspark.solutions/litspark-logo.png"
     ) -> dict:
         """

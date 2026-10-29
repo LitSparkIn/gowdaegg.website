@@ -8,7 +8,7 @@ class SettingsModel(BaseModel):
     whatsapp_enabled: bool = False
     sms_enabled: bool = False
     whatsapp_api_token: Optional[str] = None
-    whatsapp_phone_number_id: str = "109780805521902"
+    whatsapp_phone_number_id: str = "1462320893620831"
     whatsapp_template_id: str = "gowda_egg_sale_receipt"
     customer_login_otp_template: Optional[str] = None
     msg91_auth_key: Optional[str] = None

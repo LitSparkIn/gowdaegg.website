@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Default WhatsApp Business API Configuration
 DEFAULT_WHATSAPP_TOKEN = "EAAOHfZAef0okBO7qZAeZCwEKK1HeGbtHoZBRCBZA5zzapsfVIsiCcKhWOHm96i08VLH1uI38OycyJxlVhyt6vyZBt6ZA6nqsCTnWzAorkyu5n0SBD69oOsHDyQYr6PrkJsiEuEROrgCxcvj7gnqb49iJOwse8xQ1ISsoWFAyZCEkrm0syNNPWvKfl8FS5JUlht4j"
-DEFAULT_PHONE_NUMBER_ID = "937349779458170"
+DEFAULT_PHONE_NUMBER_ID = "1462320893620831"
 DEFAULT_TEMPLATE_NAME = "gowda_egg_wa_template"
 DEFAULT_HEADER_IMAGE_URL = "https://litspark.solutions/litspark-logo.png"
 

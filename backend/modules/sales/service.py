@@ -220,7 +220,7 @@ class SaleService:
                 whatsapp_token = settings.get("whatsapp_api_token")
                 if whatsapp_token:
                     whatsapp_template = settings.get("whatsapp_template_id", "gowda_egg_wa_template")
-                    phone_number_id = settings.get("whatsapp_phone_number_id", "937349779458170")
+                    phone_number_id = settings.get("whatsapp_phone_number_id", "1462320893620831")
                     image_url = settings.get("whatsapp_header_image_url", "https://litspark.solutions/litspark-logo.png")
                     
                     result = await NotificationService.send_whatsapp(
