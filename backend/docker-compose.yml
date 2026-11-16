@@ -16,6 +16,7 @@ services:
       - DEBUG=FALSE
       - ICICI_UPI_ENABLED=${ICICI_UPI_ENABLED:-false}
       - ICICI_UPI_QR_URL=${ICICI_UPI_QR_URL:-https://apibankingonesandbox.icici.bank.in/api/MerchantAPI/UPI/v0/QR3/614174}
+      - ICICI_UPI_STATUS_URL=${ICICI_UPI_STATUS_URL:-https://apibankingonesandbox.icici.bank.in/api/MerchantAPI/UPI/v0/TransactionStatus1/614174}
       - ICICI_UPI_API_KEY=${ICICI_UPI_API_KEY:-}
       - ICICI_UPI_MERCHANT_ID=${ICICI_UPI_MERCHANT_ID:-614174}
       - ICICI_UPI_TERMINAL_ID=${ICICI_UPI_TERMINAL_ID:-6012}

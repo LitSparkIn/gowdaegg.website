@@ -56,6 +56,10 @@ class Database:
             await self.db.customer_sessions.create_index([("shop_id", 1), ("revoked_at", 1)])
             await self.db.customer_sessions.create_index("fcm_token")
             await self.db.customer_sessions.create_index("expires_at", expireAfterSeconds=0)
+            await self.db.upi_payments.create_index("id", unique=True)
+            await self.db.upi_payments.create_index("merchant_transaction_id", unique=True)
+            await self.db.upi_payments.create_index([("shop_id", 1), ("created_at", -1)])
+            await self.db.upi_payments.create_index("bank_rrn", sparse=True)
             await self.db.sales.create_index([
                 ("shop_id", 1),
                 ("transaction_type", 1),

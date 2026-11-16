@@ -22,12 +22,17 @@ class ICICIUPIRequestError(RuntimeError):
     pass
 
 
+class ICICICallbackDecryptionError(ICICIUPIRequestError):
+    pass
+
+
 class ICICIUPIClient:
     def __init__(self, http_transport: Optional[httpx.AsyncBaseTransport] = None):
         self.http_transport = http_transport
 
         required_settings = {
             "ICICI_UPI_API_KEY": settings.ICICI_UPI_API_KEY,
+            "ICICI_UPI_STATUS_URL": settings.ICICI_UPI_STATUS_URL,
             "ICICI_UPI_BANK_CERT_PATH": settings.ICICI_UPI_BANK_CERT_PATH,
             "ICICI_UPI_PRIVATE_KEY_PATH": settings.ICICI_UPI_PRIVATE_KEY_PATH,
         }
@@ -62,11 +67,13 @@ class ICICIUPIClient:
         amount: Decimal,
         bill_number: Optional[str] = None,
         expiry_minutes: int = 15,
+        merchant_transaction_id: Optional[str] = None,
+        request_id: Optional[str] = None,
     ) -> dict:
         now = get_ist_now()
-        merchant_transaction_id = uuid.uuid4().hex[:35]
+        merchant_transaction_id = merchant_transaction_id or uuid.uuid4().hex[:35]
         bill_number = bill_number or f"GE{uuid.uuid4().hex[:20].upper()}"
-        request_id = uuid.uuid4().hex
+        request_id = request_id or uuid.uuid4().hex
         amount_text = self._money(amount)
 
         payload = {
@@ -89,7 +96,7 @@ class ICICIUPIClient:
 
         headers = {
             "apikey": settings.ICICI_UPI_API_KEY,
-            "Accept": "application/json",
+            "Accept": "*/*",
             "Content-Type": "application/json",
         }
 
@@ -160,3 +167,64 @@ class ICICIUPIClient:
                 now + timedelta(minutes=expiry_minutes)
             ).isoformat(),
         }
+
+    async def get_transaction_status(self, merchant_transaction_id: str) -> dict:
+        request_id = uuid.uuid4().hex
+        payload = {
+            "merchantId": settings.ICICI_UPI_MERCHANT_ID,
+            "subMerchantId": settings.ICICI_UPI_MERCHANT_ID,
+            "terminalId": settings.ICICI_UPI_TERMINAL_ID,
+            "merchantTranId": merchant_transaction_id,
+        }
+        envelope = self.crypto.encrypt_request(payload, request_id=request_id)
+        headers = {
+            "apikey": settings.ICICI_UPI_API_KEY,
+            "Accept": "*/*",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            async with httpx.AsyncClient(
+                timeout=settings.ICICI_UPI_TIMEOUT_SECONDS,
+                transport=self.http_transport,
+            ) as client:
+                response = await client.post(
+                    settings.ICICI_UPI_STATUS_URL,
+                    json=envelope,
+                    headers=headers,
+                )
+        except httpx.RequestError as exc:
+            logger.exception(
+                "ICICI status request failed before receiving a response"
+            )
+            raise ICICIUPIRequestError(
+                "ICICI UPI status service could not be reached"
+            ) from exc
+
+        if response.status_code >= 400:
+            logger.error(
+                "ICICI status request failed: request_id=%s status=%s",
+                request_id,
+                response.status_code,
+            )
+            raise ICICIUPIRequestError(
+                f"ICICI UPI status service returned HTTP {response.status_code}"
+            )
+
+        try:
+            return self.crypto.decrypt_response(response.json())
+        except (ValueError, ICICICryptoError) as exc:
+            logger.exception(
+                "Unable to decode ICICI status response: request_id=%s", request_id
+            )
+            raise ICICIUPIRequestError(
+                "ICICI returned an unreadable status response"
+            ) from exc
+
+    def decrypt_callback(self, envelope: dict) -> dict:
+        try:
+            return self.crypto.decrypt_response(envelope)
+        except ICICICryptoError as exc:
+            raise ICICICallbackDecryptionError(
+                "ICICI callback could not be decrypted"
+            ) from exc

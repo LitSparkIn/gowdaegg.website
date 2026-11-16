@@ -13,9 +13,13 @@ from modules.customer.schemas import (
 )
 from modules.customer.service import CustomerService
 from modules.icici_upi.client import (
-    ICICIUPIClient,
     ICICIUPIConfigurationError,
     ICICIUPIRequestError,
+)
+from modules.icici_upi.service import (
+    ICICIUPIPaymentNotFoundError,
+    ICICIUPIPaymentService,
+    ICICIUPIPaymentValidationError,
 )
 from core.config import settings
 
@@ -130,11 +134,12 @@ async def generate_upi_qr(
         )
 
     # Confirm the token still belongs to an active shop before calling the bank.
-    await service.get_shop_for_customer(current_user["sub"])
+    shop = await service.get_shop_for_customer(current_user["sub"])
 
     try:
-        client = ICICIUPIClient()
-        result = await client.generate_qr(
+        payment_service = ICICIUPIPaymentService(service.db)
+        result = await payment_service.create_qr_payment(
+            shop=shop,
             amount=request.amount,
             bill_number=request.bill_number,
             expiry_minutes=request.expiry_minutes,
@@ -151,3 +156,35 @@ async def generate_upi_qr(
         )
 
     return success_response(data=result, message="UPI QR generated successfully")
+
+
+@router.get("/payments/upi/{payment_id}/status")
+async def get_upi_payment_status(
+    payment_id: str,
+    refresh: bool = Query(True, description="Refresh pending status with ICICI"),
+    service: CustomerService = Depends(get_customer_service),
+    current_user: dict = Depends(verify_customer),
+):
+    """Return the customer's payment status and reconcile pending payments."""
+    shop = await service.get_shop_for_customer(current_user["sub"])
+    try:
+        payment_service = ICICIUPIPaymentService(service.db)
+        result = await payment_service.get_customer_payment(
+            payment_id=payment_id,
+            shop_id=shop["id"],
+            refresh=refresh,
+        )
+    except ICICIUPIPaymentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ICICIUPIConfigurationError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="UPI payment service is not configured",
+        )
+    except (ICICIUPIRequestError, ICICIUPIPaymentValidationError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        )
+
+    return success_response(data=result, message="UPI payment status fetched successfully")
