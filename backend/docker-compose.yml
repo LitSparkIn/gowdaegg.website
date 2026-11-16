@@ -14,6 +14,17 @@ services:
       - JWT_SECRET=gowda-egg-distributors-secret-key-2024
       - CORS_ORIGINS=*
       - DEBUG=FALSE
+      - ICICI_UPI_ENABLED=${ICICI_UPI_ENABLED:-false}
+      - ICICI_UPI_QR_URL=${ICICI_UPI_QR_URL:-https://apibankingonesandbox.icici.bank.in/api/MerchantAPI/UPI/v0/QR3/614174}
+      - ICICI_UPI_API_KEY=${ICICI_UPI_API_KEY:-}
+      - ICICI_UPI_MERCHANT_ID=${ICICI_UPI_MERCHANT_ID:-614174}
+      - ICICI_UPI_TERMINAL_ID=${ICICI_UPI_TERMINAL_ID:-6012}
+      - ICICI_UPI_VPA=${ICICI_UPI_VPA:-TECHPAYLOGICUAT@icici}
+      - ICICI_UPI_MERCHANT_NAME=${ICICI_UPI_MERCHANT_NAME:-Gowda Egg}
+      - ICICI_UPI_BANK_CERT_PATH=/run/secrets/icici/icici-public.pem
+      - ICICI_UPI_PRIVATE_KEY_PATH=/run/secrets/icici/merchant-private.key
+      - ICICI_UPI_MERCHANT_CERT_PATH=/run/secrets/icici/merchant-cert.pem
+      - ICICI_UPI_TIMEOUT_SECONDS=${ICICI_UPI_TIMEOUT_SECONDS:-30}
     ports:
       - "8956:8956"
     depends_on:
@@ -22,6 +33,9 @@ services:
       - ./:/app
       - ./uploads:/uploads
       - ./processed_files:/processed_files
+      - /etc/gowdaegg/icici/icici-public.pem:/run/secrets/icici/icici-public.pem:ro
+      - /etc/gowdaegg/icici/merchant-private.key:/run/secrets/icici/merchant-private.key:ro
+      - /etc/gowdaegg/icici/merchant-cert.pem:/run/secrets/icici/merchant-cert.pem:ro
     command: uvicorn server:app --host 0.0.0.0 --port 8956 --reload
 
   mongo:
