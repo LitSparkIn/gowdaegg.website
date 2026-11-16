@@ -65,6 +65,7 @@ class ICICIUPIPaymentService:
             "bank_rrn": payment.get("bank_rrn"),
             "collection_id": payment.get("collection_id"),
             "status_message": payment.get("status_message"),
+            "valid_from": payment.get("valid_from"),
             "expires_at": payment.get("expires_at"),
             "created_at": payment.get("created_at"),
             "updated_at": payment.get("updated_at"),
@@ -123,6 +124,7 @@ class ICICIUPIPaymentService:
             "status": "PENDING",
             "ref_id": result["ref_id"],
             "upi_uri": result["upi_uri"],
+            "valid_from": result["valid_from"],
             "expires_at": result["expires_at"],
             "updated_at": get_ist_now().isoformat(),
         }

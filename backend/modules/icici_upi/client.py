@@ -71,6 +71,8 @@ class ICICIUPIClient:
         request_id: Optional[str] = None,
     ) -> dict:
         now = get_ist_now()
+        validity_start = now + timedelta(seconds=10)
+        validity_end = validity_start + timedelta(minutes=expiry_minutes)
         merchant_transaction_id = merchant_transaction_id or uuid.uuid4().hex[:35]
         bill_number = bill_number or f"GE{uuid.uuid4().hex[:20].upper()}"
         request_id = request_id or uuid.uuid4().hex
@@ -86,10 +88,8 @@ class ICICIUPIClient:
             "payerAccount": "",
             "payerIFSC": "",
             "refId": "",
-            "validityStartDateTime": now.strftime("%d/%m/%Y %H:%M:%S"),
-            "validityEndDateTime": (
-                now + timedelta(minutes=expiry_minutes)
-            ).strftime("%d/%m/%Y %H:%M:%S"),
+            "validityStartDateTime": validity_start.strftime("%d/%m/%Y %H:%M:%S"),
+            "validityEndDateTime": validity_end.strftime("%d/%m/%Y %H:%M:%S"),
             "update": "N",
         }
         envelope = self.crypto.encrypt_request(payload, request_id=request_id)
@@ -163,9 +163,8 @@ class ICICIUPIClient:
             "ref_id": ref_id,
             "amount": amount_text,
             "upi_uri": f"upi://pay?{query}",
-            "expires_at": (
-                now + timedelta(minutes=expiry_minutes)
-            ).isoformat(),
+            "valid_from": validity_start.isoformat(),
+            "expires_at": validity_end.isoformat(),
         }
 
     async def get_transaction_status(self, merchant_transaction_id: str) -> dict:
