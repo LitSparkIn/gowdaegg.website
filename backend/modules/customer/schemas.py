@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
@@ -35,3 +36,9 @@ class RefreshRequest(BaseModel):
 
 class LogoutRequest(BaseModel):
     refresh_token: str = Field(..., min_length=20)
+
+
+class GenerateUPIQRRequest(BaseModel):
+    amount: Decimal = Field(..., gt=0, decimal_places=2, max_digits=12)
+    bill_number: Optional[str] = Field(None, min_length=1, max_length=50)
+    expiry_minutes: int = Field(default=15, ge=1, le=60)

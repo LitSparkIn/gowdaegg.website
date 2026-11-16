@@ -48,6 +48,11 @@ dump.rdb
 # System files
 .DS_Store
 *.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
 
 # Python
 __pycache__/

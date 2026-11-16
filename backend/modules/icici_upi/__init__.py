@@ -1,0 +1,1 @@
+"""ICICI UPI QR integration."""

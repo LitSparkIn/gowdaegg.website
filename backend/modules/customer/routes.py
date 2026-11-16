@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from auth.security import get_current_user
@@ -6,11 +6,18 @@ from core.database import get_database
 from core.response import success_response
 from modules.customer.schemas import (
     CustomerLoginRequest,
+    GenerateUPIQRRequest,
     LogoutRequest,
     RefreshRequest,
     SendOTPRequest,
 )
 from modules.customer.service import CustomerService
+from modules.icici_upi.client import (
+    ICICIUPIClient,
+    ICICIUPIConfigurationError,
+    ICICIUPIRequestError,
+)
+from core.config import settings
 
 router = APIRouter(prefix="/customer", tags=["Customer App"])
 
@@ -107,3 +114,40 @@ async def get_all_transactions(
         data=result,
         message="Transactions and collections fetched successfully",
     )
+
+
+@router.post("/payments/upi/qr")
+async def generate_upi_qr(
+    request: GenerateUPIQRRequest,
+    service: CustomerService = Depends(get_customer_service),
+    current_user: dict = Depends(verify_customer),
+):
+    """Generate a stateless ICICI UAT QR for the authenticated customer."""
+    if not settings.ICICI_UPI_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="UPI payments are not enabled",
+        )
+
+    # Confirm the token still belongs to an active shop before calling the bank.
+    await service.get_shop_for_customer(current_user["sub"])
+
+    try:
+        client = ICICIUPIClient()
+        result = await client.generate_qr(
+            amount=request.amount,
+            bill_number=request.bill_number,
+            expiry_minutes=request.expiry_minutes,
+        )
+    except ICICIUPIConfigurationError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="UPI payment service is not configured",
+        )
+    except ICICIUPIRequestError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        )
+
+    return success_response(data=result, message="UPI QR generated successfully")
