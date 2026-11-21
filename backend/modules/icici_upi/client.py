@@ -71,8 +71,7 @@ class ICICIUPIClient:
         request_id: Optional[str] = None,
     ) -> dict:
         now = get_ist_now()
-        validity_start = now + timedelta(seconds=10)
-        validity_end = validity_start + timedelta(minutes=expiry_minutes)
+        validity_end = now + timedelta(minutes=expiry_minutes)
         merchant_transaction_id = merchant_transaction_id or uuid.uuid4().hex[:35]
         bill_number = bill_number or f"GE{uuid.uuid4().hex[:20].upper()}"
         request_id = request_id or uuid.uuid4().hex
@@ -84,13 +83,7 @@ class ICICIUPIClient:
             "terminalId": settings.ICICI_UPI_TERMINAL_ID,
             "merchantTranId": merchant_transaction_id,
             "billNumber": bill_number,
-            "validatePayerAccFlag": "N",
-            "payerAccount": "",
-            "payerIFSC": "",
-            "refId": "",
-            "validityStartDateTime": validity_start.strftime("%d/%m/%Y %H:%M:%S"),
             "validityEndDateTime": validity_end.strftime("%d/%m/%Y %H:%M:%S"),
-            "update": "N",
         }
         envelope = self.crypto.encrypt_request(payload, request_id=request_id)
 
@@ -163,7 +156,6 @@ class ICICIUPIClient:
             "ref_id": ref_id,
             "amount": amount_text,
             "upi_uri": f"upi://pay?{query}",
-            "valid_from": validity_start.isoformat(),
             "expires_at": validity_end.isoformat(),
         }
 
